@@ -66,19 +66,38 @@ conn.close()
 """
 
 
-"""
 #past history 
+# csv
 # at first we need to pull as much as we can, set target a year back,will limit us at 50k
 #inital history 
+pair_trades_key_list = ['date_time_added_to_db', 'coin_name','globalTradeID','tradeID', 'date', 'type', 'rate', 'amount', 'total']
+pair_trades_key_list1 = ['globalTradeID','tradeID', 'date', 'type', 'rate', 'amount', 'total']
 # this unix time stamp is two years back
-start_date = '1436559326'
+start_date =  '1484174782'
+start_date1 = '1410158341'
 # use this site to get most recent one  https://www.epochconverter.com/
-end_date = 
-for coin in coin_list:
-	command_trade_history = command_trade_history = command_list[2] + coin\
- + '&start=' + start_date + '&end=' + end_date
-	return_history_response = requests.get('https://poloniex.com/public?command=' + command_trade_history)
-	return_history_data = return_history_response.json()
+end_date = '1499813092'
+coin_list_test = ['BTC_ETH', 'BTC_NXT']
+# this is writing to csv but csv file contains too much data too open
+# check code at bottom for structure, this is a dict in an array
+# lots if iterating to do
+"""
+with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_data.csv', 'w') as f:
+	writer = csv.writer(f)
+	for coin in coin_list_test:
+		# command term
+		command_trade_history = command_trade_history = command_list[2] + coin\
+	 + '&start=' + start_date + '&end=' + end_date
+		# request using above command term
+		return_history_response = requests.get('https://poloniex.com/public?command=' + command_trade_history)
+		# dictionary return of coin pair put in 
+		return_history_data = return_history_response.json()
+		pair_dict = return_history_data
+		#pair_dict2 = {'date_time_added_to_db':date_unix, 'coin_name':coin}
+		#pair_dict.update(pair_dict2)
+		print(coin, pair_dict)
+		writer.writerow(pair_dict)
+		time.sleep(2)
 	# append return_history_data
 # then we need to store to database
 # this returns a dict with the below keys
@@ -90,3 +109,94 @@ for coin in coin_list:
 # then we need this ti run a on some time interval changing the unix date
 # start and stop and appending to database
 """
+"""
+# sql for par trade history 
+location_base = '/home/mike/Documents/coding_all/machine_learn/machine_predict/'
+conn=sqlite3.connect(location_base+'pair_trade_history_db')
+cur = conn.cursor()
+cur.execute('''CREATE TABLE pair_trade_history_db
+				(date_time_added_to_db, coin_name, globalTradeID,
+				tradeID, date, type, rate, amount, total)''')
+
+for coin in coin_list_test:
+		# command term
+		command_trade_history = command_trade_history = command_list[2] + coin\
+	 + '&start=' + start_date + '&end=' + end_date
+		# request using above command term
+		return_history_response = requests.get('https://poloniex.com/public?command=' + command_trade_history)
+		# dictionary return of coin pair put in 
+		return_history_data = return_history_response.json()
+		pair_dict = return_history_data
+		pair_dict2 = {'date_time_added_to_db':date_unix, 'coin_name':coin}
+		pair_dict.update(pair_dict2)
+		cur.execute('INSERT INTO pair_trade_history_db VALUES (?,?,?,?,?,?,?,?,?)', [pair_dict['date_time_added_to_db'], pair_dict['coin_name'], pair_dict['globalTradeID'], pair_dict['tradeID'], pair_dict['date'], pair_dict['type'], pair_dict['rate'], pair_dict['amount'], pair_dict['total']])
+		conn.commit()
+
+conn.close()
+"""
+"""
+start_date2 = '1484174782'
+for coin in coin_list_test:	
+	print(coin)
+	# command term
+	command_trade_history = command_trade_history = command_list[2] + coin\
+	 + '&start=' + start_date2 + '&end=' + end_date
+	#print(command_trade_history)
+	#print(start_date)
+	#print(end_date)
+	#print(type(start_date))
+	#print(type(end_date))
+	print('https://poloniex.com/public?command=' + command_trade_history)
+	# request using above command term
+	return_history_response = requests.get('https://poloniex.com/public?command=' + command_trade_history)
+	# dictionary return of coin pair put in 
+	return_history_data = return_history_response.json()
+	print(return_history_data)
+"""
+
+"""
+test = 'https://poloniex.com/public?command=returnTradeHistory&currencyPair=BTC_ETH&start=1484174782&end=1410158341'
+request = requests.get(test)
+data = request.json()
+print(data)
+"""
+"""
+with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_data.csv', 'w') as f:
+	writer = csv.DictWriter(f, pair_trades_key_list1)
+	writer.writeheader()
+	for coin in coin_list_test:
+		# command term
+		command_trade_history = command_trade_history = command_list[2] + coin\
+	 + '&start=' + start_date + '&end=' + end_date
+		# request using above command term
+		return_history_response = requests.get('https://poloniex.com/public?command=' + command_trade_history)
+		# dictionary return of coin pair put in 
+		return_history_data = return_history_response.json()
+		pair_dict = return_history_data
+		#pair_dict2 = {'date_time_added_to_db':date_unix, 'coin_name':coin}
+		#pair_dict.update(pair_dict2)
+		writer.writerow(pair_dict)
+		time.sleep(2)
+"""
+
+for coin in coin_list_test:
+	# command term
+	command_trade_history = command_trade_history = command_list[2] + coin\
+	 + '&start=' + start_date + '&end=' + end_date
+	# request using above command term
+	return_history_response = requests.get('https://poloniex.com/public?command=' + command_trade_history)
+	# dictionary return of coin pair put in 
+	return_history_data = return_history_response.json()
+	pair_dict = return_history_data
+	#print(pair_dict[0]['globalTradeID'])
+	#for x in range(10):
+		#print(return_history_data[x])
+	# this is close to get indiv vars
+	# then write row for each in db
+	for x in range(2):
+		trade = pair_dict[0]
+		for key in pair_trades_key_list1:
+			print(pair_dict[x][key])
+			#key = pair_dict[0]['globalTradeID']
+			#print(trade, key)
+			#writer.writerow(pair_dict)
