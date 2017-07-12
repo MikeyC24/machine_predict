@@ -118,8 +118,9 @@ with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_
 # then we need this ti run a on some time interval changing the unix date
 # start and stop and appending to database
 """
-"""
+
 # sql for par trade history 
+# /home/mike/Documents/coding_all/machine_predict/pair_trade_history_db
 location_base = '/home/mike/Documents/coding_all/machine_predict/'
 conn=sqlite3.connect(location_base+'pair_trade_history_db')
 cur = conn.cursor()
@@ -138,6 +139,23 @@ for coin in coin_list_test:
 		pair_dict = return_history_data
 		for x in range(2):
 			trade = pair_dict[0]
+			var1 = date_unix 
+			var2 = coin
+			var3 = pair_dict[x]['globalTradeID']
+			var4 = pair_dict[x]['tradeID']
+			var5 = pair_dict[x]['date']
+			var6 = pair_dict[x]['type']
+			var7 = pair_dict[x]['rate']
+			var8 = pair_dict[x]['amount']
+			var9 = pair_dict[x]['total']
+			cur.execute("""INSERT INTO pair_trade_history_db VALUES (?,?,?,?,?,?,?,?,?)""", (var1,var2,var3,var4,var5,var6,var7,var8,var9))
+			conn.commit()
+
+
+
+# (date_time_added_to_db, coin_name, globalTradeID, tradeID, date, type, rate, amount, total)
+# date_unix, coin, pair_dict[x][globalTradeID], pair_dict[x][tradeID, pair_dict[x][date], pair_dict[x][type], pair_dict[x][rate], pair_dict[x][amount], pair_dict[x][total]
+"""
 			for key in pair_trades_key_list1:
 				#print(coin,x,key,pair_dict[x][key])
 				value = pair_dict[x][key]
@@ -151,9 +169,9 @@ for coin in coin_list_test:
 				#time.sleep(1)
 				cur.execute('INSERT INTO pair_trade_history_db VALUES (?,?,?,?,?,?,?,?)', ([pair_dict1['coin_name'], pair_dict1['globalTradeID'], pair_dict1['tradeID'], pair_dict1['date'], pair_dict1['type'], pair_dict1['rate'], pair_dict1['amount'], pair_dict1['total']]))
 				conn.commit()
-
-conn.close()
 """
+conn.close()
+
 # [pair_dict['date_time_added_to_db'], pair_dict['coin_name'], pair_dict['globalTradeID'], pair_dict['tradeID'], pair_dict['date'], pair_dict['type'], pair_dict['rate'], pair_dict['amount'], pair_dict['total']])
 """
 start_date2 = '1484174782'
@@ -199,7 +217,7 @@ with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_
 		writer.writerow(pair_dict)
 		time.sleep(2)
 """
-
+"""
 trade_dict = {}
 for coin in coin_list_test:
 	# command term
@@ -230,3 +248,4 @@ for coin in coin_list_test:
 			#key = pair_dict[0]['globalTradeID']
 			#print(trade, key)
 			#writer.writerow(pair_dict)
+"""
