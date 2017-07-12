@@ -83,7 +83,7 @@ coin_list_test = ['BTC_ETH', 'BTC_NXT']
 # lots if iterating to do
 """
 with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_data.csv', 'w') as f:
-	writer = csv.writer(f)
+	writer = csv.writer(f,pair_trades_key_list1)
 	for coin in coin_list_test:
 		# command term
 		command_trade_history = command_trade_history = command_list[2] + coin\
@@ -93,11 +93,20 @@ with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_
 		# dictionary return of coin pair put in 
 		return_history_data = return_history_response.json()
 		pair_dict = return_history_data
-		#pair_dict2 = {'date_time_added_to_db':date_unix, 'coin_name':coin}
-		#pair_dict.update(pair_dict2)
-		print(coin, pair_dict)
-		writer.writerow(pair_dict)
-		time.sleep(2)
+		for x in range(2):
+			trade = pair_dict[0]
+			for key in pair_trades_key_list1:
+				#print(coin,x,key,pair_dict[x][key])
+				value = pair_dict[x][key]
+				trade_dict = {key:value}
+				#trade_dict2 = {'coin_name':coin}
+				#trade_dict.update(trade_dict2)
+				#print(trade_dict)
+				#pair_dict2 = {'date_time_added_to_db':date_unix, 'coin_name':coin}
+				#pair_dict.update(pair_dict2)
+				#print(coin, pair_dict)
+				writer.writerow([key,value])
+				#time.sleep(1)
 	# append return_history_data
 # then we need to store to database
 # this returns a dict with the below keys
@@ -111,7 +120,7 @@ with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_
 """
 """
 # sql for par trade history 
-location_base = '/home/mike/Documents/coding_all/machine_learn/machine_predict/'
+location_base = '/home/mike/Documents/coding_all/machine_predict/'
 conn=sqlite3.connect(location_base+'pair_trade_history_db')
 cur = conn.cursor()
 cur.execute('''CREATE TABLE pair_trade_history_db
@@ -127,13 +136,25 @@ for coin in coin_list_test:
 		# dictionary return of coin pair put in 
 		return_history_data = return_history_response.json()
 		pair_dict = return_history_data
-		pair_dict2 = {'date_time_added_to_db':date_unix, 'coin_name':coin}
-		pair_dict.update(pair_dict2)
-		cur.execute('INSERT INTO pair_trade_history_db VALUES (?,?,?,?,?,?,?,?,?)', [pair_dict['date_time_added_to_db'], pair_dict['coin_name'], pair_dict['globalTradeID'], pair_dict['tradeID'], pair_dict['date'], pair_dict['type'], pair_dict['rate'], pair_dict['amount'], pair_dict['total']])
-		conn.commit()
+		for x in range(2):
+			trade = pair_dict[0]
+			for key in pair_trades_key_list1:
+				#print(coin,x,key,pair_dict[x][key])
+				value = pair_dict[x][key]
+				pair_dict1 = {key:value}
+				trade_dict2 = {'coin_name':coin}
+				pair_dict1.update(trade_dict2)
+				print(pair_dict1)
+				#pair_dict2 = {'date_time_added_to_db':date_unix, 'coin_name':coin}
+				#pair_dict.update(pair_dict2)
+				#print(coin, pair_dict)
+				#time.sleep(1)
+				cur.execute('INSERT INTO pair_trade_history_db VALUES (?,?,?,?,?,?,?,?)', ([pair_dict1['coin_name'], pair_dict1['globalTradeID'], pair_dict1['tradeID'], pair_dict1['date'], pair_dict1['type'], pair_dict1['rate'], pair_dict1['amount'], pair_dict1['total']]))
+				conn.commit()
 
 conn.close()
 """
+# [pair_dict['date_time_added_to_db'], pair_dict['coin_name'], pair_dict['globalTradeID'], pair_dict['tradeID'], pair_dict['date'], pair_dict['type'], pair_dict['rate'], pair_dict['amount'], pair_dict['total']])
 """
 start_date2 = '1484174782'
 for coin in coin_list_test:	
@@ -179,6 +200,7 @@ with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_
 		time.sleep(2)
 """
 
+trade_dict = {}
 for coin in coin_list_test:
 	# command term
 	command_trade_history = command_trade_history = command_list[2] + coin\
@@ -193,10 +215,18 @@ for coin in coin_list_test:
 		#print(return_history_data[x])
 	# this is close to get indiv vars
 	# then write row for each in db
+	#trade_dict2 = {'coin_name':coin}
+	print(type(pair_dict))
 	for x in range(2):
 		trade = pair_dict[0]
 		for key in pair_trades_key_list1:
-			print(pair_dict[x][key])
+			#print(coin,x,key,pair_dict[x][key])
+			value = pair_dict[x][key]
+			trade_dict = {key:value}
+			trade_dict2 = {'coin_name':coin}
+			trade_dict.update(trade_dict2)
+			print(trade_dict)
+
 			#key = pair_dict[0]['globalTradeID']
 			#print(trade, key)
 			#writer.writerow(pair_dict)
