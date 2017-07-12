@@ -101,25 +101,88 @@ class PolniexApiData:
 		conn=sqlite3.connect(location)
 		cur = conn.cursor()
 		cur.execute('''CREATE TABLE IF NOT EXISTS  %s
-						(date_time, coin_name,id, last,lowestAsk,
+						(human_date_time_utc, date_time, coin_name,id, last,lowestAsk,
 						highestBid,percentChange,baseVolume,
 						quoteVolume, isFrozen, high24hr, low24hr)'''% (table_name)) 
 
 		for x in range((len(self.coin_list)-1)):
 			coin = coin_list[x]
+			# info comes back as a dict
 			row_dict = ticker_response_data[coin]
-			row_dict_2 = {'date_time':self.date_unix_utc, 'coin_name':coin}
+			# second dict adding in some more vars
+			row_dict_2 = {'human_date_time_uct':self.date_utc, 'date_time':self.date_unix_utc, 'coin_name':coin}
+			#combining two dict
 			row_dict.update(row_dict_2)
-			insert = "INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?,?,?,?)".format(table_name)
-			data_values = [row_dict['date_time'], row_dict['coin_name'], row_dict['id'], row_dict['last'], row_dict['lowestAsk'], row_dict['highestBid'], row_dict['percentChange'], row_dict['baseVolume'], row_dict['quoteVolume'], row_dict['isFrozen'], row_dict['high24hr'], row_dict['low24hr']]
+			# adding to sql database
+			insert = "INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)".format(table_name)
+			data_values = [row_dict['human_date_time_uct'], row_dict['date_time'], row_dict['coin_name'], row_dict['id'], row_dict['last'], row_dict['lowestAsk'], row_dict['highestBid'], row_dict['percentChange'], row_dict['baseVolume'], row_dict['quoteVolume'], row_dict['isFrozen'], row_dict['high24hr'], row_dict['low24hr']]
 			cur.execute(insert, data_values)
 			#cur.execute('INSERT INTO return_ticker_data VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', [row_dict['date_time'], row_dict['coin_name'], row_dict['id'], row_dict['last'], row_dict['lowestAsk'], row_dict['highestBid'], row_dict['percentChange'], row_dict['baseVolume'], row_dict['quoteVolume'], row_dict['isFrozen'], row_dict['high24hr'], row_dict['low24hr']])
 			conn.commit()
 		conn.close()
+
+	def convert_trade_history_to_sql(self, coin_list_array, db_name, coin_name_end):
+		conn=sqlite3.connect(location_base+ db_name)
+		cur = conn.cursor()
+		for coin in coin_list_array:
+			table_name = coin+'_table_'+coin_name_end
+			print(table_name)
+			cur.execute('''CREATE TABLE IF NOT EXISTS 
+				%s 
+				(human_date_added, date_time_added_to_db, coin_name, globalTradeID,
+				tradeID, date, type, rate, amount, 
+				total)''' % (table_name)) 
+
+
+			# command term
+			command_trade_history = self.command_list[2] + coin\
+		 + '&start=' + self.start_date + '&end=' + self.end_date
+			# request using above command term
+			return_history_response = requests.get(self.opening_command + command_trade_history)
+			# dictionary return of coin pair put in 
+			return_history_data = return_history_response.json()
+			pair_dict = return_history_data
+			#print(coin)
+			time.sleep(1)
+			#for x in range(3):
+			for x in range(len(pair_dict)):
+				var0 = date_utc
+				var1 = date_unix_utc
+				var2 = coin
+				var3 = pair_dict[x]['globalTradeID']
+				var4 = pair_dict[x]['tradeID']
+				var5 = pair_dict[x]['date']
+				var6 = pair_dict[x]['type']
+				var7 = pair_dict[x]['rate']
+				var8 = pair_dict[x]['amount']
+				var9 = pair_dict[x]['total']
+				#cur.execute("""INSERT INTO %s VALUES (?,?,?,?,?,?,?,?,?)""", % table_name, (var1,var2,var3,var4,var5,var6,var7,var8,var9))
+				insert = "INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?,?)".format(table_name)
+				#print(insert)
+				data_values = (var0,var1,var2,var3,var4,var5,var6,var7,var8,var9)
+				#cur.execute("""INSERT INTO %s VALUES (?,?,?,?,?,?,?,?,?)""" % table_name (var1,var2,var3,var4,var5,var6,var7,var8,var9))
+				cur.execute(insert, data_values)
+				#sql
+				conn.commit()
+		conn.close()
+
+
+#data_class = PolniexApiData(start_date,end_date,location_base)
+#data_class.current_ticker_data_to_sql('new_class_test_db1', 'cool_table_name')
+def auto_pull_data_time_interval(time_interval, length):
+	pass
+	# https://stackoverflow.com/questions/15088037/python-script-to-do-something-at-the-same-time-every-day
+	# https://blogs.esri.com/esri/arcgis/2013/07/30/scheduling-a-scrip/
+	# https://automatetheboringstuff.com/chapter15/
+
+
+
 
 location_base = '/home/mike/Documents/coding_all/machine_predict/'
 start_date =  '1484174782'
 end_date = '1499813092'
 
 data_class = PolniexApiData(start_date,end_date,location_base)
-data_class.current_ticker_data_to_sql('new_class_test_db', 'cool_table_name')
+#data_class.current_ticker_data_to_sql('new_class_test_db1', 'cool_table_name')
+coin_list_test = ['BTC_LTC', 'BTC_ETH']
+#data_class.convert_trade_history_to_sql(coin_list_test, 'test_db', 'test_class')
