@@ -78,6 +78,7 @@ start_date1 = '1410158341'
 # use this site to get most recent one  https://www.epochconverter.com/
 end_date = '1499813092'
 coin_list_test = ['BTC_ETH', 'BTC_NXT']
+coin_list_add_one = ['USDT_DASH']
 # this is writing to csv but csv file contains too much data too open
 # check code at bottom for structure, this is a dict in an array
 # lots if iterating to do
@@ -118,15 +119,19 @@ with open('/home/mike/Documents/coding_all/machine_predict/pair_trading_history_
 # then we need this ti run a on some time interval changing the unix date
 # start and stop and appending to database
 """
-
+# this is working right now but since it will be toom much data 
+# need a way to create a table for each one
 # sql for par trade history 
+# add back in "" after uncommenting 
 # /home/mike/Documents/coding_all/machine_predict/pair_trade_history_db
+# /home/mike/Documents/coding_all/machine_predict/pair_trade_history_db_two_coin
+"""
 location_base = '/home/mike/Documents/coding_all/machine_predict/'
-conn=sqlite3.connect(location_base+'pair_trade_history_db')
+conn=sqlite3.connect(location_base+'pair_trade_history_db_test1')
 cur = conn.cursor()
-cur.execute('''CREATE TABLE pair_trade_history_db
-				(date_time_added_to_db, coin_name, globalTradeID,
-				tradeID, date, type, rate, amount, total)''')
+#cur.execute('''CREATE TABLE pair_trade_history_db_two_coin
+				#(date_time_added_to_db, coin_name, globalTradeID,
+				#tradeID, date, type, rate, amount, total)''')
 
 for coin in coin_list_test:
 		# command term
@@ -137,7 +142,8 @@ for coin in coin_list_test:
 		# dictionary return of coin pair put in 
 		return_history_data = return_history_response.json()
 		pair_dict = return_history_data
-		for x in range(2):
+		time.sleep(2)
+		for x in range(10):
 			trade = pair_dict[0]
 			var1 = date_unix 
 			var2 = coin
@@ -148,30 +154,13 @@ for coin in coin_list_test:
 			var7 = pair_dict[x]['rate']
 			var8 = pair_dict[x]['amount']
 			var9 = pair_dict[x]['total']
-			cur.execute("""INSERT INTO pair_trade_history_db VALUES (?,?,?,?,?,?,?,?,?)""", (var1,var2,var3,var4,var5,var6,var7,var8,var9))
+			cur.execute("INSERT INTO pair_trade_history_db VALUES (?,?,?,?,?,?,?,?,?)", (var1,var2,var3,var4,var5,var6,var7,var8,var9))
 			conn.commit()
 
 
 
-# (date_time_added_to_db, coin_name, globalTradeID, tradeID, date, type, rate, amount, total)
-# date_unix, coin, pair_dict[x][globalTradeID], pair_dict[x][tradeID, pair_dict[x][date], pair_dict[x][type], pair_dict[x][rate], pair_dict[x][amount], pair_dict[x][total]
-"""
-			for key in pair_trades_key_list1:
-				#print(coin,x,key,pair_dict[x][key])
-				value = pair_dict[x][key]
-				pair_dict1 = {key:value}
-				trade_dict2 = {'coin_name':coin}
-				pair_dict1.update(trade_dict2)
-				print(pair_dict1)
-				#pair_dict2 = {'date_time_added_to_db':date_unix, 'coin_name':coin}
-				#pair_dict.update(pair_dict2)
-				#print(coin, pair_dict)
-				#time.sleep(1)
-				cur.execute('INSERT INTO pair_trade_history_db VALUES (?,?,?,?,?,?,?,?)', ([pair_dict1['coin_name'], pair_dict1['globalTradeID'], pair_dict1['tradeID'], pair_dict1['date'], pair_dict1['type'], pair_dict1['rate'], pair_dict1['amount'], pair_dict1['total']]))
-				conn.commit()
-"""
 conn.close()
-
+"""
 # [pair_dict['date_time_added_to_db'], pair_dict['coin_name'], pair_dict['globalTradeID'], pair_dict['tradeID'], pair_dict['date'], pair_dict['type'], pair_dict['rate'], pair_dict['amount'], pair_dict['total']])
 """
 start_date2 = '1484174782'
@@ -249,3 +238,65 @@ for coin in coin_list_test:
 			#print(trade, key)
 			#writer.writerow(pair_dict)
 """
+
+
+
+
+pair_trades_key_list = ['date_time_added_to_db', 'coin_name','globalTradeID','tradeID', 'date', 'type', 'rate', 'amount', 'total']
+pair_trades_key_list1 = ['globalTradeID','tradeID', 'date', 'type', 'rate', 'amount', 'total']
+# this unix time stamp is two years back
+start_date =  '1484174782'
+start_date1 = '1410158341'
+# use this site to get most recent one  https://www.epochconverter.com/
+end_date = '1499813092'
+coin_list_test = ['BTC_ETH', 'BTC_NXT']
+coin_list_add_one = ['USDT_DASH']
+
+
+location_base = '/home/mike/Documents/coding_all/machine_predict/'
+conn=sqlite3.connect(location_base+'all_coin_history_db')
+cur = conn.cursor()
+
+for coin in coin_list:
+		table_name = coin+'_table'
+		print(table_name)
+		cur.execute('''CREATE TABLE IF NOT EXISTS 
+			%s 
+			(date_time_added_to_db, coin_name, globalTradeID,
+			tradeID, date, type, rate, amount, 
+			total)''' % (table_name)) 
+
+
+		# command term
+		command_trade_history = command_trade_history = command_list[2] + coin\
+	 + '&start=' + start_date + '&end=' + end_date
+		# request using above command term
+		return_history_response = requests.get('https://poloniex.com/public?command=' + command_trade_history)
+		# dictionary return of coin pair put in 
+		return_history_data = return_history_response.json()
+		pair_dict = return_history_data
+		#print(coin)
+		time.sleep(2)
+		for x in range(len(pair_dict)):
+			trade = pair_dict[0]
+			var1 = date_unix 
+			var2 = coin
+			var3 = pair_dict[x]['globalTradeID']
+			var4 = pair_dict[x]['tradeID']
+			var5 = pair_dict[x]['date']
+			var6 = pair_dict[x]['type']
+			var7 = pair_dict[x]['rate']
+			var8 = pair_dict[x]['amount']
+			var9 = pair_dict[x]['total']
+			#cur.execute("""INSERT INTO %s VALUES (?,?,?,?,?,?,?,?,?)""", % table_name, (var1,var2,var3,var4,var5,var6,var7,var8,var9))
+			insert = "INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?)".format(table_name)
+			#print(insert)
+			data_values = (var1,var2,var3,var4,var5,var6,var7,var8,var9)
+			#cur.execute("""INSERT INTO %s VALUES (?,?,?,?,?,?,?,?,?)""" % table_name (var1,var2,var3,var4,var5,var6,var7,var8,var9))
+			cur.execute(insert, data_values)
+			#sql
+			conn.commit()
+
+
+
+conn.close()
