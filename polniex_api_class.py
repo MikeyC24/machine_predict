@@ -1,0 +1,125 @@
+import urllib
+import requests
+import json
+import time
+import csv
+import sqlite3
+import time
+import datetime
+#from datetime import datetime
+import calendar
+
+command_list = ['returnTicker', 'return24hVolume', 'returnTradeHistory&currencyPair=']
+coin_list = ['BTC_BCN', 'BTC_BELA', 'BTC_BLK', 'BTC_BTCD', 'BTC_BTM', 'BTC_BTS', 'BTC_BURST', 'BTC_CLAM', 'BTC_DASH', 'BTC_DGB', 'BTC_DOGE', 'BTC_EMC2', 'BTC_FLDC', 'BTC_FLO', 'BTC_GAME', 'BTC_GRC', 'BTC_HUC', 'BTC_LTC', 'BTC_MAID', 'BTC_OMNI', 'BTC_NAUT', 'BTC_NAV', 'BTC_NEOS', 'BTC_NMC', 'BTC_NOTE', 'BTC_NXT', 'BTC_PINK', 'BTC_POT', 'BTC_PPC', 'BTC_RIC', 'BTC_SJCX', 'BTC_STR', 'BTC_SYS', 'BTC_VIA', 'BTC_XVC', 'BTC_VRC', 'BTC_VTC', 'BTC_XBC', 'BTC_XCP', 'BTC_XEM', 'BTC_XMR', 'BTC_XPM', 'BTC_XRP', 'USDT_BTC', 'USDT_DASH', 'USDT_LTC', 'USDT_NXT', 'USDT_STR', 'USDT_XMR', 'USDT_XRP', 'XMR_BCN', 'XMR_BLK', 'XMR_BTCD', 'XMR_DASH', 'XMR_LTC', 'XMR_MAID', 'XMR_NXT', 'BTC_ETH', 'USDT_ETH', 'BTC_SC', 'BTC_BCY', 'BTC_EXP', 'BTC_FCT', 'BTC_RADS', 'BTC_AMP', 'BTC_DCR', 'BTC_LSK', 'ETH_LSK', 'BTC_LBC', 'BTC_STEEM', 'ETH_STEEM', 'BTC_SBD', 'BTC_ETC', 'ETH_ETC', 'USDT_ETC', 'BTC_REP', 'USDT_REP', 'ETH_REP', 'BTC_ARDR', 'BTC_ZEC', 'ETH_ZEC', 'USDT_ZEC', 'XMR_ZEC', 'BTC_STRAT', 'BTC_NXC', 'BTC_PASC', 'BTC_GNT', 'ETH_GNT', 'BTC_GNO', 'ETH_GNO']
+key_values_return_ticker = ['date_time', 'coin_name','id', 'last','lowestAsk','highestBid','percentChange','baseVolume','quoteVolume', 'isFrozen', 'high24hr', 'low24hr']
+pair_trades_key_list1 = ['globalTradeID','tradeID', 'date', 'type', 'rate', 'amount', 'total']
+command_ticker_now = command_list[0]
+date_utc = datetime.datetime.utcnow()
+date_now = datetime.datetime.now()
+date_unix_utc = calendar.timegm(date_utc.utctimetuple())
+date_unix_now = calendar.timegm(date_now.utctimetuple())
+#print(date_unix_utc)
+#print(date_unix_now)
+#print(date_now)
+
+# enter date and time here to get its unix, needed to send to api
+# answer will be in UTC zone
+# enter each var indivdually
+def unix_converter2(y, mo, d, h, mi, s):
+	full_date = datetime.datetime(y,mo,d,h,mi,s)
+	unix = calendar.timegm(full_date.utctimetuple())
+	return unix
+
+# delta measure options are seconds, minutes, hours, days
+def time_delta(y, mo, d, h, mi, s,delta_measure, delta_amount):
+	full_date = datetime.datetime(y,mo,d,h,mi,s)
+	if delta_measure == 'days':
+		delta = datetime.timedelta(days = delta_amount)
+	elif delta_measure == 'hours':
+		delta = datetime.timedelta(hours = delta_amount)
+	elif delta_measure == 'minutes':
+		delta = datetime.timedelta(minutes = delta_amount)
+	elif delta_measure == 'seconds':
+		delta = datetime.timedelta(seconds= delta_amount)
+	else:
+		return 'not an option for delta measure'
+	new_date = full_date - delta
+	unix_new_date = calendar.timegm(new_date.utctimetuple())
+	return unix_new_date
+
+# convert unix to human readable date
+def convert_unix_to_date(unix):
+	date_read = datetime.datetime.fromtimestamp(int(unix)).strftime('%Y-%m-%d %H:%M:%S')
+	return(date_read)
+
+class PolniexApiData:
+	# class variables
+	# opening command sequence for api call
+	# this needs to go before every specific command
+	opening_command = 'https://poloniex.com/public?command='
+	# commands to call to api 
+	command_list = ['returnTicker', 'return24hVolume', 'returnTradeHistory&currencyPair=']
+	# all possible coins to pull info on
+	coin_list = ['BTC_BCN', 'BTC_BELA', 'BTC_BLK', 'BTC_BTCD', 'BTC_BTM', 'BTC_BTS', 'BTC_BURST', 'BTC_CLAM', 'BTC_DASH', 'BTC_DGB', 'BTC_DOGE', 'BTC_EMC2', 'BTC_FLDC', 'BTC_FLO', 'BTC_GAME', 'BTC_GRC', 'BTC_HUC', 'BTC_LTC', 'BTC_MAID', 'BTC_OMNI', 'BTC_NAUT', 'BTC_NAV', 'BTC_NEOS', 'BTC_NMC', 'BTC_NOTE', 'BTC_NXT', 'BTC_PINK', 'BTC_POT', 'BTC_PPC', 'BTC_RIC', 'BTC_SJCX', 'BTC_STR', 'BTC_SYS', 'BTC_VIA', 'BTC_XVC', 'BTC_VRC', 'BTC_VTC', 'BTC_XBC', 'BTC_XCP', 'BTC_XEM', 'BTC_XMR', 'BTC_XPM', 'BTC_XRP', 'USDT_BTC', 'USDT_DASH', 'USDT_LTC', 'USDT_NXT', 'USDT_STR', 'USDT_XMR', 'USDT_XRP', 'XMR_BCN', 'XMR_BLK', 'XMR_BTCD', 'XMR_DASH', 'XMR_LTC', 'XMR_MAID', 'XMR_NXT', 'BTC_ETH', 'USDT_ETH', 'BTC_SC', 'BTC_BCY', 'BTC_EXP', 'BTC_FCT', 'BTC_RADS', 'BTC_AMP', 'BTC_DCR', 'BTC_LSK', 'ETH_LSK', 'BTC_LBC', 'BTC_STEEM', 'ETH_STEEM', 'BTC_SBD', 'BTC_ETC', 'ETH_ETC', 'USDT_ETC', 'BTC_REP', 'USDT_REP', 'ETH_REP', 'BTC_ARDR', 'BTC_ZEC', 'ETH_ZEC', 'USDT_ZEC', 'XMR_ZEC', 'BTC_STRAT', 'BTC_NXC', 'BTC_PASC', 'BTC_GNT', 'ETH_GNT', 'BTC_GNO', 'ETH_GNO']
+	# return ticker data provides coins and there data at that moment
+	# it returns a dict, below are the keys
+	key_values_return_ticker = ['date_time', 'coin_name','id', 'last','lowestAsk','highestBid','percentChange','baseVolume','quoteVolume', 'isFrozen', 'high24hr', 'low24hr']
+	# below are the variables return for pair trade history
+	# returned is a giant list
+	pair_trades_variables = ['globalTradeID','tradeID', 'date', 'type', 'rate', 'amount', 'total']
+	date_utc = datetime.datetime.utcnow()
+	date_now = datetime.datetime.now()
+	# current time right now in unix at UTC
+	date_unix_utc = calendar.timegm(date_utc.utctimetuple())
+	# current time right now in unix at local time
+	date_unix_now = calendar.timegm(date_now.utctimetuple())
+
+	def __init__(self, start_date, end_date, location_base):
+		self.start_date = start_date
+		self.end_date = end_date
+		self.location_base = location_base
+
+	# ticker data to csv
+	def current_ticker_to_csv(self, csv_file_name,a_or_w):
+		with open(self.base_location+csv_file_name, a_or_w) as f:
+			writer = csv.DictWriter(f, self.key_values_return_ticker)
+			writer.writeheader()
+			for coin_number in range((len(coin_list)-1)):
+				coin = coin_list[coin_number]
+				row_dict = ticker_response_data[coin]
+				row_dict_2 = {'date_time':date_unix, 'coin_name':coin}
+				row_dict.update(row_dict_2)
+				row_dict_all = row_dict
+				print(coin)	
+				writer.writerow(row_dict)
+
+	def current_ticker_data_to_sql(self, db_name, table_name):
+		ticker_response = requests.get(self.opening_command + self.command_list[0])
+		ticker_response_data = ticker_response.json()
+		location = self.location_base+db_name
+
+		conn=sqlite3.connect(location)
+		cur = conn.cursor()
+		cur.execute('''CREATE TABLE IF NOT EXISTS  %s
+						(date_time, coin_name,id, last,lowestAsk,
+						highestBid,percentChange,baseVolume,
+						quoteVolume, isFrozen, high24hr, low24hr)'''% (table_name)) 
+
+		for x in range((len(self.coin_list)-1)):
+			coin = coin_list[x]
+			row_dict = ticker_response_data[coin]
+			row_dict_2 = {'date_time':self.date_unix_utc, 'coin_name':coin}
+			row_dict.update(row_dict_2)
+			insert = "INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?,?,?,?)".format(table_name)
+			data_values = [row_dict['date_time'], row_dict['coin_name'], row_dict['id'], row_dict['last'], row_dict['lowestAsk'], row_dict['highestBid'], row_dict['percentChange'], row_dict['baseVolume'], row_dict['quoteVolume'], row_dict['isFrozen'], row_dict['high24hr'], row_dict['low24hr']]
+			cur.execute(insert, data_values)
+			#cur.execute('INSERT INTO return_ticker_data VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', [row_dict['date_time'], row_dict['coin_name'], row_dict['id'], row_dict['last'], row_dict['lowestAsk'], row_dict['highestBid'], row_dict['percentChange'], row_dict['baseVolume'], row_dict['quoteVolume'], row_dict['isFrozen'], row_dict['high24hr'], row_dict['low24hr']])
+			conn.commit()
+		conn.close()
+
+location_base = '/home/mike/Documents/coding_all/machine_predict/'
+start_date =  '1484174782'
+end_date = '1499813092'
+
+data_class = PolniexApiData(start_date,end_date,location_base)
+data_class.current_ticker_data_to_sql('new_class_test_db', 'cool_table_name')
