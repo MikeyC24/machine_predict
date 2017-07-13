@@ -1,15 +1,32 @@
-"""
-break down of this class
-this class will call on all the others to.....
-1. clean data for use, 2. create and build new coulms, dfs, etc 
-3. the data will be fed to each model, each model will cycle thru data/vars
-until it returns a binary yes or no prediction based on optmized/acceptable
-error scores 4. all these scores (and error metrics) are then fed to predictmodel
-where a majority voting vote on them leading to a final yes or no
-INPUTs for this class 1. variable to predict, models to use and their allowed scores
+import pandas as pd
+import numpy as np
+import datetime
+import time
+from itertools import cycle
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.metrics import r2_score, accuracy_score, roc_auc_score
+from sklearn.metrics import roc_curve, auc,log_loss, precision_score
+from sklearn.cross_validation import KFold
+import matplotlib.pyplot as plt
+import operator
+from sklearn import preprocessing
+# read this of above http://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range
+from sklearn import svm, datasets
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import label_binarize
+from sklearn.multiclass import OneVsRestClassifier
+from scipy import interp
+import math
+from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from Regression import *
+from ArrangeData import *
+from DecisionTrees import *
 
+lend_tree_loan_data = '/home/mike/Documents/coding_all/data_sets_machine_predict/cleaned_loans_2007.csv'
+df_loans = pd.read_csv(lend_tree_loan_data)
 
-first 3 models
-1. decision tree
-2. bayes
-3 ? 
+loans_data = ArrangeData(df_loans)
+loans_data.overall_data_display(1)

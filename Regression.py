@@ -24,7 +24,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 # perform regressions in this class
 # much work to be done in this class
-class Regressions
+class Regression:
 
 	def __init__(self, dataframe):
 		self.dataframe = dataframe

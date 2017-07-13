@@ -22,8 +22,10 @@ from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-new_file_location_csv = '/home/mike/Documents/coding_all/cyber_cur/btc_play_data.csv'
-df = pd.read_csv(new_file_location_csv)
+#new_file_location_csv = '/home/mike/Documents/coding_all/cyper_cur/btc_play_data.csv'
+#new_file_location_csv1 = '/home/mike/Documents/coding_all/cyper_cur/btc_play_data.csv'
+#df = pd.read_csv(new_file_location_csv1)
+
 
 class ArrangeData:
 
@@ -243,6 +245,41 @@ class ArrangeData:
 		df[column_name_new] = prices.pct_change(freq)
 		return df
 
+	def drop_col_by_percent_info_has(self, percent):
+		df = self.dataframe
+		len_col = df.shape[0]
+		array_missing = []
+		for x in list(df):
+			missing_col_values = df[x].isnull().sum()
+			if missing_col_values > (len_col * percent):
+				array_missing.append(x)
+		df = df.drop(array_missing, axis = 1)
+		df = df.dropna()
+		return df
+
+	def drop_columns(self, column_array):
+		df = self.DataFrame
+		for x in df:
+			df = df.drop([x], axis = 1)
+		return df
+
+	def convert_to_num(self, columns):
+		pass
+		# get ride of all non num with regex .str.rstrip('%').
+		#convert to num astype('float')
+
+	# makes a new column with 1s when ma1 is higher than ma2
+	# also can be looked at when ma1 passes ma2 
+	#df[str(x)+'_normalized'] = df[x].apply(func, axis=1)
+	def make_rolling_avg_pass_point_binary(self, ma1, ma2):
+		df = self.dataframe
+		df[str(ma1) + 'passes' + str(ma2)] = np.where(df[ma1] > df[ma2], 1, 0)
+		#if df[ma1] > df[m2]:
+		#	df[str(ma1) + 'passes' + str(ma2)] = 1
+		#else:
+		#	df[str(ma1) + 'passes' + str(ma2)] = 0
+		#return df
+
 	# creates a train and test set from a given X and Y
 	# some thoughts on this
 	# 1. will prob end in testing class
@@ -261,7 +298,7 @@ class ArrangeData:
 
 
 
-
+"""
 columns = ['Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
 target = 'USD_BTC_EX_High'
 fold = 10
@@ -292,3 +329,4 @@ a.overall_data_display(20)
 
 X = a.dataframe[['ones', 'Transactions_Volume_normalized', 'Number_of_Transactions_normalized', 'LTC_BTC_EX_High_normalized', 'EUR_BTC_EX_High_normalized']].values
 y = a.dataframe.target_new.values
+"""

@@ -21,6 +21,8 @@ import math
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+#import '/home/mike/Documents/coding_all/machine_predict/ArrangeData.py'  
+
 
 class DecisionTree:
 
@@ -61,6 +63,17 @@ class DecisionTree:
 
 		return auc_error, mse_error
 
+"""
+new_file_location_csv1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/btc_play_data.csv'
+df = pd.read_csv(new_file_location_csv1)
+lend_tree_loan_data = '/home/mike/Documents/coding_all/data_sets_machine_predict/cleaned_laons_2007.csv'
+df_loans = pd.read_csv(lend_tree_loan_data)
+
+columns = ['Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
+target = 'USD_BTC_EX_High'
+fold = 10
+random_state = 3
+
 
 # start decision tree here
 # X normalized
@@ -84,3 +97,4 @@ print(random_forest)
 
 
 # end decision tree here 
+"""
