@@ -155,20 +155,20 @@ class ArrangeData:
 	# some thoughts on this....
 	# 1. can do this be dine for any number of classes?
 	# 2. have it output 1-5, strings or both
-	def set_mutli_class(self, column_use, value_low, value_low_mid, value_high_mid, value_high):
+	def set_mutli_class(self, column_use, value_low, value_low_mid, value_high_mid, value_high, column_name_new):
 		df = self.dataframe
 		x = column_use
-		df['target_5_class'] = 0
+		df[column_name_new] = 0
 		mask = df[x] < value_low
-		mask2 = (df[x] < value_low_mid) & (df[x] > value_low )
-		mask3 = (df[x] < value_high_mid) & (df[x] > value_low_mid)
-		mask4 = (df[x] > value_high_mid) & (df[x] < value_high)
+		mask2 = (df[x] < value_low_mid) & (df[x] >= value_low )
+		mask3 = (df[x] < value_high_mid) & (df[x] >= value_low_mid)
+		mask4 = (df[x] >= value_high_mid) & (df[x] < value_high)
 		mask5 = df[x] > value_high
-		df.loc[mask, 'target_5_class'] = 1
-		df.loc[mask2, 'target_5_class'] = 2
-		df.loc[mask3, 'target_5_class'] = 3
-		df.loc[mask4, 'target_5_class'] = 4
-		df.loc[mask5, 'target_5_class'] = 5
+		df.loc[mask, column_name_new] = 1
+		df.loc[mask2, column_name_new] = 2
+		df.loc[mask3, column_name_new] = 3
+		df.loc[mask4, column_name_new] = 4
+		df.loc[mask5, column_name_new] = 5
 		#df.loc[mask, 'target_5_class'] = 'less than '+ str(value_low)
 		#df.loc[mask2, 'target_5_class'] = 'between ' +str(value_low) + ' ' + str(value_low_mid)
 		#df.loc[mask3, 'target_5_class'] = 'between ' +str(value_low_mid) + ' ' + str(value_high_mid)
@@ -256,7 +256,7 @@ class ArrangeData:
 		return df
 
 	def drop_columns(self, column_array):
-		df = self.DataFrame
+		df = self.dataframe
 		for x in df:
 			df = df.drop([x], axis = 1)
 		return df
@@ -332,6 +332,7 @@ class ArrangeData:
 		features = df.drop(y_target, axis=1)
 		y_target = df[y_target]
 		return features, y_target
+
 
 
 

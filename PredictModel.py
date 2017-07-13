@@ -59,7 +59,7 @@ print(type(regres_instance.target))
 data = regres_instance.logistic_regres_with_kfold_cross_val()
 print(data)
 """
-
+"""
 file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/btc_play_data.csv'
 df = pd.read_csv(file_location)
 columns = ['EUR_BTC_EX_High', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
@@ -89,3 +89,35 @@ target = x_y_vars[1]
 regres_instance = Regression(features, target, random_state)
 data = regres_instance.logistic_regres_with_kfold_cross_val()
 print(data)
+
+"""
+random_state = 1
+file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
+df = pd.read_csv(file_location)
+bikes = ArrangeData(df)
+bikes.overall_data_display(1)
+columns_to_drop = ['casual', 'registered', 'dtedat']
+bikes.drop_columns(columns_to_drop)
+columns_all = ['instant', 'season', 'yr', 'mnth', 'hr_new', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'cnt_binary']
+bikes.set_binary('cnt', 'cnt_binary', 10)
+target = 'cnt_binary'
+bikes.set_mutli_class('hr', 6, 12, 18, 24 , 'hr_new')
+bikes.overall_data_display(35)
+x_y_vars = bikes.set_features_and_target1(columns_all, target)
+features = x_y_vars[0]
+target = x_y_vars[1]
+varsxy = bikes.create_train_and_test_data_x_y_mixer(.8,features,target)
+X_train = varsxy[0]
+y_train = varsxy[1]
+X_test = varsxy[2]
+y_test = varsxy[3]
+tree_instance = DecisionTree(random_state)
+basic_tree = tree_instance.basic_tree(X_train, y_train, X_test, y_test)
+tree2 = tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test, min_samples_split=5)
+tree3 = tree_instance.random_forest_with_vars(X_train, y_train, X_test, y_test,min_samples_leaf=3,n_estimators=100)
+print('_________________')
+print(basic_tree)
+print('_________________')
+print(tree2)
+print('_________________')
+print(tree3)
