@@ -232,8 +232,6 @@ class ArrangeData:
 		df[column_new] = df[column_old].resample(freq, how=method)
 		return df
 
-
-
 	# the number has looks a certain number of days back, need to group like above
 	# takes in a column and returns a new one of returns based on time period
 	# this may interplay with some of the later stuff in the above method
@@ -293,6 +291,68 @@ class ArrangeData:
 		X_test = X[highest_train_row:]
 		y_test = y[highest_train_row:]
 		return X_train, y_train, X_test, y_test
+
+	# y_target should be the series of the column, not just name
+	# 
+	def create_false_pos_and_false_neg(self,prediction_column, y_target, column_name_end):
+		df_filter = self.dataframe
+		tp_filter = (prediction_column == 1) & (y_target == 1)
+		tn_filter = (prediction_column == 0) & (y_target == 0)
+		fp_filter = (prediction_column == 1) & (y_target == 0)
+		fn_filter = (prediction_column == 0) & (y_target == 1)
+		tp = len(predictions[tp_filter])
+		tn = len(predictions[tn_filter])
+		fp = len(predictions[fp_filter])
+		fn = len(predictions[fn_filter])
+		true_positive_rate = tp / (tp+fn)
+		false_positive_rate = fp / (fp + tn)
+
+	# show different datatypes
+	def show_dtypes(self, type):
+		df = self.dataframe
+		object_columns = df.select_dtypes(include=[type])
+		print(object_columns.columns)
+		print(object_columns.head(5))
+
+	def change_dtypes(self, columns_to_change):
+		pass
+		# loans['int_rate'] = loans['int_rate'].str.rstrip('%').astype('float')
+
+	# return x y vars
+	def set_features_and_target(self, feature_col, y_target):
+		df = self.dataframe
+		features = df[feature_col]
+		y = df[y_target]
+		return features, y_target
+
+	# return x y vars, this is working for logistic regression
+	def set_features_and_target1(self,columns, y_target):
+		df = self.dataframe
+		df = df[columns]
+		features = df.drop(y_target, axis=1)
+		y_target = df[y_target]
+		return features, y_target
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

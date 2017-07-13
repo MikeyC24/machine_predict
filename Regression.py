@@ -3,31 +3,37 @@ import numpy as np
 import datetime
 import time
 from itertools import cycle
-from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.metrics import r2_score, accuracy_score, roc_auc_score
 from sklearn.metrics import roc_curve, auc,log_loss, precision_score
-from sklearn.cross_validation import KFold
 import matplotlib.pyplot as plt
 import operator
-from sklearn import preprocessing
 # read this of above http://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range
-from sklearn import svm, datasets
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import label_binarize
-from sklearn.multiclass import OneVsRestClassifier
 from scipy import interp
 import math
-from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.cross_validation import cross_val_predict, KFold
+"""
+notes
+1. lasso regression - https://www.analyticsvidhya.com/blog/2016/01/complete-tutorial-ridge-lasso-regression-python/
+2. logistic regression function with l1 penatly
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import load_iris
+X, y = load_iris(return_X_y=True)
+log = LogisticRegression(penalty='l1', solver='liblinear')
+log.fit(X, y)
+"""
 
 # perform regressions in this class
 # much work to be done in this class
 class Regression:
 
-	def __init__(self, dataframe):
-		self.dataframe = dataframe
+	def __init__(self, features, target, random_state):
+		self.features = features
+		self.target = target
+		self.random_state = random_state
 
 	# performs a simple linear regression 
 	# can take in multiple columns
@@ -108,3 +114,46 @@ class Regression:
 			x += 1
 			dict[str(cols)] = add
 		return dict
+
+
+	def _create_false_pos_and_false_neg(self, predictions, y_target):
+		#df_filter = self.dataframe
+		tp_filter = (predictions == 1) & (y_target == 1)
+		tn_filter = (predictions == 0) & (y_target == 0)
+		fp_filter = (predictions == 1) & (y_target == 0)
+		fn_filter = (predictions == 0) & (y_target == 1)
+		tp = len(predictions[tp_filter])
+		tn = len(predictions[tn_filter])
+		fp = len(predictions[fp_filter])
+		fn = len(predictions[fn_filter])
+		true_positive_rate = tp / (tp+fn)
+		false_positive_rate = fp / (fp + tn)
+		return true_positive_rate, false_positive_rate
+
+	# run a logistic regression with kfold cross val predict
+	# class_weight is how to weight the logisitc reg
+	def logistic_regres_with_kfold_cross_val(self):
+		#df = self.dataframe
+		#cols = columns
+		#features = df[cols]
+		#target_var = df[target]
+		print(type(self.features))
+		print(type(self.target))
+		reg = LogisticRegression(class_weight='balanced')
+		kf =KFold(self.features.shape[0], random_state=self.random_state)
+		reg.fit(self.features, self.target)
+		predictions = cross_val_predict(reg, self.features, self.target, cv=kf)
+		tpr_fpr_rates = self._create_false_pos_and_false_neg(predictions, self.target)
+		dict ={}
+		y = self.target
+		dict['mse'] = mean_squared_error(y, predictions)
+		dict['mae'] = mean_absolute_error(y, predictions)
+		dict['r2_score'] = r2_score(y, predictions)
+		dict['variance'] = np.var(predictions)
+		dict['tpr'] = tpr_fpr_rates[0]
+		dict['fpr'] = tpr_fpr_rates[1]
+		return(dict)
+
+	def test(self):
+		df = self.dataframe
+		print(type(df))

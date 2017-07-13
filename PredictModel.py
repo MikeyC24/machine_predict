@@ -25,8 +25,67 @@ from Regression import *
 from ArrangeData import *
 from DecisionTrees import *
 
+"""
 lend_tree_loan_data = '/home/mike/Documents/coding_all/data_sets_machine_predict/cleaned_loans_2007.csv'
 df_loans = pd.read_csv(lend_tree_loan_data)
-
+columns = ['loan_amnt', 'int_rate', 'installment', 'emp_length', 'annual_inc',
+        'dti', 'delinq_2yrs', 'inq_last_6mths', 'open_acc',
+       'pub_rec', 'revol_bal', 'revol_util', 'total_acc',
+       'home_ownership_MORTGAGE', 'home_ownership_NONE',
+       'home_ownership_OTHER', 'home_ownership_OWN', 'home_ownership_RENT',
+       'verification_status_Not Verified',
+       'verification_status_Source Verified', 'verification_status_Verified',
+       'purpose_car', 'purpose_credit_card', 'purpose_debt_consolidation',
+       'purpose_educational', 'purpose_home_improvement', 'purpose_house',
+       'purpose_major_purchase', 'purpose_medical', 'purpose_moving',
+       'purpose_other', 'purpose_renewable_energy', 'purpose_small_business',
+       'purpose_vacation', 'purpose_wedding', 'term_ 36 months',
+       'term_ 60 months', 'loan_status']
+target = 'loan_status'
 loans_data = ArrangeData(df_loans)
-loans_data.overall_data_display(1)
+#loans_data.overall_data_display(1)
+random_state = 1
+#print(type(df_loans))
+#loans_data.show_dtypes('object')
+#loans_data.show_dtypes('float')
+x_y_vars = loans_data.set_features_and_target1(columns, target)
+features = x_y_vars[0]
+target = x_y_vars[1]
+print(type(features))
+print(type(target))
+regres_instance = Regression(features, target, random_state)
+print(type(regres_instance.features))
+print(type(regres_instance.target))
+data = regres_instance.logistic_regres_with_kfold_cross_val()
+print(data)
+"""
+
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/btc_play_data.csv'
+df = pd.read_csv(file_location)
+columns = ['EUR_BTC_EX_High', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
+columns_all = ['target_new', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
+
+fold = 10
+random_state = 1
+btc_play_data = ArrangeData(df)
+btc_play_data.format_unix_date('date_unix')
+btc_play_data.normalize_new_column(columns)
+btc_play_data.resample_date('USD_BTC_EX_High', 'month_highs_avg', 'M', 'mean')
+btc_play_data.resample_date('USD_BTC_EX_High', 'week_highs_avg', 'W', 'mean')
+btc_play_data.resample_date('USD_BTC_EX_High', 'day_highs_avg', 'D', 'mean')
+btc_play_data.time_period_returns('week_highs_avg', 'week_highs_avg_change', freq=1)
+btc_play_data.time_period_returns('day_highs_avg', '3days_highs_avg_change', freq=3)
+btc_play_data.set_binary('week_highs_avg_change', 'target_new', '.05')
+btc_play_data.set_binary('3days_highs_avg_change', 'target_new', '.05')
+btc_play_data.set_mutli_class('3days_highs_avg_change', -.03, 0, .02, .04)
+columns_all = ['target_new', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
+target = 'target_new'
+btc_play_data.overall_data_display(10)
+
+
+x_y_vars = btc_play_data.set_features_and_target1(columns_all, target)
+features = x_y_vars[0]
+target = x_y_vars[1]
+regres_instance = Regression(features, target, random_state)
+data = regres_instance.logistic_regres_with_kfold_cross_val()
+print(data)
