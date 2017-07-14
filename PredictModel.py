@@ -183,7 +183,8 @@ roccurve = fpr, tpr, thresholds = roc_curve(y_test1, predictions1)
 print(auc1, log_loss_var1)
 """
 
-
+"""
+# this play uses btc_play data on all three models
 file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/btc_play_data.csv'
 df = pd.read_csv(file_location)
 columns = ['EUR_BTC_EX_High', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
@@ -274,3 +275,83 @@ log_loss_var1 = log_loss(y_test1, predictions1)
 #precision_score_var  = precision_score(y_test, predictions)
 roccurve = fpr, tpr, thresholds = roc_curve(y_test1, predictions1)
 print(auc1, log_loss_var1)
+"""
+
+# below the focus is to run the regression model with different combo
+# of variables and out their input as well as
+# different combos for the regression class
+# first on bike data and decision tree
+random_state = 1
+file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
+df = pd.read_csv(file_location)
+bikes = ArrangeData(df)
+bikes.overall_data_display(1)
+columns_to_drop = ['casual', 'registered', 'dtedat']
+bikes.drop_columns(columns_to_drop)
+columns_all = ['instant', 'season', 'yr', 'mnth', 'hr_new', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'cnt_binary']
+bikes.set_binary('cnt', 'cnt_binary', 15)
+target = 'cnt_binary'
+bikes.set_mutli_class('hr', 6, 12, 18, 24 , 'hr_new')
+bikes.set_ones()
+#bikes.overall_data_display(35)
+dataframe = bikes
+x_y_vars = bikes.set_features_and_target1(columns_all, target)
+features = x_y_vars[0]
+target = x_y_vars[1]
+varsxy = bikes.create_train_and_test_data_x_y_mixer(.8,features,target)
+X_train = varsxy[0]
+y_train = varsxy[1]
+X_test = varsxy[2]
+y_test = varsxy[3]
+tree_instance = DecisionTree(random_state)
+basic_tree = tree_instance.basic_tree(X_train, y_train, X_test, y_test)
+tree2 = tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test, min_samples_split=5)
+tree3 = tree_instance.random_forest_with_vars(X_train, y_train, X_test, y_test,min_samples_leaf=3,n_estimators=100)
+print('_________________')
+print(basic_tree)
+print('_________________')
+print(tree2)
+print('_________________')
+print(tree3)
+
+# load data
+file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
+df = pd.read_csv(file_location)
+# variables needed 
+random_state = 1
+train_percent = .08
+# set up Arrange data class
+bikes = ArrangeData(df)
+bikes.overall_data_display(1)
+all_columns = ['instant', 'season', 'yr', 'mnth', 'hr_new', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'cnt_binary', 'casual', 'registered', 'dtedat']
+columns_to_drop = ['casual', 'registered', 'dtedat']
+# need function to return an array of columns taking out thr dropped
+# columns from all
+columns_minus_dropped = ['instant', 'season', 'yr', 'mnth', 'hr_new', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'cnt_binary']
+target = 'cnt_binary'
+# drop columns not needed
+bikes.drop_columns(columns_to_drop)
+# set columns that need to be to classes
+# how can this be automated? gotta be a function where you can 
+# enter in number of classes wanted and any number of ranges
+bikes.set_mutli_class('hr', 6, 12, 18, 24 , 'hr_new')
+# set target column as binary
+bikes.set_binary('cnt', 'cnt_binary', 15)
+# set features and target
+x_y_vars = bikes.set_features_and_target1(columns_minus_dropped, target)
+features = x_y_vars[0]
+target = x_y_vars[1]
+# set train and test
+varsxy = bikes.create_train_and_test_data_x_y_mixer(.8,features,target)
+X_train = varsxy[0]
+y_train = varsxy[1]
+X_test = varsxy[2]
+y_test = varsxy[3]
+# will only focus on basic_tree_with_vars
+tree_vars = dict = {'min_samples_split':[3,50,100], 'max_depth':[2,10]}
+print(len(tree_vars))
+# iteration to get all needed variables from a dict for the class instances
+# now need to have it set up where it runs thru every combo possible
+for key,values in tree_vars.items():
+	for x in range(len(values)):
+		print(key,values[x])
