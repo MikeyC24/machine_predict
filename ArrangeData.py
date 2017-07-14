@@ -333,6 +333,15 @@ class ArrangeData:
 		y_target = df[y_target]
 		return features, y_target
 
+	# give x vars as array
+	def set_x_y_vars_from_df(self, x_vars, y_target):
+		df = self.dataframe
+		#df = df_instance
+		print(type(df))
+		X = df[x_vars].values
+		y = df[y_target].values
+		return X,y
+
 
 
 
