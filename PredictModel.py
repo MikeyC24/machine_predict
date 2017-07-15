@@ -21,6 +21,7 @@ import math
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import ParameterGrid, GridSearchCV
 from Regression import *
 from ArrangeData import *
 from DecisionTrees import *
@@ -337,21 +338,305 @@ bikes.drop_columns(columns_to_drop)
 bikes.set_mutli_class('hr', 6, 12, 18, 24 , 'hr_new')
 # set target column as binary
 bikes.set_binary('cnt', 'cnt_binary', 15)
+# df instance as var
+df_instance = bikes
 # set features and target
 x_y_vars = bikes.set_features_and_target1(columns_minus_dropped, target)
 features = x_y_vars[0]
 target = x_y_vars[1]
 # set train and test
-varsxy = bikes.create_train_and_test_data_x_y_mixer(.8,features,target)
+varsxy = bikes.create_train_and_test_data_x_y_mixer(train_percent,features,target)
 X_train = varsxy[0]
 y_train = varsxy[1]
 X_test = varsxy[2]
 y_test = varsxy[3]
 # will only focus on basic_tree_with_vars
-tree_vars = dict = {'min_samples_split':[3,50,100], 'max_depth':[2,10]}
-print(len(tree_vars))
+tree_vars = {'min_samples_split':[3,50,100], 'max_depth':[2,10]}
+tree_vars1 = dict = {'min_samples_split':[4,50,100]}
+#print(len(tree_vars1))
+# set up tree class
+tree_instance = DecisionTree(random_state)
 # iteration to get all needed variables from a dict for the class instances
 # now need to have it set up where it runs thru every combo possible
+
+
 for key,values in tree_vars.items():
 	for x in range(len(values)):
-		print(key,values[x])
+		var=values[x]
+		print(var)
+		#print(key +'='+ values[x])
+		#tree_results = tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test, min_samples_split=var, max_depth=5)
+		#print(tree_results)
+tree_vars_full = {'X_train':[X_train], 'y_train':[y_train], 'X_test':[X_test], 'y_test':[y_test],'min_samples_split':[3,50,100], 'max_depth':[2,10]}
+# this is no quite all the vars
+decision_tree_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced']}
+logistic_regression_vars = {'penalty':['l1','l2'], 'tol':[0.0001, .001, .01], 'C':[.02,1.0,2], 'fit_intercept':[True], 'intercept_scaling':[.1,1,2], 'class_weight':[None, 'balanced'], 'solver':['liblinear'], 'max_iter':[10,100,200], 'n_jobs':[1]}
+neural_net_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['relu', 'logistic', 'tanh', 'identity'], 'solver':['adam', 'lbfgs', 'sgd'], 'alpha':[0.0001], 'batch_size':['auto'], 'learning_rate':['constant', 'invscaling', 'adaptive'], 'learning_rate_init':[0.001], 'power_t':[0.5], 'max_iter':[50,200], 'shuffle':[True, False], 'tol':[0.0001], 'verbose':[False], 'warm_start':[False, True], 'momentum':[.1,0.9], 'nesterovs_momentum':[True], 'early_stopping':[False], 'validation_fraction':[0.1], 'beta_1':[0.9], 'beta_2':[0.999], 'epsilon':[1e-08]}
+iterate_params = list(ParameterGrid(decision_tree_vars))
+#print(iterate_params)
+print(len(iterate_params))
+for x in range(len(iterate_params)):
+	var = iterate_params[x]
+	#print(var)
+	#tree_results = tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test, var)
+	#print(tree_results)
+"""
+for key,values in tree_vars_full.items():
+	for x in range(len(values)):
+		var=values[x]
+		print(var)
+		#print(key +'='+ values[x])
+		#tree_results = tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test, min_samples_split=var, max_depth=5)
+		#print(tree_results)
+"""
+"""
+# GridSearchCV
+# working for all three, try on btc_data?
+dtree = DecisionTreeClassifier(random_state)
+reg = LogisticRegression(random_state)
+nnl = MLPClassifier(random_state)
+dtree_parameters = decision_tree_vars
+reg_parameters = logistic_regression_vars
+nnl_params = neural_net_vars
+#clf = GridSearchCV(dtree, dtree_parameters)
+clf = GridSearchCV(reg, reg_parameters)
+clf.fit(X_train, y_train)
+#get_params = clf.get_params
+#print(get_params)
+predictions = clf.predict(X_test)
+auc = roc_auc_score(y_test, predictions)
+print(auc)
+print('Best score: {0}'.format(clf.best_score_))  
+print(clf.best_params_) 
+
+print('_________________________')
+
+# , n_jobs=2, cv=5, verbose=2, pre_dispatch='2*n_jobs', refit=True)
+dtree = DecisionTreeClassifier()
+parameters = decision_tree_vars
+data_Set = df_instance
+clf1 = GridSearchCV(dtree, parameters,n_jobs=2, cv=5, pre_dispatch='2*n_jobs', refit=True)
+clf1.fit(X_train, y_train)
+#get_params = clf1.get_params
+#print(get_params)
+predictions = clf1.predict(X_test)
+auc1 = roc_auc_score(y_test, predictions)
+print(auc)
+print('Best score: {0}'.format(clf1.best_score_))  
+print(clf1.best_params_) 
+
+print('_________________________')
+
+clf2 = GridSearchCV(nnl, nnl_params)
+clf2.fit(X_train, y_train)
+#get_params = clf.get_params
+#print(get_params)
+predictions = clf2.predict(X_test)
+auc2 = roc_auc_score(y_test, predictions)
+print(auc)
+print('Best score: {0}'.format(clf2.best_score_))  
+print(clf2.best_params_) 
+"""
+
+"""
+# this play uses btc_play data on all three models
+# but for grid search
+file_location = '/home/mike/Documents/coding_all/machine_predict/btc_play_data.csv'
+df = pd.read_csv(file_location)
+columns = ['EUR_BTC_EX_High', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
+columns_all = ['target_new', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
+
+fold = 10
+random_state = 1
+btc_play_data = ArrangeData(df)
+btc_play_data.format_unix_date('date_unix')
+btc_play_data.normalize_new_column(columns)
+btc_play_data.resample_date('USD_BTC_EX_High', 'month_highs_avg', 'M', 'mean')
+btc_play_data.resample_date('USD_BTC_EX_High', 'week_highs_avg', 'W', 'mean')
+btc_play_data.resample_date('USD_BTC_EX_High', 'day_highs_avg', 'D', 'mean')
+btc_play_data.time_period_returns('week_highs_avg', 'week_highs_avg_change', freq=1)
+btc_play_data.time_period_returns('day_highs_avg', '3days_highs_avg_change', freq=3)
+btc_play_data.set_binary('week_highs_avg_change', 'target_new', '.05')
+btc_play_data.set_binary('3days_highs_avg_change', 'target_new', '.1')
+btc_play_data.set_mutli_class('3days_highs_avg_change', -.03, 0, .02, .04, 'class_form_3d_high_chage')
+btc_play_data.set_ones()
+columns_all = ['target_new', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
+target = 'target_new'
+btc_play_data.shuffle_rows()
+x_y_vars = btc_play_data.set_features_and_target1(columns_all, target)
+features = x_y_vars[0]
+target = x_y_vars[1]
+cols_norm = ['Transactions_Volume_normalized', 'Number_of_Transactions_normalized', 'LTC_BTC_EX_High_normalized', 'EUR_BTC_EX_High_normalized']
+cols =['EUR_BTC_EX_High', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
+btc_play_data.normalize_new_column(cols_norm)
+varsxy = btc_play_data.create_train_and_test_data_x_y_mixer(.8,features,target)
+X_train = varsxy[0]
+y_train = varsxy[1]
+X_test = varsxy[2]
+y_test = varsxy[3]
+print(btc_play_data.overall_data_display(5))
+
+# GridSearchCV
+# for btc_data
+decision_tree_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced']}
+logistic_regression_vars = {'penalty':['l1','l2'], 'tol':[0.0001, .001, .01], 'C':[.02,1.0,2], 'fit_intercept':[True], 'intercept_scaling':[.1,1,2], 'class_weight':[None, 'balanced'], 'solver':['liblinear'], 'max_iter':[10,100,200], 'n_jobs':[1]}
+neural_net_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['relu', 'logistic', 'tanh', 'identity'], 'solver':['adam', 'lbfgs', 'sgd'], 'alpha':[0.0001], 'batch_size':['auto'], 'learning_rate':['constant', 'invscaling', 'adaptive'], 'learning_rate_init':[0.001], 'power_t':[0.5], 'max_iter':[50,200], 'shuffle':[True, False], 'tol':[0.0001], 'verbose':[False], 'warm_start':[False, True], 'momentum':[.1,0.9], 'nesterovs_momentum':[True], 'early_stopping':[False], 'validation_fraction':[0.1], 'beta_1':[0.9], 'beta_2':[0.999], 'epsilon':[1e-08]}
+dtree = DecisionTreeClassifier(random_state)
+reg = LogisticRegression(random_state)
+nnl = MLPClassifier(random_state)
+dtree_parameters = decision_tree_vars
+reg_parameters = logistic_regression_vars
+nnl_params = neural_net_vars
+#clf = GridSearchCV(dtree, dtree_parameters)
+clf = GridSearchCV(reg, reg_parameters)
+clf.fit(X_train, y_train)
+#get_params = clf.get_params
+#print(get_params)
+predictions = clf.predict(X_test)
+auc = roc_auc_score(y_test, predictions)
+print(auc)
+print(clf.best_estimator_)
+#print(clf.cv_results_)
+reg_best_score = clf.best_score_
+reg_best_params = clf.best_params_
+print('Best score: {0}'.format(clf.best_score_))  
+print(clf.best_params_) 
+
+print('_________________________')
+
+parameters = decision_tree_vars
+data_Set = df_instance
+clf1 = GridSearchCV(dtree, parameters,n_jobs=2, cv=5, pre_dispatch='2*n_jobs', refit=True)
+clf1.fit(X_train, y_train)
+#get_params = clf1.get_params
+#print(get_params)
+predictions = clf1.predict(X_test)
+auc1 = roc_auc_score(y_test, predictions)
+print(auc)
+print(clf1.best_estimator_)
+#print(clf1.cv_results_)
+tree_best_score = clf1.best_score_
+tree_best_params = clf1.best_params_
+print('Best score: {0}'.format(clf1.best_score_))  
+print(clf1.best_params_) 
+
+print('_________________________')
+
+clf2 = GridSearchCV(nnl, nnl_params)
+clf2.fit(X_train, y_train)
+#get_params = clf.get_params
+#print(get_params)
+predictions = clf2.predict(X_test)
+auc2 = roc_auc_score(y_test, predictions)
+print(auc)
+print(clf2.best_estimator_)
+#print(clf2.cv_results_)
+nnl_best_score = clf2.best_score_
+nnl_best_params = clf2.best_params_
+print('Best score: {0}'.format(clf2.best_score_))  
+print(clf2.best_params_) 
+
+dict_btc_vars = {'reg_best_score':reg_best_score,
+'reg_best_params':reg_best_params,
+'tree_best_score':tree_best_score,
+'tree_best_params':tree_best_params,
+'nnl_best_score':nnl_best_score,
+'nnl_best_params':nnl_best_params }
+print(dict_btc_vars)
+"""
+
+lend_tree_loan_data = '/home/mike/Documents/coding_all/machine_predict/cleaned_loans_2007.csv'
+df_loans = pd.read_csv(lend_tree_loan_data)
+columns = ['loan_amnt', 'int_rate', 'installment', 'emp_length', 'annual_inc',
+        'dti', 'delinq_2yrs', 'inq_last_6mths', 'open_acc',
+       'pub_rec', 'revol_bal', 'revol_util', 'total_acc',
+       'home_ownership_MORTGAGE', 'home_ownership_NONE',
+       'home_ownership_OTHER', 'home_ownership_OWN', 'home_ownership_RENT',
+       'verification_status_Not Verified',
+       'verification_status_Source Verified', 'verification_status_Verified',
+       'purpose_car', 'purpose_credit_card', 'purpose_debt_consolidation',
+       'purpose_educational', 'purpose_home_improvement', 'purpose_house',
+       'purpose_major_purchase', 'purpose_medical', 'purpose_moving',
+       'purpose_other', 'purpose_renewable_energy', 'purpose_small_business',
+       'purpose_vacation', 'purpose_wedding', 'term_ 36 months',
+       'term_ 60 months', 'loan_status']
+target = 'loan_status'
+loans_data = ArrangeData(df_loans)
+#loans_data.overall_data_display(1)
+random_state = 1
+#print(type(df_loans))
+#loans_data.show_dtypes('object')
+#loans_data.show_dtypes('float')
+x_y_vars = loans_data.set_features_and_target1(columns, target)
+features = x_y_vars[0]
+target = x_y_vars[1]
+varsxy = loans_data.create_train_and_test_data_x_y_mixer(.8,features,target)
+X_train = varsxy[0]
+y_train = varsxy[1]
+X_test = varsxy[2]
+y_test = varsxy[3]
+decision_tree_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced']}
+logistic_regression_vars = {'penalty':['l1','l2'], 'tol':[0.0001, .001, .01], 'C':[.02,1.0,2], 'fit_intercept':[True], 'intercept_scaling':[.1,1,2], 'class_weight':[None, 'balanced'], 'solver':['liblinear'], 'max_iter':[10,100,200], 'n_jobs':[1]}
+neural_net_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['relu', 'logistic', 'tanh', 'identity'], 'solver':['adam', 'lbfgs', 'sgd'], 'alpha':[0.0001], 'batch_size':['auto'], 'learning_rate':['constant', 'invscaling', 'adaptive'], 'learning_rate_init':[0.001], 'power_t':[0.5], 'max_iter':[50,200], 'shuffle':[True, False], 'tol':[0.0001], 'verbose':[False], 'warm_start':[False, True], 'momentum':[.1,0.9], 'nesterovs_momentum':[True], 'early_stopping':[False], 'validation_fraction':[0.1], 'beta_1':[0.9], 'beta_2':[0.999], 'epsilon':[1e-08]}
+dtree = DecisionTreeClassifier(random_state)
+reg = LogisticRegression(random_state)
+nnl = MLPClassifier(random_state)
+dtree_parameters = decision_tree_vars
+reg_parameters = logistic_regression_vars
+nnl_params = neural_net_vars
+#clf = GridSearchCV(dtree, dtree_parameters)
+clf = GridSearchCV(reg, reg_parameters)
+clf.fit(X_train, y_train)
+#get_params = clf.get_params
+#print(get_params)
+predictions = clf.predict(X_test)
+auc = roc_auc_score(y_test, predictions)
+print(auc)
+print(clf.best_estimator_)
+#print(clf.cv_results_)
+reg_best_score = clf.best_score_
+reg_best_params = clf.best_params_
+print('Best score: {0}'.format(clf.best_score_))  
+print(clf.best_params_) 
+
+print('_________________________')
+
+parameters = decision_tree_vars
+data_Set = df_instance
+clf1 = GridSearchCV(dtree, parameters,n_jobs=2, cv=5, pre_dispatch='2*n_jobs', refit=True)
+clf1.fit(X_train, y_train)
+#get_params = clf1.get_params
+#print(get_params)
+predictions = clf1.predict(X_test)
+auc1 = roc_auc_score(y_test, predictions)
+print(auc)
+print(clf1.best_estimator_)
+#print(clf1.cv_results_)
+tree_best_score = clf1.best_score_
+tree_best_params = clf1.best_params_
+print('Best score: {0}'.format(clf1.best_score_))  
+print(clf1.best_params_) 
+
+print('_________________________')
+
+clf2 = GridSearchCV(nnl, nnl_params)
+clf2.fit(X_train, y_train)
+#get_params = clf.get_params
+#print(get_params)
+predictions = clf2.predict(X_test)
+auc2 = roc_auc_score(y_test, predictions)
+print(auc)
+print(clf2.best_estimator_)
+#print(clf2.cv_results_)
+nnl_best_score = clf2.best_score_
+nnl_best_params = clf2.best_params_
+print('Best score: {0}'.format(clf2.best_score_))  
+print(clf2.best_params_) 
+
+dict_loans_vars = {'reg_best_score':reg_best_score,
+'reg_best_params':reg_best_params,
+'tree_best_score':tree_best_score,
+'tree_best_params':tree_best_params,
+'nnl_best_score':nnl_best_score,
+'nnl_best_params':nnl_best_params }
+print(dict_btc_vars)
