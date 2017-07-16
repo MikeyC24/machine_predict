@@ -1,6 +1,5 @@
 require_relative './helper'
-require 'redd'
- 
+
 
  # log in details will have to come out of here if we plan on using non testing details as git hub is public  
 
@@ -28,6 +27,11 @@ session = Redd.it(
   password:   login[:reddit][:password]
 )
 
-session.subreddit('Bitcoin').search.comments(" ", {limit: 1})
 
-# im working from windows so naturally noting works... I will have to take another crack at this later 
+# session.subreddit('Bitcoin').search.comments(" ", {limit: 1})
+
+# tone_analyzer = ToneAnalyzer.new(CREDENTIALS[:login], CREDENTIALS[:password])
+
+# tone_overview = ToneOverview.new(TEST_RESULTS)
+
+# p tone_overview
