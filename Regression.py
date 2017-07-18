@@ -132,14 +132,28 @@ class Regression:
 
 	# run a logistic regression with kfold cross val predict
 	# class_weight is how to weight the logisitc reg
-	def logistic_regres_with_kfold_cross_val(self):
+	def logistic_regres_with_kfold_cross_val(self, **kwargs):
 		#df = self.dataframe
 		#cols = columns
 		#features = df[cols]
 		#target_var = df[target]
-		print(type(self.features))
-		print(type(self.target))
-		reg = LogisticRegression(class_weight='balanced')
+		#print(type(self.features))
+		#print(type(self.target))
+		param_dict = kwargs.get('param_dict_logistic', None)
+		#param_dict = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':None, 'random_state':None, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
+		print(param_dict)
+		if param_dict is None:
+			print('used default params for logistic regression')
+			param_dict = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':None, 'random_state':None, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
+		else:
+			print('used user params for logistic regression')
+			#param_dict= param_dict['param_dict_logistic']
+		#print(param_dict)
+		#print(len(param_dict))
+		#print(param_dict['penalty'])
+		#print(type(param_dict['penalty']))
+		reg = LogisticRegression(penalty=param_dict['penalty'], dual=param_dict['dual'], tol=param_dict['tol'], C=param_dict['C'], fit_intercept=param_dict['fit_intercept'], intercept_scaling=param_dict['intercept_scaling'], class_weight=param_dict['class_weight'], random_state=param_dict['random_state'], solver=param_dict['solver'], max_iter=param_dict['max_iter'], multi_class=param_dict['multi_class'], verbose=param_dict['verbose'], warm_start=param_dict['warm_start'], n_jobs=param_dict['n_jobs'])
+		#reg = LogisticRegression(random_state=self.random_state, class_weight='balanced')
 		kf =KFold(self.features.shape[0], random_state=self.random_state)
 		reg.fit(self.features, self.target)
 		predictions = cross_val_predict(reg, self.features, self.target, cv=kf)

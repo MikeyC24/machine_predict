@@ -149,6 +149,29 @@ class ArrangeData:
 		df[column_name_new] = np.where(df[column_name_old] >= y, 1, 0)
 		return df
 
+	# keys here are column_name_old, column_name_name, value
+	def set_binary_from_dict(self, dict_vars):
+		df = self.dataframe
+		#y = float(value)
+		#df[column_name_new] = np.where(df[column_name_old] >= y, 1, 0)
+		print(len(dict_vars))
+		print(len(dict_vars.values()))
+		print(len(dict_vars.keys()))
+		count1 = int(len(dict_vars.values()) / len(dict_vars.keys()))
+		print(count1)
+		count = sum(len(v) for v in dict_vars.values())
+		range_count = int(count / len(list(dict_vars.keys())))
+		print(count)
+		print(range_count)
+		for x in range(range_count):
+			print(x)
+			print(dict_vars['value'][x])
+			print(dict_vars['column_name_new'][x])
+			print(dict_vars['column_name_old'][x])
+			y = float(dict_vars['value'][x])
+			df[dict_vars['column_name_new'][x]] = np.where(df[dict_vars['column_name_old'][x]] >= y, 1, 0)
+		return df
+
 
 	# takes in a column name, 4 target values and returns a 5 class
 	# scale 1-5 
