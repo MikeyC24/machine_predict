@@ -227,10 +227,19 @@ class ArrangeData:
 	# old column is the sample you want to use
 	# new column is the new name, frew is one letter, m,d,w,
 	# how can be mean or sum or similar 
+	# this method groups the data points by the time interval 
+	# so W mean each number is grouped by week
 	def resample_date(self, column_old, column_new, freq, method):
 		df = self.dataframe
 		df[column_new] = df[column_old].resample(freq, how=method)
 		return df
+
+	#top method will be depreciated, this needs to be updated for .20 version
+	def resample_date_new_way(self, column_old, column_new, freq, method):
+		df = self.dataframe
+		df[column_new] = df[column_old].resample(freq, how=method)
+		return df
+
 
 	# the number has looks a certain number of days back, need to group like above
 	# takes in a column and returns a new one of returns based on time period
@@ -239,9 +248,24 @@ class ArrangeData:
 	def time_period_returns(self, column_name_old, column_name_new, freq=1):
 		df = self.dataframe
 		prices = df[column_name_old]
-		print(type(prices))
+		#print(type(prices))
 		df[column_name_new] = prices.pct_change(freq)
 		return df
+
+	# take in a dict of column_name_old, column_name_new, fred
+	# this should be editied to throw backan error if the number of vars
+	# is in the wrong ratio
+	# also keys need to have right name
+	def time_period_returns_dict(self, dict_vars):
+		df = self.dataframe
+		count = sum(len(v) for v in dict_vars.values())
+		range_count = int(count / len(list(dict_vars.keys())))
+		for x in range(range_count):
+			prices = df[dict_vars['column_name_old'][x]]
+			#print(type(prices))
+			df[dict_vars['column_name_new'][x]] = prices.pct_change(dict_vars['freq'][x])
+		return df
+
 
 	def drop_col_by_percent_info_has(self, percent):
 		df = self.dataframe
