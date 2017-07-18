@@ -31,12 +31,13 @@ from sklearn.neural_network import MLPClassifier
 # still working on way
 class NNet3:
 
-	def __init__(self, learning_rate=0.5, maxepochs=1e4, convergence_thres=1e-5, hidden_layer=4, random_state='none'):
+	def __init__(self, learning_rate=0.5, maxepochs=1e4, convergence_thres=1e-5, hidden_layer=4, **kwargs):
 		self.learning_rate = learning_rate
 		self.maxepochs = int(maxepochs)
 		self.convergence_thres = 1e-5
 		self.hidden_layer = int(hidden_layer)
-		self.random_state = random_state
+		#self.random_state = random_state
+		self.param_dict = kwargs.get('param_dict_neural_network', None)
 
 	def _sigmoid_activation(self, X, theta):
 		X = np.asarray(X)
@@ -110,14 +111,34 @@ class NNet3:
 		roccurve = fpr, tpr, thresholds = roc_curve(y_test, predictions)
 		print(auc, log_loss_var)
 
+	def _create_false_pos_and_false_neg(self, predictions, y_target):
+		#df_filter = self.dataframe
+		tp_filter = (predictions == 1) & (y_target == 1)
+		tn_filter = (predictions == 0) & (y_target == 0)
+		fp_filter = (predictions == 1) & (y_target == 0)
+		fn_filter = (predictions == 0) & (y_target == 1)
+		tp = len(predictions[tp_filter])
+		tn = len(predictions[tn_filter])
+		fp = len(predictions[fp_filter])
+		fn = len(predictions[fn_filter])
+		true_positive_rate = tp / (tp+fn)
+		false_positive_rate = fp / (fp + tn)
+		return true_positive_rate, false_positive_rate
+
 	# neural netowrk from sk learn ( not this has size limitations)
 	# lookinto using predict probs here 
 	#def neural_learn_sk(self, X_train, y_train, X_test, y_test, activation='logistic', hidden_layer_sizes=100, max_iter=200, alpha =.0001):
 		#nnl = MLPClassifier(self.learning_rate, self.random_state, activation=activation, hidden_layer_sizes=hidden_layer_sizes, max_iter=max_iter, alpha=alpha)
 	def neural_learn_sk(self, X_train, y_train, X_test, y_test):
-		nnl = MLPClassifier(hidden_layer_sizes=4, activation='logistic', solver='adam', alpha=1, batch_size='auto', learning_rate='constant', learning_rate_init=0.001, power_t=0.5, max_iter=2000, shuffle=True, random_state=self.random_state, tol=0.0001, verbose=False, warm_start=False, momentum=0.9, nesterovs_momentum=True, early_stopping=False, validation_fraction=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-08)		
+		if self.param_dict is None:
+			print('used default params for neural network')
+			self.param_dict = {'hidden_layer_sizes':(100, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':None}
+		else:
+			print('used user params for neural network')
+		nnl = MLPClassifier(hidden_layer_sizes=self.param_dict['hidden_layer_sizes'], activation=self.param_dict['activation'], solver=self.param_dict['solver'], alpha=self.param_dict['alpha'], batch_size=self.param_dict['batch_size'], learning_rate=self.param_dict['learning_rate'], learning_rate_init=self.param_dict['learning_rate_init'], power_t=self.param_dict['power_t'], max_iter=self.param_dict['max_iter'], shuffle=self.param_dict['shuffle'], random_state=self.param_dict['random_state'], tol=self.param_dict['tol'], verbose=self.param_dict['verbose'], warm_start=self.param_dict['warm_start'], momentum=self.param_dict['momentum'], nesterovs_momentum=self.param_dict['nesterovs_momentum'], early_stopping=self.param_dict['early_stopping'], validation_fraction=self.param_dict['validation_fraction'], beta_1=self.param_dict['beta_1'], beta_2=self.param_dict['beta_2'], epsilon=self.param_dict['epsilon'])		
 		nnl.fit(X_train, y_train)
 		predictions = nnl.predict(X_test)
+		tpr_fpr_rates = self._create_false_pos_and_false_neg(predictions, y_test)
 		dict ={}
 		dict['mse'] = mean_squared_error(y_test, predictions)
 		dict['mae'] = mean_absolute_error(y_test, predictions)
@@ -125,6 +146,8 @@ class NNet3:
 		dict['variance'] = np.var(predictions)
 		dict['auc'] = roc_auc_score(y_test, predictions)
 		dict['log_loss_var'] = log_loss(y_test, predictions)
+		dict['tpr'] = tpr_fpr_rates[0]
+		dict['fpr'] = tpr_fpr_rates[1]
 		return(dict)
 
 

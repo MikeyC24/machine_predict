@@ -160,6 +160,7 @@ class Regression:
 		tpr_fpr_rates = self._create_false_pos_and_false_neg(predictions, self.target)
 		dict ={}
 		y = self.target
+		dict['roc_auc_score'] = roc_auc_score(y, predictions)
 		dict['mse'] = mean_squared_error(y, predictions)
 		dict['mae'] = mean_absolute_error(y, predictions)
 		dict['r2_score'] = r2_score(y, predictions)

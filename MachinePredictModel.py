@@ -107,6 +107,7 @@ class MachinePredictModel:
 		df = self._set_up_data_for_prob_predict()
 		param_dict_logistic = kwargs.get('param_dict_logistic', None)
 		param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
+		param_dict_neural_network = kwargs.get('param_dict_neural_network', None)
 		# set up features and target
 		df.shuffle_rows()
 		x_y_vars = df.set_features_and_target1(self.columns_all, target_col_name)
@@ -128,12 +129,24 @@ class MachinePredictModel:
 			print('picked up params')
 			log_regress_data = regres_instance.logistic_regres_with_kfold_cross_val(param_dict_logistic=param_dict_logistic)
 		print(log_regress_data)
+
+		#2nd model test decision tree
+		decision_tree_instance = DecisionTree('place_holder')
 		if param_dict_decision_tree is None:
 			print('no vars picked up')
+			decision_tree_data = decision_tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test)
 		else:
-			print(param_dict_decision_tree)
-		# 2nd model test decision tree		
+			print('vars passed to decision tree class')
+			decision_tree_data = decision_tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test, param_dict_decision_tree=param_dict_decision_tree)
+		print(decision_tree_data)
 
+		# 3rd model nueral network
+		if param_dict_neural_network is None:
+			nnl_instance = NNet3(learning_rate=0.5, maxepochs=1e4, convergence_thres=1e-5, hidden_layer=4)
+		else:
+			nnl_instance = NNet3(learning_rate=0.5, maxepochs=1e4, convergence_thres=1e-5, hidden_layer=4, param_dict_neural_network=param_dict_neural_network)
+		nnl_data = nnl_instance.neural_learn_sk(X_train, y_train, X_test, y_test)
+		print(nnl_data)
 
 """
 # info for btc_data
@@ -174,7 +187,7 @@ predict.predict_prob_model(training_percent, kfold_number, target_col, param_dic
 
 
 #info for loans
-lend_tree_loan_data = '/home/mike/Documents/coding_all/data_sets_machine_predict/cleaned_loans_2007.csv'
+lend_tree_loan_data = '/home/mike/Documents/coding_all/machine_predict/cleaned_loans_2007.csv'
 df_loans = pd.read_csv(lend_tree_loan_data)
 columns_all_loans = ['loan_amnt', 'int_rate', 'installment', 'emp_length', 'annual_inc',
 		'dti', 'delinq_2yrs', 'inq_last_6mths', 'open_acc',
@@ -196,8 +209,11 @@ training_percent_loan = .08
 kfold_number_loan = 10 
 logistic_regression_params_loan = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':'balanced', 'random_state':random_state_loan, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
 # max depht and min samples leaf can clash 
-#decision_tree_params_loan = [criterion='gini', splitter='best', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None, random_state=None, max_leaf_nodes=None, min_impurity_split=1e-07, class_weight=None, presort=False]
-decision_tree_params_loan = ['test']
+decision_tree_params_loan = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':2, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':random_state_loan, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
+#decision_tree_params_loan = ['test']
+nnl_params_loan = {'hidden_layer_sizes':(100, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_loan}
+#param_dict_neural_network=nnl_params_loan
 loan_predict = MachinePredictModel(df_loans, columns_all_loans, random_state_loan)
 loan_predict._set_up_data_for_prob_predict()
-loan_predict.predict_prob_model(training_percent_loan, kfold_number_loan, target_loan, param_dict_logistic=logistic_regression_params_loan, param_dict_decision_tree=decision_tree_params_loan)
+loan_predict.predict_prob_model(training_percent_loan, kfold_number_loan, target_loan, param_dict_logistic=logistic_regression_params_loan, param_dict_decision_tree=decision_tree_params_loan,param_dict_neural_network=nnl_params_loan)
+#loan_predict.predict_prob_model(training_percent_loan, kfold_number_loan, target_loan, param_dict_logistic=logistic_regression_params_loan)

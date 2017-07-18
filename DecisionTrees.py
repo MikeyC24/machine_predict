@@ -35,9 +35,11 @@ class DecisionTree:
 	# case it did not seem to help
 	# try these methods on other data to find error
 
-	def __init__(self, random_state):
-		self.random_state = random_state
+	def __init__(self, holder_var):
+		self.holder_var = holder_var
+		#self.random_state = random_state
 
+	# this needs to be fixed as random state was taken out of calss var
 	def basic_tree(self, X_train, y_train, X_test, y_test):
 		clf = DecisionTreeClassifier(random_state=self.random_state)
 		clf.fit(X_train, y_train)
@@ -45,14 +47,45 @@ class DecisionTree:
 		error = roc_auc_score(y_test, predictions)
 		return error
 
-	def basic_tree_with_vars(self, X_train, y_train, X_test, y_test, \
-		min_samples_split, max_depth=10):
-		clf = DecisionTreeClassifier(random_state=self.random_state, min_samples_split=min_samples_split, max_depth=max_depth)
+	def _create_false_pos_and_false_neg(self, predictions, y_target):
+		#df_filter = self.dataframe
+		tp_filter = (predictions == 1) & (y_target == 1)
+		tn_filter = (predictions == 0) & (y_target == 0)
+		fp_filter = (predictions == 1) & (y_target == 0)
+		fn_filter = (predictions == 0) & (y_target == 1)
+		tp = len(predictions[tp_filter])
+		tn = len(predictions[tn_filter])
+		fp = len(predictions[fp_filter])
+		fn = len(predictions[fn_filter])
+		true_positive_rate = tp / (tp+fn)
+		false_positive_rate = fp / (fp + tn)
+		return true_positive_rate, false_positive_rate
+
+	def basic_tree_with_vars(self, X_train, y_train, X_test, y_test, **kwargs):
+		param_dict = kwargs.get('param_dict_decision_tree', None)
+		if param_dict is None:
+			print('used default params for decision tree')
+			param_dict = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':2, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':None, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':None, 'presort':False}
+		else:
+			print('used user params for decision tree')
+		print(param_dict)
+		clf = DecisionTreeClassifier(criterion=param_dict['criterion'], splitter=param_dict['splitter'], max_depth=param_dict['max_depth'], min_samples_split=param_dict['min_samples_split'], min_samples_leaf=param_dict['min_samples_leaf'], min_weight_fraction_leaf=param_dict['min_weight_fraction_leaf'], max_features=param_dict['max_features'], random_state=param_dict['random_state'], max_leaf_nodes=param_dict['max_leaf_nodes'], min_impurity_split=param_dict['min_impurity_split'], class_weight=param_dict['class_weight'], presort=param_dict['presort'])
+		#clf = DecisionTreeClassifier(criterion=param_dict['criterion'], splitter=param_dict['splitter'] )
 		clf.fit(X_train, y_train)
 		predictions = clf.predict(X_test)
-		error = roc_auc_score(y_test, predictions)
-		return error
+		y = y_test
+		tpr_fpr_rates = self._create_false_pos_and_false_neg(predictions, y)
+		dict = {}
+		dict['roc_auc_score'] = roc_auc_score(y, predictions)
+		dict['mse'] = mean_squared_error(y, predictions)
+		dict['mae'] = mean_absolute_error(y, predictions)
+		dict['r2_score'] = r2_score(y, predictions)
+		dict['variance'] = np.var(predictions)
+		dict['tpr'] = tpr_fpr_rates[0]
+		dict['fpr'] = tpr_fpr_rates[1]
+		return dict
 
+	# this needs to be fixed as random state was taken out of calss var
 	def random_forest_with_vars(self, X_train, y_train, X_test, y_test, \
 		min_samples_leaf, n_estimators):
 		clf = RandomForestClassifier(random_state=self.random_state, n_estimators=n_estimators, min_samples_leaf=min_samples_leaf)
@@ -60,7 +93,6 @@ class DecisionTree:
 		predictions = clf.predict(X_test)
 		auc_error = roc_auc_score(y_test, predictions)
 		mse_error = mean_squared_error(y_test, predictions)
-
 		return auc_error, mse_error
 
 """
