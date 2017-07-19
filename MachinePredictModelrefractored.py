@@ -223,49 +223,25 @@ class MachinePredictModel:
 		#return scores, scores1
 
 
-	def predict_prob_model_fit_parameters(self, training_percent, kfold_number, target_col_name, **kwargs):
+	def predict_prob_model_fit_parameters(self, **kwargs):
 		df = self._set_up_data_for_prob_predict()
 		param_dict_logistic_array = kwargs.get('param_dict_logistic_array', None)
 		param_dict_decision_tree_array = kwargs.get('param_dict_decision_tree_array', None)
 		param_dict_neural_network_array = kwargs.get('param_dict_neural_network_array', None)
 		# set up features and target
 		df.shuffle_rows()
-		x_y_vars = df.set_features_and_target1(self.columns_all, target_col_name)
+		x_y_vars = df.set_features_and_target1(self.columns_all, self.target_col_name)
 		features = x_y_vars[0]
 		target = x_y_vars[1]
 		# set up training and testing data
-		vars_for_train_test = df.create_train_and_test_data_x_y_mixer(training_percent, features,target)
+		vars_for_train_test = df.create_train_and_test_data_x_y_mixer(self.training_percent, features,target)
 		X_train = vars_for_train_test[0]
 		y_train = vars_for_train_test[1]
 		X_test = vars_for_train_test[2]
 		y_test = vars_for_train_test[3]
-		dtree = DecisionTreeClassifier()
-		reg = LogisticRegression()
-		nnl = MLPClassifier()
-		if param_dict_logistic_array is not None:
-			clf = GridSearchCV(reg, param_dict_logistic_array)
-			clf.fit(X_train, y_train)
-			predictions = clf.predict(X_test)
-			error_score = self._get_error_scores_with_tpr_fpr(y_test, predictions)
-			error_score['best_Score'] = clf.best_score_
-			error_score['best_params'] = clf.best_params_
-			print(error_score)
-		if param_dict_decision_tree_array is not None:
-			clf = GridSearchCV(dtree, param_dict_decision_tree_array)
-			clf.fit(X_train, y_train)
-			predictions = clf.predict(X_test)
-			error_score = self._get_error_scores_with_tpr_fpr(y_test, predictions)
-			error_score['best_Score'] = clf.best_score_
-			error_score['best_params'] = clf.best_params_
-			print(error_score)
-		if param_dict_neural_network_array is not None:
-			clf = GridSearchCV(nnl, param_dict_neural_network_array)
-			clf.fit(X_train, y_train)
-			predictions = clf.predict(X_test)
-			error_score = self._get_error_scores_with_tpr_fpr(y_test, predictions)
-			error_score['best_Score'] = clf.best_score_
-			error_score['best_params'] = clf.best_params_
-			print(error_score)
+		predictions_instance = predictions_instance = RegressionCombined(features, target, self.kfold_dict, X_train, X_test, y_train, y_test)
+		predictions_results = predictions_instance.regression_probs_model_paramter_fit(param_dict_logistic_array=param_dict_logistic_array, param_dict_decision_tree_array=param_dict_decision_tree_array )
+		return predictions_results
 
 	# columns all is an array 
 	def cycle_vars(self, columns_all, training_percent, kfold_number, target_col_name):
@@ -408,7 +384,7 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
 #results2 = bike_predict.predict_prob_model_full(param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike)
 #print(results2)
-results3 = bike_predict.regression_probs_model_paramter_fit(param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars)
+results3 = bike_predict.predict_prob_model_fit_parameters(param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars)
 print(results3)
 #columns_all_features_bike = 
 #results2 = bike_predict.cycle_vars(columns_all_features_bike, training_percent_bike, kfold_number_bike, target_bike)
