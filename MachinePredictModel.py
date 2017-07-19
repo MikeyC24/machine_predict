@@ -26,6 +26,7 @@ from Regression import *
 from ArrangeData import *
 from DecisionTrees import *
 from NeuralNetwork import *
+from RegressionCombined import *
 
 """
 steps
@@ -42,14 +43,14 @@ class MachinePredictModel:
 	# columns_all should have target name in it, both columns all and target
 	# should just be the names of columns, with all being an array
 	# target is target column to change
-	def __init__(self, dataframe, columns_all, random_state, **kwargs):
+	def __init__(self, dataframe, columns_all, random_state, training_percent, kfold_number, target_col_name, **kwargs):
 		self.dataframe =  dataframe
 		# columns all should contain all features that will be used plus the one target
 		self.columns_all = columns_all
-		# variable to be turned ino binary, class measure
-		#self.target = target
 		self.random_state = random_state
-		# target_col_name is the create column that models will predict on
+		self.training_percent = training_percent
+		self.kfold_number = kfold_number
+		self.target_col_name = target_col_name
 		self.date_unix = date_unix = kwargs.get('date_unix', None)
 		self.time_interval_check = kwargs.get('time_interval_check', None)
 		self.normalize_columns_array = kwargs.get('normalize_columns_array', None)
@@ -57,11 +58,11 @@ class MachinePredictModel:
 		self.cols_to_drop = kwargs.get('cols_to_drop', None)
 		self.target = kwargs.get('target', None)
 		self.target_change_bin_dict = kwargs.get('target_change_bin_dict', None)
-		self.col_to_make_target = kwargs.get('col_to_make_target', None)
-		self.target_col_name = kwargs.get('target_col_name', None)
+		#self.col_to_make_target = kwargs.get('col_to_make_target', None)
 		self.target_amount = kwargs.get('target_amount', None)
 		self.set_multi_class = kwargs.get('set_multi_class', None)
 		self.convert_unix_to_human_date = kwargs.get('convert_unix_to_human_date', None)
+		self.kfold_dict = kwargs.get('kfold_dict', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -145,18 +146,20 @@ class MachinePredictModel:
 		return dict
 		
 
-	def predict_prob_model(self, training_percent, kfold_number, target_col_name, **kwargs):
+	def predict_prob_model(self, **kwargs):
 		df = self._set_up_data_for_prob_predict()
+		print(self.columns_all)
+		print(self.target_col_name)
 		param_dict_logistic = kwargs.get('param_dict_logistic', None)
 		param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
 		param_dict_neural_network = kwargs.get('param_dict_neural_network', None)
 		# set up features and target
 		df.shuffle_rows()
-		x_y_vars = df.set_features_and_target1(self.columns_all, target_col_name)
+		x_y_vars = df.set_features_and_target1(self.columns_all, self.target_col_name) 
 		features = x_y_vars[0]
 		target = x_y_vars[1]
 		# set up training and testing data
-		vars_for_train_test = df.create_train_and_test_data_x_y_mixer(training_percent, features,target)
+		vars_for_train_test = df.create_train_and_test_data_x_y_mixer(self.training_percent, features, target)
 		X_train = vars_for_train_test[0]
 		y_train = vars_for_train_test[1]
 		X_test = vars_for_train_test[2]
@@ -190,6 +193,26 @@ class MachinePredictModel:
 			ppm_results_dict['nnl_data'] = nnl_instance.neural_learn_sk(X_train, y_train, X_test, y_test)
 		#print(nnl_data)
 		return ppm_results_dict
+
+	def predict_prob_model_full(self, **kwargs):
+		# vars
+		df = self._set_up_data_for_prob_predict()
+		param_dict_logistic = kwargs.get('param_dict_logistic', None)
+		param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
+		param_dict_neural_network = kwargs.get('param_dict_neural_network', None)
+		# set up features and target
+		df.shuffle_rows()
+		x_y_vars = df.set_features_and_target1(self.columns_all, self.target_col_name) 
+		features = x_y_vars[0]
+		target = x_y_vars[1]
+		# start prediction instace 
+		predictions_instance = RegressionCombined(features, target, self.kfold_dict)
+		predictions_results = predictions_instance.regression_probs_model()
+		return predictions_results
+		#scores = self._get_error_scores_with_tpr_fpr(target, predictions_results['predictions_logistic'])
+		#scores1 = self._get_error_scores_with_tpr_fpr(target, predictions_results['predictions_logistic_kfold'])
+		#return scores, scores1
+
 
 	def predict_prob_model_fit_parameters(self, training_percent, kfold_number, target_col_name, **kwargs):
 		df = self._set_up_data_for_prob_predict()
@@ -248,8 +271,9 @@ class MachinePredictModel:
 			dict[str(cols)] = dataframe
 		return dict
 
-	def cycle_vars_thru_features:(self, columns_all, target_col_name):
-		max = len(columns_all)-
+	def cycle_vars_thru_features(self, columns_all, target_col_name):
+		pass
+		#max = len(columns_all)-
 
 
 
@@ -360,10 +384,11 @@ logistic_regression_params_bike = {'penalty':'l2', 'dual':False, 'tol':0.0001, '
 decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':2, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':random_state_bike, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
 #decision_tree_params_loan = ['test']
 nnl_params_bike = {'hidden_layer_sizes':(100, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_bike}
+kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
 # bike model....
-bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike)
+bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 bike_predict._set_up_data_for_prob_predict()
-results = bike_predict.predict_prob_model(training_percent_bike, kfold_number_bike, target_bike, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike,param_dict_neural_network=nnl_params_bike)
+results = bike_predict.predict_prob_model(param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike,param_dict_neural_network=nnl_params_bike)
 # bike model for optimizing 
 # range of values in dict form for parameters
 decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced'], 'random_state':[random_state_bike]}
@@ -372,9 +397,10 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 # optimize model 
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
-#print(results)
-columns_all_features_bike = 
-results2 = bike_predict.cycle_vars(columns_all_features_bike, training_percent_bike, kfold_number_bike, target_bike)
+#results2 = bike_predict.predict_prob_model_full()
+print(results)
+#columns_all_features_bike = 
+#results2 = bike_predict.cycle_vars(columns_all_features_bike, training_percent_bike, kfold_number_bike, target_bike)
 
 """
 #thoughts 
@@ -403,3 +429,4 @@ in this order
 4. set up method to iterate over various varaiables
 5. check if chose error matetric is stat significant
 6. if stat significant return return scores if they hit a certain range
+"""

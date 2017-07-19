@@ -14,7 +14,7 @@ from scipy import interp
 import math
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.cross_validation import cross_val_predict, KFold
+from sklearn.cross_validation import cross_val_predict, KFold, StratifiedKFold
 """
 notes
 1. lasso regression - https://www.analyticsvidhya.com/blog/2016/01/complete-tutorial-ridge-lasso-regression-python/
@@ -154,7 +154,10 @@ class Regression:
 		#print(type(param_dict['penalty']))
 		reg = LogisticRegression(penalty=param_dict['penalty'], dual=param_dict['dual'], tol=param_dict['tol'], C=param_dict['C'], fit_intercept=param_dict['fit_intercept'], intercept_scaling=param_dict['intercept_scaling'], class_weight=param_dict['class_weight'], random_state=param_dict['random_state'], solver=param_dict['solver'], max_iter=param_dict['max_iter'], multi_class=param_dict['multi_class'], verbose=param_dict['verbose'], warm_start=param_dict['warm_start'], n_jobs=param_dict['n_jobs'])
 		#reg = LogisticRegression(random_state=self.random_state, class_weight='balanced')
+		print(self.features.shape[0])
 		kf =KFold(self.features.shape[0], random_state=self.random_state)
+		#kf1 = StratifiedKFold(self.target, self.features.shape[0], random_state=param_dict['random_state'])
+		#kf2 = StratifiedKFold(3)
 		reg.fit(self.features, self.target)
 		predictions = cross_val_predict(reg, self.features, self.target, cv=kf)
 		tpr_fpr_rates = self._create_false_pos_and_false_neg(predictions, self.target)
