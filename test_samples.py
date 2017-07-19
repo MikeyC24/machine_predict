@@ -47,5 +47,19 @@ for x,y in param_dict.items():
 	print(x,y)
 
 """
-dict1 = {'param_dict_vars': {'penalty': 'l2', 'dual': False, 'tol': 0.0001, 'C': 1.0, 'fit_intercept': True, 'intercept_scaling': 1, 'class_weight': 'balanced', 'random_state': 1, 'solver': 'liblinear', 'max_iter': 100, 'multi_class': 'ovr', 'verbose': 0, 'warm_start': False, 'n_jobs': 1}}
-print(dict1['param_dict_vars']['penalty'])
+#dict1 = {'param_dict_vars': {'penalty': 'l2', 'dual': False, 'tol': 0.0001, 'C': 1.0, 'fit_intercept': True, 'intercept_scaling': 1, 'class_weight': 'balanced', 'random_state': 1, 'solver': 'liblinear', 'max_iter': 100, 'multi_class': 'ovr', 'verbose': 0, 'warm_start': False, 'n_jobs': 1}}
+#print(dict1['param_dict_vars']['penalty'])
+
+import urllib
+import requests
+import json
+import time
+import csv
+import sqlite3
+import time
+import datetime
+#from datetime import datetime
+import calendar
+
+current_utc_time = '1500466815'
+print(current_utc_time.datetime.date)

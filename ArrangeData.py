@@ -75,6 +75,23 @@ class ArrangeData:
 		df[new_column_name] = pd.to_datetime(df[column_name])
 		return df
 
+	# convert unix date to human readable, also make columns for y,m,d,h,m,s
+	# array vars column_date, sep_into_cols]
+	# this takes in an array, column name of date is first, then 1 to 
+	# make new rows of the units separted by y,m,d,h,m,s,ms
+	# array must have 2 variables 
+	def convert_unix_to_human_date(self, array_vars):
+		df = self.dataframe
+		df['human_date_form'] = pd.to_datetime(df[array_vars[0]], unit='s')
+		if array_vars[1] == 1:
+			df['year'] = df['human_date_form'].dt.year
+			df['month'] = df['human_date_form'].dt.month
+			df['day'] = df['human_date_form'].dt.day
+			df['hour'] = df['human_date_form'].dt.hour
+			df['minute'] = df['human_date_form'].dt.minute
+			df['second'] = df['human_date_form'].dt.second
+			df['microsecond'] = df['human_date_form'].dt.microsecond
+
 	# this is not working
 	# goal is to be able to shift a column as some variables we want to
 	# create will need this (i.e. rolling averages)
@@ -430,11 +447,13 @@ class ArrangeData:
 
 
 
-
-
-
-
-
+"""
+file_location_btc = '/home/mike/Documents/coding_all/machine_predict/btc_play_data.csv'
+df = pd.read_csv(file_location_btc)
+test_project = ArrangeData(df)
+test_project.convert_unix_to_human_date(['date_unix',0])
+test_project.overall_data_display(1)
+"""
 
 
 
