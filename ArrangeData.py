@@ -178,7 +178,36 @@ class ArrangeData:
 	# some thoughts on this....
 	# 1. can do this be dine for any number of classes?
 	# 2. have it output 1-5, strings or both
-	def set_mutli_class(self, column_use, value_low, value_low_mid, value_high_mid, value_high, column_name_new):
+	def set_multi_class(self, column_use, value_low, value_low_mid, value_high_mid, value_high, column_name_new):
+		df = self.dataframe
+		x = column_use
+		df[column_name_new] = 0
+		mask = df[x] < value_low
+		mask2 = (df[x] < value_low_mid) & (df[x] >= value_low )
+		mask3 = (df[x] < value_high_mid) & (df[x] >= value_low_mid)
+		mask4 = (df[x] >= value_high_mid) & (df[x] < value_high)
+		mask5 = df[x] > value_high
+		df.loc[mask, column_name_new] = 1
+		df.loc[mask2, column_name_new] = 2
+		df.loc[mask3, column_name_new] = 3
+		df.loc[mask4, column_name_new] = 4
+		df.loc[mask5, column_name_new] = 5
+		#df.loc[mask, 'target_5_class'] = 'less than '+ str(value_low)
+		#df.loc[mask2, 'target_5_class'] = 'between ' +str(value_low) + ' ' + str(value_low_mid)
+		#df.loc[mask3, 'target_5_class'] = 'between ' +str(value_low_mid) + ' ' + str(value_high_mid)
+		#df.loc[mask4, 'target_5_class'] = 'between ' +str(value_high_mid) + ' ' + str(value_high)
+		#df.loc[mask5, 'target_5_class'] = 'greater than ' + str(value_high)
+		return df
+
+	# takes an in array in the below specified order
+	# column_use, value_low, value_low_mid, value_high_mid, value_high, column_name_new
+	def set_multi_class_array(self, array_vars):
+		column_use = array_vars[0]  
+		value_low = array_vars[1]  
+		value_low_mid = array_vars[2]  
+		value_high_mid = array_vars[3]  
+		value_high = array_vars[4]
+		column_name_new = array_vars[5] 
 		df = self.dataframe
 		x = column_use
 		df[column_name_new] = 0

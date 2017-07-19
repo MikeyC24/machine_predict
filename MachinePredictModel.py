@@ -60,6 +60,7 @@ class MachinePredictModel:
 		self.col_to_make_target = kwargs.get('col_to_make_target', None)
 		self.target_col_name = kwargs.get('target_col_name', None)
 		self.target_amount = kwargs.get('target_amount', None)
+		self.set_multi_class = kwargs.get('set_multi_class', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -94,6 +95,8 @@ class MachinePredictModel:
 		if self.target_change_bin_dict is not None:
 			#model_dataframe.set_binary(self.col_to_make_target, self.target_col_name, self.target_amount)
 			model_dataframe.set_binary_from_dict(self.target_change_bin_dict)
+		if self.set_multi_class is not None:
+			model_dataframe.set_multi_class_array(self.set_multi_class)
 		model_dataframe.overall_data_display(8)
 		return model_dataframe
 		# everything above is setting up data, more still needs to be added
@@ -148,6 +151,23 @@ class MachinePredictModel:
 		nnl_data = nnl_instance.neural_learn_sk(X_train, y_train, X_test, y_test)
 		print(nnl_data)
 
+	def predict_prob_model_fit_parameters(training_percent, kfold_number, target_col_name, **kwargs)
+		df = self._set_up_data_for_prob_predict()
+		param_dict_logistic_array = kwargs.get('param_dict_logistic_array', None)
+		param_dict_decision_tree_array = kwargs.get('param_dict_decision_tree_array', None)
+		param_dict_neural_network_array = kwargs.get('param_dict_neural_network_array', None)
+		# set up features and target
+		df.shuffle_rows()
+		x_y_vars = df.set_features_and_target1(self.columns_all, target_col_name)
+		features = x_y_vars[0]
+		target = x_y_vars[1]
+		# set up training and testing data
+		vars_for_train_test = df.create_train_and_test_data_x_y_mixer(training_percent, features,target)
+		X_train = vars_for_train_test[0]
+		y_train = vars_for_train_test[1]
+		X_test = vars_for_train_test[2]
+		y_test = vars_for_train_test[3]
+
 """
 # info for btc_data
 file_location_btc = '/home/mike/Documents/coding_all/machine_predict/btc_play_data.csv'
@@ -185,7 +205,7 @@ predict.predict_prob_model(training_percent, kfold_number, target_col, param_dic
 # btc end 
 """
 
-
+"""
 #info for loans
 lend_tree_loan_data = '/home/mike/Documents/coding_all/machine_predict/cleaned_loans_2007.csv'
 df_loans = pd.read_csv(lend_tree_loan_data)
@@ -217,3 +237,25 @@ loan_predict = MachinePredictModel(df_loans, columns_all_loans, random_state_loa
 loan_predict._set_up_data_for_prob_predict()
 loan_predict.predict_prob_model(training_percent_loan, kfold_number_loan, target_loan, param_dict_logistic=logistic_regression_params_loan, param_dict_decision_tree=decision_tree_params_loan,param_dict_neural_network=nnl_params_loan)
 #loan_predict.predict_prob_model(training_percent_loan, kfold_number_loan, target_loan, param_dict_logistic=logistic_regression_params_loan)
+"""
+
+# info for bikes
+file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
+df_bike = pd.read_csv(file_location)
+columns_to_drop_bike = ['casual', 'registered', 'dtedat']
+columns_all_bike = ['instant', 'season', 'yr', 'mnth', 'hr_new', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'cnt_binary']
+create_target_dict_bike = {'column_name_old':['cnt'], 'column_name_new':['cnt_binary'], 'value':[10]}
+target_bike = 'cnt_binary'
+set_multi_class_bike = ['hr', 6, 12, 18, 24 , 'hr_new']
+random_state_bike = 1
+training_percent_bike = .08
+kfold_number_bike = 10 
+logistic_regression_params_bike = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':'balanced', 'random_state':random_state_bike, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
+# max depht and min samples leaf can clash 
+decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':2, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':random_state_bike, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
+#decision_tree_params_loan = ['test']
+nnl_params_bike = {'hidden_layer_sizes':(100, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_bike}
+# bike model....
+bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike)
+bike_predict._set_up_data_for_prob_predict()
+bike_predict.predict_prob_model(training_percent_bike, kfold_number_bike, target_bike, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike,param_dict_neural_network=nnl_params_bike)
