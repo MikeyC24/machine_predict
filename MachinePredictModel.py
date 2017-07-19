@@ -207,7 +207,11 @@ class MachinePredictModel:
 		target = x_y_vars[1]
 		# start prediction instace 
 		predictions_instance = RegressionCombined(features, target, self.kfold_dict)
-		predictions_results = predictions_instance.regression_probs_model()
+		if param_dict_logistic is None:
+			print('log vars not none')
+			predictions_results = predictions_instance.regression_probs_model()
+		else:
+			predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=param_dict_logistic, param_dict_decision_tree=param_dict_decision_tree)
 		return predictions_results
 		#scores = self._get_error_scores_with_tpr_fpr(target, predictions_results['predictions_logistic'])
 		#scores1 = self._get_error_scores_with_tpr_fpr(target, predictions_results['predictions_logistic_kfold'])
@@ -388,7 +392,7 @@ kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
 # bike model....
 bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 bike_predict._set_up_data_for_prob_predict()
-results = bike_predict.predict_prob_model(param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike,param_dict_neural_network=nnl_params_bike)
+#results = bike_predict.predict_prob_model(param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike,param_dict_neural_network=nnl_params_bike)
 # bike model for optimizing 
 # range of values in dict form for parameters
 decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced'], 'random_state':[random_state_bike]}
@@ -397,8 +401,8 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 # optimize model 
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
-#results2 = bike_predict.predict_prob_model_full()
-print(results)
+results2 = bike_predict.predict_prob_model_full(param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike)
+print(results2)
 #columns_all_features_bike = 
 #results2 = bike_predict.cycle_vars(columns_all_features_bike, training_percent_bike, kfold_number_bike, target_bike)
 
