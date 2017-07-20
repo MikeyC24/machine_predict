@@ -111,7 +111,7 @@ class MachinePredictModel:
 			model_dataframe.set_binary_from_dict(self.target_change_bin_dict)
 		if self.set_multi_class is not None:
 			model_dataframe.set_multi_class_array(self.set_multi_class)
-		model_dataframe.overall_data_display(8)
+		#model_dataframe.overall_data_display(8)
 		return model_dataframe
 		# everything above is setting up data, more still needs to be added
 		# now comes the regressions on the bottom
@@ -145,27 +145,14 @@ class MachinePredictModel:
 		predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
 		return predictions_results
 
-	def predict_prob_model_full_fit_parameters(self, **kwargs):
+	def predict_prob_model_full_fit_parameters(self):
 		data = self._set_up_data_for_models() 
 		predictions_instance = predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
 		predictions_results = predictions_instance.regression_probs_model_full_paramter_fit(param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array )
 		return predictions_results
 
-	# columns all is an array 
-	def cycle_vars(self, columns_all, training_percent, kfold_number, target_col_name):
-		dict = {}
-		for x in range(1, len(columns_all)+1):
-			kicker = x
-			start = 0
-			end = start+ kicker
-			cols = columns_all[start:end]
-			data = self.predict_prob_model_fit_parameters(training_percent, kfold_number, target_col_name)
-			x +=1
-			dict[str(cols)] = dataframe
-		return dict
-
-# iterate over self.columns_all to return different combinations of columns_all
-# to run models on
+	# iterate over self.columns_all to return different combinations of columns_all
+	# to run models on
 	def _cycle_vars(self):
 		cols_array = []
 		cols = self.columns_all
@@ -180,6 +167,7 @@ class MachinePredictModel:
 				y +=1 	
 		return dict
 
+	# this is to take into a different var for feature column list
 	def _set_up_data_for_models_test(self, columns_all):
 		model_dataframe = self._set_up_data_for_prob_predict()
 		data_model_dict = {}
@@ -195,28 +183,50 @@ class MachinePredictModel:
 		data_model_dict['y_test'] = vars_for_train_test[3]
 		return data_model_dict
 
-	# heres what needs to happen here, the self.columns all needs to lost the taget col, 
-	# create the combo than add back in the target col
-	def _cycle_vars_test(self):
-		cols_array = []
+	# this takes in the user input columns all and returns a dict with all the
+	# different combinations of those columns. thesevalues can be fed into
+	# _set_up_data_for_models_test
+	def _cycle_vars_dict(self):
 		cols = self.columns_all
-		combos_array = []
-		dict = {}
+		#print(cols)
+		cols.remove(self.target_col_name)
+		var_combo_dict = {}
 		y = 0
 		for x in range(0, len(cols)+1):
 			for subset in itertools.combinations(cols, x):
-				#print(subset)
-				combos_array.append(subset)
-				dict[y] = subset
+				subset = list(subset)
+				subset.append(self.target_col_name)
+				var_combo_dict[y] = subset
 				y +=1
-		cols_all = dict[5]
-		cols_all = ['hr_new','cnt_binary']
-		print(cols_all)
-		data = self._set_up_data_for_models_test(cols_all)		 	
-		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
-		predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
-		return predictions_results
+		return var_combo_dict 
+		#cols_all1 = var_combo_dict[3]
+		#print(cols_all1)
+		#print(type(cols_all1))
+		#data = self._set_up_data_for_models_test(cols_all1)		 	
+		#predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
+		#predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
+		#return predictions_results
 
+	# method to iteerate over the different combos of vars and then spit out certain scores
+	def cycle_vars_return_desired_output(self):
+		#print(self.target_col_name)
+		#print(type(self.target_col_name))
+		#print(self.columns_all)
+		vars_combo = self._cycle_vars_dict()
+		dict_score_combos = {}
+		for x in vars_combo.values():
+			if len(x) > 1:
+				print(type(x))
+				print(x)
+				#y =str(x)
+				#print(type(y))
+				#print(y)
+				data = self._set_up_data_for_models_test(x)
+				predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
+				predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
+				dict_score_combos[str(x)] = predictions_results
+		return dict_score_combos
+			#print(dict_score_combos)
 
 
 # info for bikes
@@ -224,6 +234,7 @@ file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
 df_bike = pd.read_csv(file_location)
 columns_to_drop_bike = ['casual', 'registered', 'dtedat']
 columns_all_bike = ['instant', 'season', 'yr', 'mnth', 'hr_new', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'cnt_binary']
+columns_all_bike_test = ['workingday','temp', 'cnt_binary']
 create_target_dict_bike = {'column_name_old':['cnt'], 'column_name_new':['cnt_binary'], 'value':[10]}
 target_bike = 'cnt_binary'
 set_multi_class_bike = ['hr', 6, 12, 18, 24 , 'hr_new']
@@ -249,13 +260,26 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
 # bike models for refractored class
-bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
+bike_predict = MachinePredictModel(df_bike, columns_all_bike_test, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
 #bike_predict._set_up_data_for_prob_predict()
-vars_combo = bike_predict._cycle_vars_test()
-print(vars_combo)
+#combos1 = bike_predict._cycle_vars_dict()
+combos = bike_predict.cycle_vars_return_desired_output()
+#print(combos)
+for x, y in combos.items():
+	print(x)
+	print('_____________________')
+	print(y)
+	print('________________________')
+#vars_combo = bike_predict._cycle_vars_dict()
+#print(vars_combo)
+#for x in vars_combo.values():
+	#print(x)
+#print(len(vars_combo))
+#results2 = bike_predict.predict_prob_model_full()
+#print(results2)
 """
 results2 = bike_predict.predict_prob_model_full()
-#print(results2)
+print(results2)
 print(type(results2))
 for x, y in results2.items():
 	print('________________')

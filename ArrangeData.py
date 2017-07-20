@@ -171,20 +171,20 @@ class ArrangeData:
 		df = self.dataframe
 		#y = float(value)
 		#df[column_name_new] = np.where(df[column_name_old] >= y, 1, 0)
-		print(len(dict_vars))
-		print(len(dict_vars.values()))
-		print(len(dict_vars.keys()))
+		#print(len(dict_vars))
+		#print(len(dict_vars.values()))
+		#print(len(dict_vars.keys()))
 		count1 = int(len(dict_vars.values()) / len(dict_vars.keys()))
-		print(count1)
+		#print(count1)
 		count = sum(len(v) for v in dict_vars.values())
 		range_count = int(count / len(list(dict_vars.keys())))
-		print(count)
-		print(range_count)
+		#print(count)
+		#print(range_count)
 		for x in range(range_count):
-			print(x)
-			print(dict_vars['value'][x])
-			print(dict_vars['column_name_new'][x])
-			print(dict_vars['column_name_old'][x])
+			#print(x)
+			#print(dict_vars['value'][x])
+			#print(dict_vars['column_name_new'][x])
+			#print(dict_vars['column_name_old'][x])
 			y = float(dict_vars['value'][x])
 			df[dict_vars['column_name_new'][x]] = np.where(df[dict_vars['column_name_old'][x]] >= y, 1, 0)
 		return df
@@ -430,7 +430,7 @@ class ArrangeData:
 	def set_x_y_vars_from_df(self, x_vars, y_target):
 		df = self.dataframe
 		#df = df_instance
-		print(type(df))
+		#print(type(df))
 		X = df[x_vars].values
 		y = df[y_target].values
 		return X,y

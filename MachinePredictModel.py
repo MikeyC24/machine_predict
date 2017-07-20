@@ -305,7 +305,6 @@ class MachinePredictModel:
 """
 
 
-
 """
 # info for btc_data
 file_location_btc = '/home/mike/Documents/coding_all/machine_predict/btc_play_data.csv'
