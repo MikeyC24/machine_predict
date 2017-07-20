@@ -49,7 +49,7 @@ for x,y in param_dict.items():
 """
 #dict1 = {'param_dict_vars': {'penalty': 'l2', 'dual': False, 'tol': 0.0001, 'C': 1.0, 'fit_intercept': True, 'intercept_scaling': 1, 'class_weight': 'balanced', 'random_state': 1, 'solver': 'liblinear', 'max_iter': 100, 'multi_class': 'ovr', 'verbose': 0, 'warm_start': False, 'n_jobs': 1}}
 #print(dict1['param_dict_vars']['penalty'])
-
+"""
 import urllib
 import requests
 import json
@@ -63,3 +63,18 @@ import calendar
 
 current_utc_time = '1500466815'
 print(current_utc_time.datetime.date)
+"""
+"""
+array1 = [1, 'test', {'hi':1, 'sample':'output'}]
+for x in array1:
+	print(x)
+y = array1[2]
+print(type(y))
+for x,z in y.items():
+	print(x,z)
+print(y['hi'])
+
+"""
+model_score_dict = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range'[.06,1], 'fpr_range'[.0,.05]}}
+for x,y in model_score_dict.items():
+	print(x,y)
