@@ -64,7 +64,7 @@ import calendar
 current_utc_time = '1500466815'
 print(current_utc_time.datetime.date)
 """
-"""
+
 array1 = [1, 'test', {'hi':1, 'sample':'output'}]
 for x in array1:
 	print(x)
@@ -74,7 +74,9 @@ for x,z in y.items():
 	print(x,z)
 print(y['hi'])
 
-"""
-model_score_dict = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range'[.06,1], 'fpr_range'[.0,.05]}}
+
+model_score_dict = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 for x,y in model_score_dict.items():
 	print(x,y)
+test = array1[2]
+print(test.keys())
