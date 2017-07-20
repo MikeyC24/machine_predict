@@ -63,6 +63,12 @@ class MachinePredictModel:
 		self.set_multi_class = kwargs.get('set_multi_class', None)
 		self.convert_unix_to_human_date = kwargs.get('convert_unix_to_human_date', None)
 		self.kfold_dict = kwargs.get('kfold_dict', None)
+		self.param_dict_logistic = kwargs.get('param_dict_logistic', None)
+		self.param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
+		self.param_dict_neural_network = kwargs.get('param_dict_neural_network', None)
+		self.param_dict_logistic_array = kwargs.get('param_dict_logistic_array', None)
+		self.param_dict_decision_tree_array = kwargs.get('param_dict_decision_tree_array', None)
+		self.param_dict_neural_network_array = kwargs.get('param_dict_neural_network_array', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -105,7 +111,21 @@ class MachinePredictModel:
 		if self.set_multi_class is not None:
 			model_dataframe.set_multi_class_array(self.set_multi_class)
 		model_dataframe.overall_data_display(8)
-		return model_dataframe
+		#return model_dataframe
+		data_model_dict = {}
+		# set up features and target
+		model_dataframe.shuffle_rows()
+		x_y_vars = model_dataframe.set_features_and_target1(self.columns_all, self.target_col_name)
+		data_model_dict['features'] = x_y_vars[0]
+		data_model_dict['target'] = x_y_vars[1]
+		# set up training and testing data
+		vars_for_train_test = model_dataframe.create_train_and_test_data_x_y_mixer(self.training_percent, data_model_dict['features'],data_model_dict['target'])
+		data_model_dict['X_train'] = vars_for_train_test[0]
+		data_model_dict['y_train'] = vars_for_train_test[1]
+		data_model_dict['X_test'] = vars_for_train_test[2]
+		data_model_dict['y_test'] = vars_for_train_test[3]
+		return data_model_dict
+
 		# everything above is setting up data, more still needs to be added
 		# now comes the regressions on the bottom
 		# there should be some type of dict model takes in with which models to run 
@@ -113,134 +133,19 @@ class MachinePredictModel:
 		# in fact the above method may become only class method
 		# actually lets do that
 
-	def _get_error_scores_with_tpr_fpr(self, y_target, predictions):
-		tp_filter = (predictions == 1) & (y_target == 1)
-		tn_filter = (predictions == 0) & (y_target == 0)
-		fp_filter = (predictions == 1) & (y_target == 0)
-		fn_filter = (predictions == 0) & (y_target == 1)
-		tp = len(predictions[tp_filter])
-		tn = len(predictions[tn_filter])
-		fp = len(predictions[fp_filter])
-		fn = len(predictions[fn_filter])
-		true_positive_rate = tp / (tp+fn)
-		false_positive_rate = fp / (fp + tn)
-		dict ={}
-		y = y_target
-		dict['roc_auc_score'] = roc_auc_score(y, predictions)
-		dict['mse'] = mean_squared_error(y, predictions)
-		dict['mae'] = mean_absolute_error(y, predictions)
-		dict['r2_score'] = r2_score(y, predictions)
-		dict['variance'] = np.var(predictions)
-		dict['tpr'] = true_positive_rate
-		dict['fpr'] = false_positive_rate
-		return(dict)
-
-	def _get_error_scores(self, y_target, predictions):
-		y = y_target
-		dict ={}
-		dict['roc_auc_score'] = roc_auc_score(y, predictions)
-		dict['mse'] = mean_squared_error(y, predictions)
-		dict['mae'] = mean_absolute_error(y, predictions)
-		dict['r2_score'] = r2_score(y, predictions)
-		dict['variance'] = np.var(predictions)
-		return dict
-		
-
-	def predict_prob_model(self, **kwargs):
-		df = self._set_up_data_for_prob_predict()
-		print(self.columns_all)
-		print(self.target_col_name)
-		param_dict_logistic = kwargs.get('param_dict_logistic', None)
-		param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
-		param_dict_neural_network = kwargs.get('param_dict_neural_network', None)
-		# set up features and target
-		df.shuffle_rows()
-		x_y_vars = df.set_features_and_target1(self.columns_all, self.target_col_name) 
-		features = x_y_vars[0]
-		target = x_y_vars[1]
-		# set up training and testing data
-		vars_for_train_test = df.create_train_and_test_data_x_y_mixer(self.training_percent, features, target)
-		X_train = vars_for_train_test[0]
-		y_train = vars_for_train_test[1]
-		X_test = vars_for_train_test[2]
-		y_test = vars_for_train_test[3]
-		ppm_results_dict = {}
-		# 1st model test logistic regression
-		regres_instance = Regression(features, target, self.random_state)
-		if param_dict_logistic is None:
-			print(' didnt pick up first kwarg')
-			ppm_results_dict['log_regress_data'] = regres_instance.logistic_regres_with_kfold_cross_val()
-		else:
-			print('picked up params')
-			ppm_results_dict['log_regress_data'] = regres_instance.logistic_regres_with_kfold_cross_val(param_dict_logistic=param_dict_logistic)
-		#print(log_regress_data)
-
-		#2nd model test decision tree
-		decision_tree_instance = DecisionTree('place_holder')
-		if param_dict_decision_tree is None:
-			print('no vars picked up')
-			ppm_results_dict['decision_tree_data'] = decision_tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test)
-		else:
-			print('vars passed to decision tree class')
-			ppm_results_dict['decision_tree_data'] = decision_tree_instance.basic_tree_with_vars(X_train, y_train, X_test, y_test, param_dict_decision_tree=param_dict_decision_tree)
-		#print(decision_tree_data)
-
-		# 3rd model nueral network
-		if param_dict_neural_network is None:
-			ppm_results_dict['nnl_instance'] = NNet3(learning_rate=0.5, maxepochs=1e4, convergence_thres=1e-5, hidden_layer=4)
-		else:
-			nnl_instance = NNet3(learning_rate=0.5, maxepochs=1e4, convergence_thres=1e-5, hidden_layer=4, param_dict_neural_network=param_dict_neural_network)
-			ppm_results_dict['nnl_data'] = nnl_instance.neural_learn_sk(X_train, y_train, X_test, y_test)
-		#print(nnl_data)
-		return ppm_results_dict
-
+		# can prob make this kwargs class variables
 	def predict_prob_model_full(self, **kwargs):
 		# vars
-		df = self._set_up_data_for_prob_predict()
-		param_dict_logistic = kwargs.get('param_dict_logistic', None)
-		param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
-		param_dict_neural_network = kwargs.get('param_dict_neural_network', None)
-		# set up features and target
-		df.shuffle_rows()
-		x_y_vars = df.set_features_and_target1(self.columns_all, self.target_col_name) 
-		features = x_y_vars[0]
-		target = x_y_vars[1]
-		vars_for_train_test = df.create_train_and_test_data_x_y_mixer(self.training_percent, features, target)
-		X_train = vars_for_train_test[0]
-		y_train = vars_for_train_test[1]
-		X_test = vars_for_train_test[2]
-		y_test = vars_for_train_test[3]
+		data = self._set_up_data_for_prob_predict()
 		# start prediction instace 
-		predictions_instance = RegressionCombined(features, target, self.kfold_dict, X_train, X_test, y_train, y_test)
-		if param_dict_logistic is None:
-			print('log vars not none')
-			predictions_results = predictions_instance.regression_probs_model()
-		else:
-			predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=param_dict_logistic, param_dict_decision_tree=param_dict_decision_tree, param_dict_neural_network=param_dict_neural_network)
+		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
+		predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
 		return predictions_results
-		#scores = self._get_error_scores_with_tpr_fpr(target, predictions_results['predictions_logistic'])
-		#scores1 = self._get_error_scores_with_tpr_fpr(target, predictions_results['predictions_logistic_kfold'])
-		#return scores, scores1
 
-
-	def predict_prob_model_fit_parameters(self, **kwargs):
-		df = self._set_up_data_for_prob_predict()
-		param_dict_logistic_array = kwargs.get('param_dict_logistic_array', None)
-		param_dict_decision_tree_array = kwargs.get('param_dict_decision_tree_array', None)
-		param_dict_neural_network_array = kwargs.get('param_dict_neural_network_array', None)
-		# set up features and target
-		df.shuffle_rows()
-		x_y_vars = df.set_features_and_target1(self.columns_all, self.target_col_name)
-		features = x_y_vars[0]
-		target = x_y_vars[1]
-		# set up training and testing data
-		vars_for_train_test = df.create_train_and_test_data_x_y_mixer(self.training_percent, features,target)
-		X_train = vars_for_train_test[0]
-		y_train = vars_for_train_test[1]
-		X_test = vars_for_train_test[2]
-		y_test = vars_for_train_test[3]
-		predictions_instance = predictions_instance = RegressionCombined(features, target, self.kfold_dict, X_train, X_test, y_train, y_test)
-		predictions_results = predictions_instance.regression_probs_model_paramter_fit(param_dict_logistic_array=param_dict_logistic_array, param_dict_decision_tree_array=param_dict_decision_tree_array )
+	def predict_prob_model_full_fit_parameters(self, **kwargs):
+		data = self._set_up_data_for_prob_predict()
+		predictions_instance = predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
+		predictions_results = predictions_instance.regression_probs_model_full_paramter_fit(param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array )
 		return predictions_results
 
 	# columns all is an array 
@@ -282,77 +187,6 @@ class MachinePredictModel:
 
 
 
-"""
-# info for btc_data
-file_location_btc = '/home/mike/Documents/coding_all/machine_predict/btc_play_data.csv'
-file_location_loans = '/home/mike/Documents/coding_all/machine_predict/cleaned_loans_2007.csv'
-df = pd.read_csv(file_location_btc)
-columns = ['EUR_BTC_EX_High', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
-columns_all = ['target_new', 'Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
-# these columns may or may not be created but target needs to be in col list
-target = 'USD_BTC_EX_High'
-normalize_columns_array = ['Transactions_Volume', 'Number_of_Transactions', 'LTC_BTC_EX_High', 'EUR_BTC_EX_High']
-random_state = 1
-# method vars
-#target_amount =.05
-#target_col_name = 'target_new'
-#col_to_make_target = 'week_highs_avg_change'
-create_target_dict = {'column_name_old':['week_highs_avg_change','3day_highs_avg_change'], 'column_name_new':['target_new', '3day_highs_avg_change_bin_value'], 'value':[.05, .01]}
-columns_to_drop = []
-training_percent =.08
-kfold_number = 10
-target_col = create_target_dict['column_name_new'][0]
-#**kwargs
-kwarg_dict = {'time_interval_check':1, 'date_unix':'date_unix'}
-time_interval_check = 1
-date_unix = 'date_unix'
-time_period_returns_dict = {'column_name_old':['week_highs_avg', 'day_highs_avg'], 'column_name_new':['week_highs_avg_change', '3day_highs_avg_change'], 'freq':[1,3]}
-logistic_regression_params = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':'balanced', 'random_state':random_state, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
-
-# target_amount=target_amount, target_col_name=target_col_name, col_to_make_target=col_to_make_target,
-# error
-predict = MachinePredictModel(df, columns_all, random_state,  target=target, time_interval_check=1, date_unix='date_unix', normalize_columns_array=normalize_columns_array, time_period_returns_dict=time_period_returns_dict, target_change_bin_dict=create_target_dict)
-df_rdy = predict._set_up_data_for_prob_predict()
-print(type(df_rdy))
-df_rdy.overall_data_display(10)
-predict.predict_prob_model(training_percent, kfold_number, target_col, param_dict=logistic_regression_params)
-# btc end 
-"""
-
-"""
-#info for loans
-lend_tree_loan_data = '/home/mike/Documents/coding_all/machine_predict/cleaned_loans_2007.csv'
-df_loans = pd.read_csv(lend_tree_loan_data)
-columns_all_loans = ['loan_amnt', 'int_rate', 'installment', 'emp_length', 'annual_inc',
-		'dti', 'delinq_2yrs', 'inq_last_6mths', 'open_acc',
-	   'pub_rec', 'revol_bal', 'revol_util', 'total_acc',
-	   'home_ownership_MORTGAGE', 'home_ownership_NONE',
-	   'home_ownership_OTHER', 'home_ownership_OWN', 'home_ownership_RENT',
-	   'verification_status_Not Verified',
-	   'verification_status_Source Verified', 'verification_status_Verified',
-	   'purpose_car', 'purpose_credit_card', 'purpose_debt_consolidation',
-	   'purpose_educational', 'purpose_home_improvement', 'purpose_house',
-	   'purpose_major_purchase', 'purpose_medical', 'purpose_moving',
-	   'purpose_other', 'purpose_renewable_energy', 'purpose_small_business',
-	   'purpose_vacation', 'purpose_wedding', 'term_ 36 months',
-	   'term_ 60 months', 'loan_status']
-target_loan = 'loan_status' 
-target_loan = 'loan_status'
-random_state_loan = 1
-training_percent_loan = .08
-kfold_number_loan = 10 
-logistic_regression_params_loan = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':'balanced', 'random_state':random_state_loan, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
-# max depht and min samples leaf can clash 
-decision_tree_params_loan = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':2, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':random_state_loan, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
-#decision_tree_params_loan = ['test']
-nnl_params_loan = {'hidden_layer_sizes':(100, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_loan}
-#param_dict_neural_network=nnl_params_loan
-loan_predict = MachinePredictModel(df_loans, columns_all_loans, random_state_loan)
-loan_predict._set_up_data_for_prob_predict()
-loan_predict.predict_prob_model(training_percent_loan, kfold_number_loan, target_loan, param_dict_logistic=logistic_regression_params_loan, param_dict_decision_tree=decision_tree_params_loan,param_dict_neural_network=nnl_params_loan)
-#loan_predict.predict_prob_model(training_percent_loan, kfold_number_loan, target_loan, param_dict_logistic=logistic_regression_params_loan)
-"""
-
 # info for bikes
 file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
 df_bike = pd.read_csv(file_location)
@@ -368,11 +202,11 @@ logistic_regression_params_bike = {'penalty':'l2', 'dual':False, 'tol':0.0001, '
 # max depht and min samples leaf can clash 
 decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':2, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':random_state_bike, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
 #decision_tree_params_loan = ['test']
-nnl_params_bike = {'hidden_layer_sizes':(100, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_bike}
+nnl_params_bike = {'hidden_layer_sizes':(10, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_bike}
 kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
 # bike model....
-bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
-bike_predict._set_up_data_for_prob_predict()
+#bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
+#bike_predict._set_up_data_for_prob_predict()
 #results = bike_predict.predict_prob_model(param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike,param_dict_neural_network=nnl_params_bike)
 # bike model for optimizing 
 # range of values in dict form for parameters
@@ -382,10 +216,22 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 # optimize model 
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
-#results2 = bike_predict.predict_prob_model_full(param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike)
+# bike models for refractored class
+bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
+bike_predict._set_up_data_for_prob_predict()
+
+results2 = bike_predict.predict_prob_model_full()
 #print(results2)
-results3 = bike_predict.predict_prob_model_fit_parameters(param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars)
-print(results3)
+print(type(results2))
+for x, y in results2.items():
+	print('________________')
+	print(x)
+	print(y)
+print('__________________')	
+print(results2['dict_results_train_set'])
+
+#results3 = bike_predict.predict_prob_model_full_fit_parameters()
+#print(results3)
 #columns_all_features_bike = 
 #results2 = bike_predict.cycle_vars(columns_all_features_bike, training_percent_bike, kfold_number_bike, target_bike)
 
