@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import datetime
 import time
-from itertools import cycle
+#from itertools import cycle
+import itertools
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.metrics import r2_score, accuracy_score, roc_auc_score
@@ -75,14 +76,14 @@ class MachinePredictModel:
 	# 1. way to change needed columns data types such as turn all numerical
 	# 2. set be able to set multi class vars like time of day - evebing, night etc
 	# 3. drop columns if certain percent data is missing
-	def _set_up_data_for_prob_predict(self, **kwargs):
+	def _set_up_data_for_prob_predict(self):
 		# **kawrgs vars below
 		# initiate the data class
 		model_dataframe = ArrangeData(self.dataframe)
 		#print(time_interval_check, date_unix)
 		# check if date_unix = none
 		# if not none creates timedate
-		if self.date_unix != None:
+		if self.date_unix is not None:
 			model_dataframe.format_unix_date(self.date_unix)
 		# this takes in an array, column name of date is first, then 1 to 
 		# make new rows of the units separted by y,m,d,h,m,s,ms
@@ -111,9 +112,18 @@ class MachinePredictModel:
 		if self.set_multi_class is not None:
 			model_dataframe.set_multi_class_array(self.set_multi_class)
 		model_dataframe.overall_data_display(8)
-		#return model_dataframe
+		return model_dataframe
+		# everything above is setting up data, more still needs to be added
+		# now comes the regressions on the bottom
+		# there should be some type of dict model takes in with which models to run 
+		# and which variables/error metrics to use etc
+		# in fact the above method may become only class method
+		# actually lets do that
+
+	# take in df of cleaned model, return features, target, train and test data in dict
+	def _set_up_data_for_models(self):
+		model_dataframe = self._set_up_data_for_prob_predict()
 		data_model_dict = {}
-		# set up features and target
 		model_dataframe.shuffle_rows()
 		x_y_vars = model_dataframe.set_features_and_target1(self.columns_all, self.target_col_name)
 		data_model_dict['features'] = x_y_vars[0]
@@ -126,24 +136,17 @@ class MachinePredictModel:
 		data_model_dict['y_test'] = vars_for_train_test[3]
 		return data_model_dict
 
-		# everything above is setting up data, more still needs to be added
-		# now comes the regressions on the bottom
-		# there should be some type of dict model takes in with which models to run 
-		# and which variables/error metrics to use etc
-		# in fact the above method may become only class method
-		# actually lets do that
-
 		# can prob make this kwargs class variables
-	def predict_prob_model_full(self, **kwargs):
+	def predict_prob_model_full(self):
 		# vars
-		data = self._set_up_data_for_prob_predict()
+		data = self._set_up_data_for_models() 
 		# start prediction instace 
 		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
 		predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
 		return predictions_results
 
 	def predict_prob_model_full_fit_parameters(self, **kwargs):
-		data = self._set_up_data_for_prob_predict()
+		data = self._set_up_data_for_models() 
 		predictions_instance = predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
 		predictions_results = predictions_instance.regression_probs_model_full_paramter_fit(param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array )
 		return predictions_results
@@ -161,29 +164,58 @@ class MachinePredictModel:
 			dict[str(cols)] = dataframe
 		return dict
 
-	def cycle_vars_thru_features(self, columns_all, target_col_name):
-		pass
-		#max = len(columns_all)-
-
-
-
-"""
-# cycle vars example
-	def cycle_vars_simple_lin_regress(self, columns, target):
-		results_array = []
+# iterate over self.columns_all to return different combinations of columns_all
+# to run models on
+	def _cycle_vars(self):
+		cols_array = []
+		cols = self.columns_all
+		combos_array = []
 		dict = {}
-		for x in range(1, len(columns)+1):
-			kicker = x
-			start = 0
-			end = start + kicker
-			cols = columns[start:end]
-			instance = ArrangeData(df)
-			add = instance.simple_lin_regres(columns, target)
-			results_array.append(add)
-			x += 1
-			dict[str(cols)] = add
+		y = 0
+		for x in range(0, len(cols)+1):
+			for subset in itertools.combinations(cols, x):
+				#print(subset)
+				combos_array.append(subset)
+				dict[y] = subset
+				y +=1 	
 		return dict
-"""
+
+	def _set_up_data_for_models_test(self, columns_all):
+		model_dataframe = self._set_up_data_for_prob_predict()
+		data_model_dict = {}
+		model_dataframe.shuffle_rows()
+		x_y_vars = model_dataframe.set_features_and_target1(columns_all, self.target_col_name)
+		data_model_dict['features'] = x_y_vars[0]
+		data_model_dict['target'] = x_y_vars[1]
+		# set up training and testing data
+		vars_for_train_test = model_dataframe.create_train_and_test_data_x_y_mixer(self.training_percent, data_model_dict['features'],data_model_dict['target'])
+		data_model_dict['X_train'] = vars_for_train_test[0]
+		data_model_dict['y_train'] = vars_for_train_test[1]
+		data_model_dict['X_test'] = vars_for_train_test[2]
+		data_model_dict['y_test'] = vars_for_train_test[3]
+		return data_model_dict
+
+	# heres what needs to happen here, the self.columns all needs to lost the taget col, 
+	# create the combo than add back in the target col
+	def _cycle_vars_test(self):
+		cols_array = []
+		cols = self.columns_all
+		combos_array = []
+		dict = {}
+		y = 0
+		for x in range(0, len(cols)+1):
+			for subset in itertools.combinations(cols, x):
+				#print(subset)
+				combos_array.append(subset)
+				dict[y] = subset
+				y +=1
+		cols_all = dict[5]
+		cols_all = ['hr_new','cnt_binary']
+		print(cols_all)
+		data = self._set_up_data_for_models_test(cols_all)		 	
+		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
+		predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
+		return predictions_results
 
 
 
@@ -218,8 +250,10 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
 # bike models for refractored class
 bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
-bike_predict._set_up_data_for_prob_predict()
-
+#bike_predict._set_up_data_for_prob_predict()
+vars_combo = bike_predict._cycle_vars_test()
+print(vars_combo)
+"""
 results2 = bike_predict.predict_prob_model_full()
 #print(results2)
 print(type(results2))
@@ -229,7 +263,7 @@ for x, y in results2.items():
 	print(y)
 print('__________________')	
 print(results2['dict_results_train_set'])
-
+"""
 #results3 = bike_predict.predict_prob_model_full_fit_parameters()
 #print(results3)
 #columns_all_features_bike = 
