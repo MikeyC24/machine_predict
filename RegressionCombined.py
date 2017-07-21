@@ -52,36 +52,40 @@ class RegressionCombined:
 		tn = len(predictions[tn_filter])
 		fp = len(predictions[fp_filter])
 		fn = len(predictions[fn_filter])
-		# this is sensitivity 
-		true_positive_rate = tp / (tp+fn)
-		# fall out rate
-		false_positive_rate = fp / (fp + tn)
-		# this is specificity 
-		true_negative_rate = tn/(tn+fp)
-		# precision or positive predictive value
-		precision = tp/(tp+fp)
-		# negative predictive value
-		npv = tn / (tn+fn)
-		# false negative rate  
-		false_negative_rate = fn/(tp+fn)
-		#false discovery rate
-		false_discovery_rate = fp/(tp+fp)
+		dict ={}
+		if (tp+fn) != 0:
+			# this is sensitivity 
+			true_positive_rate = tp / (tp+fn)
+			dict['sensitivity'] = true_positive_rate
+			# false negative rate  
+			false_negative_rate = fn/(tp+fn)
+			dict['false_negative_rate'] = false_negative_rate
+		if (fp + tn) != 0:
+			# fall out rate
+			false_positive_rate = fp / (fp + tn)
+			dict['fallout_rate'] = false_negative_rate
+			# this is specificity 
+			true_negative_rate = tn/(tn+fp)
+			dict['specificty'] = true_negative_rate
+		if (fp + tp) != 0:
+			# precision or positive predictive value
+			precision = tp/(tp+fp)
+			dict['precision'] = precision
+			#false discovery rate
+			false_discovery_rate = fp/(tp+fp)
+			dict['false_discovery_rate'] = false_discovery_rate
+		if (tn + fn) != 0:
+			# negative predictive value
+			npv = tn / (tn+fn)
+			dict['negative_predictive_value'] = npv
 		# overall accuracy
 		ACC = (tp+tn) / (tp+fp+fn+tn)
-		dict ={}
 		y = y_target
 		dict['roc_auc_score'] = roc_auc_score(y, predictions)
 		dict['mse'] = mean_squared_error(y, predictions)
 		dict['mae'] = mean_absolute_error(y, predictions)
 		dict['r2_score'] = r2_score(y, predictions)
 		dict['variance'] = np.var(predictions)
-		dict['sensitivity'] = true_positive_rate
-		dict['fallout'] = false_positive_rate
-		dict['specificty'] = true_negative_rate
-		dict['precision'] = precision
-		dict['negative_predictive_value'] = npv
-		dict['false_negative_rate'] = false_negative_rate
-		dict['false_discovery_rate'] = false_discovery_rate
 		dict['ACC'] = ACC
 		return(dict)
 

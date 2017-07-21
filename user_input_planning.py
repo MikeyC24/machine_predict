@@ -25,3 +25,6 @@ mydict = {"key" : "value", "emptykey" : ""}
 print "True" if mydict["key"] else "False"  # prints true
 print "True" if mydict["emptykey"] else "False"  # prints false
 """
+"""
+also need a way for user to select if they want to iterate thru colums or not
+"""

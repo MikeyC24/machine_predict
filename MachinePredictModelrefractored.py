@@ -232,6 +232,9 @@ class MachinePredictModel:
 		output = predictions_instance.classification_unifying_model()
 		return output
 
+	#only works on one test, need to set forvariables at top, bascailly all possible options
+	# cmpare if user input has it and then return 
+	# also need to lead with model 
 	def return_desired_user_output_from_dict(self):
 		data_wanted = self.cycle_vars_return_desired_output_specific_model()
 		class_or_amount = self.user_input_for_model_output[0]
@@ -240,79 +243,45 @@ class MachinePredictModel:
 		model_list = self.user_input_for_model_output[3]
 		dict_train_types = ['dict_results_simple', 'dict_results_kfold', 'dict_results_train_set']
 		model_types = model_list.keys()
-		model_types1 = 'test'
-		#error_metric = model_list['']
-		#significant_level = 
-		#tpr_range = 
-		#fpr_range = 
-		#print(data_wanted)
-		print(type(data_wanted))
-		array_catch = []
-		dict_returned  = {}
+		
 		# variables are the variables used for the regression
-		for variables,y in data_wanted.items():
-			print('x', variables)
-			print('y', type(y), y)
-			print('key in data wanted', y.keys())
-			for train_test in dict_train_types:
-				if len(y[train_test]) > 0:
-					print('value is not empty', type(y), variables, y[train_test])
-					print(y.keys())
-					# value is the dictionary contained within the train type
-					for value in y.values():
-						# key model is the type of test, ir logstic, decision tree
-						# model scores is the dict containg all the different error scores of that model
-						for key_model, model_scores in value.items():
-							for model_item in model_types:
-								if key_model == model_item:
-									#error_metric = model_list[key_model]['error_metric']
-									significant_level = model_list[key_model]['significant_level']
-									tpr_range = model_list[key_model]['tpr_range']
-									fpr_range =  model_list[key_model]['fpr_range']
-									
-									# score key is the error metric name such as roc_auc_score
-									# score value is the actual number/value
-									for score_key, score_values in model_scores.items():
-										"""
-										if error_metric == score_key:
-											print('error metric matches', error_metric)
-											print('error score is ', model_scores[error_metric])
-											if model_scores[error_metric] > .05:
-												print(error_metric, significant_level, tpr_range, fpr_range)
-												#print( 'key model', key_model)
-												print( 'model_scores', model_scores)
-												print('score_key', score_key)
-												print('score values', score_values)
-										"""
-									counter= 1
-									score_array = []
-									dict = {}
-									dict1 = {}
-									for score_key, score_values in model_scores.items():
-										for item in model_list[key_model]:
-											#score_array = []
-											#dict = {}
-											dict['train_type'] = train_test
-											dict['regression_ran'] = key_model
-											#dict['vars_used'] = variables
-											if item == score_key:
-												if score_values > model_list[key_model][item]:
-													print('item', item, model_list[key_model][item])
-													print('score key', score_key, score_values)
-													#print('item', item)
-													#print('item', item)
-													score_array.append(score_key)
-													#print(score_array)
-													score_array.append(score_values)
-													dict1[score_key] = [score_values]
-													print('True')
-													#dict_vars[]
-													#dict_returned ['varibales']
-													#dict_returned []
-											dict['scores_passed'] = dict1
-										dict_returned[variables] = dict
-										#dict ={}
-													#print(dict_returned)
+		dict_all = {}
+		for model_use_key in model_types:
+			dict_returned  = {}
+			for variables,y in data_wanted.items():
+				#print('x', variables)
+				#print('y', type(y), y)
+				#print('key in data wanted', y.keys())
+				for train_test in dict_train_types:
+					if len(y[train_test]) > 0:
+						#print('value is not empty', type(y), variables, y[train_test])
+						#print(y.keys())
+						# value is the dictionary contained within the train type
+						for value in y.values():
+							# key model is the type of test, ir logstic, decision tree
+							# model scores is the dict containg all the different error scores of that model
+							counter = 1
+							for key_model, model_scores in value.items():
+								for model_item in model_types:
+									if key_model == model_item:
+										# score key is the error metric name such as roc_auc_score
+										# score value is the actual number/value
+										score_array = []
+										dict = {}
+										dict1 = {}
+
+										# score key and values are coming from test
+										# model_scores and model_list are coming from user
+										for score_key, score_values in model_scores.items():
+											for item in model_list[key_model]:
+												dict['train_type'] = train_test
+												dict['regression_ran'] = key_model
+												dict['variables'] = variables
+												if item == score_key:
+													if score_values > model_list[key_model][item]:
+														dict1[score_key] = [score_values]
+												dict['scores_passed'] = dict1
+											dict_returned[str(variables) + str(key_model)] = dict
 		return dict_returned
 
 # info for bikes
@@ -333,9 +302,9 @@ decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':
 #decision_tree_params_loan = ['test']
 nnl_params_bike = {'hidden_layer_sizes':(10, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_bike}
 kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
-model_score_dict = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-model_score_dict1 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-user_optmize_input = ['class', 'constant', 'train', model_score_dict1]
+model_score_dict = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+model_score_dict1 = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+user_optmize_input = ['class', 'constant', 'train', model_score_dict]
 # bike model....
 #bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 #bike_predict._set_up_data_for_prob_predict()
@@ -360,6 +329,10 @@ for x,y in log_model_combos.items():
 """
 data_wanted = bike_predict.return_desired_user_output_from_dict()
 print(data_wanted)
+print('_________________________')
+for x,y in data_wanted.items():
+	print(x)
+	print(y)
 #bike_predict.user_output_model()
 #bike_predict._set_up_data_for_prob_predict()
 #combos1 = bike_predict._cycle_vars_dict()
@@ -420,4 +393,15 @@ in this order
 4. set up method to iterate over various varaiables
 5. check if chose error matetric is stat significant
 6. if stat significant return return scores if they hit a certain range
+"""
+
+"""
+7/21
+can give back user vars, model based on desired error scores
+what needs to be done now
+1. give user option to iterate over vars or just run all vars (though if all cars are ran
+prob no need to pull our wanted input, set make sure methods express that)
+2. check if vars are stat significant but returning
+once these two are done, work on feeding data and then based on midlle
+run on new models or make decsions with data once scores are good enough
 """
