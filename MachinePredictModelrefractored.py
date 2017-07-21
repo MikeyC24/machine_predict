@@ -252,27 +252,37 @@ class MachinePredictModel:
 			print('y', type(y), y)
 			print('key in data wanted', y.keys())
 			for item in dict_train_types:
- 				if len(y[item]) > 0:
- 					print('value is not empty', type(y), x, y[item])
- 					print(y.keys())
- 					for value in y.values():
- 						for key_model, model_scores in value.items():
- 							for model_item in model_types:
- 								if key_model == model_item:
- 									error_metric = model_list[key_model]['error_metric']
- 									for score_key, score_values in model_scores.items():
- 										if error_metric == score_key:
- 											print('error metric matches', error_metric)
- 											print('error score is ', model_scores[error_metric])
- 											#print(key_model)
- 											#print('model_types', model_types)
- 											#print(model_scores)
- 											print('score_key', score_key)
- 											print('score_values', score_values)
- 											#error_metric = model_list[key_model]['error_metric']
- 											print('error metric', error_metric)
-
- 					"""
+				if len(y[item]) > 0:
+					print('value is not empty', type(y), x, y[item])
+					print(y.keys())
+					for value in y.values():
+						for key_model, model_scores in value.items():
+							for model_item in model_types:
+								if key_model == model_item:
+									error_metric = model_list[key_model]['error_metric']
+									significant_level = model_list[key_model]['significant_level']
+									tpr_range = model_list[key_model]['tpr_range']
+									fpr_range =  model_list[key_model]['fpr_range']
+									for score_key, score_values in model_scores.items():
+										if error_metric == score_key:
+											print('error metric matches', error_metric)
+											print('error score is ', model_scores[error_metric])
+											if model_scores[error_metric] > .05:
+												print(error_metric, significant_level, tpr_range, fpr_range)
+											#if model_scores['error_metric'] > .05:
+												#print(error_metric, significant_level, tpr_range, fpr_range)
+											"""
+											print('error metric matches', error_metric)
+											print('error score is ', model_scores[error_metric])
+											#print(key_model)
+											#print('model_types', model_types)
+											#print(model_scores)
+											print('score_key', score_key)
+											print('score_values', score_values)
+											#error_metric = model_list[key_model]['error_metric']
+											print('error metric', error_metric)
+											"""
+					"""
  					print('value is not empty',type(y), x, y[item])
 -					print(y.keys())
 +					for key in y.keys():
@@ -322,7 +332,7 @@ decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':
 nnl_params_bike = {'hidden_layer_sizes':(10, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_bike}
 kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
 model_score_dict = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-model_score_dict1 = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+model_score_dict1 = {'logistic':{'error_metric':'roc_auc_score', 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 user_optmize_input = ['class', 'constant', 'train', model_score_dict1]
 # bike model....
 #bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
