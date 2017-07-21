@@ -232,6 +232,76 @@ class MachinePredictModel:
 		output = predictions_instance.classification_unifying_model()
 		return output
 
+	def return_desired_user_output_from_dict(self):
+		data_wanted = self.cycle_vars_return_desired_output_specific_model()
+		class_or_amount = self.user_input_for_model_output[0]
+		constant_or_optimize = self.user_input_for_model_output[1] 
+		train_method = self.user_input_for_model_output[2]
+		model_list = self.user_input_for_model_output[3]
+		dict_train_types = ['dict_results_simple', 'dict_results_kfold', 'dict_results_train_set']
+		model_types = model_list.keys()
+		model_types1 = 'test'
+		#error_metric = model_list['']
+		#significant_level = 
+		#tpr_range = 
+		#fpr_range = 
+		#print(data_wanted)
+		print(type(data_wanted))
+		for x,y in data_wanted.items():
+			print('x', x)
+			print('y', type(y), y)
+			print('key in data wanted', y.keys())
+			for item in dict_train_types:
+ 				if len(y[item]) > 0:
+ 					print('value is not empty', type(y), x, y[item])
+ 					print(y.keys())
+ 					for value in y.values():
+ 						for key_model, model_scores in value.items():
+ 							for model_item in model_types:
+ 								if key_model == model_item:
+ 									error_metric = model_list[key_model]['error_metric']
+ 									for score_key, score_values in model_scores.items():
+ 										if error_metric == score_key:
+ 											print('error metric matches', error_metric)
+ 											print('error score is ', model_scores[error_metric])
+ 											#print(key_model)
+ 											#print('model_types', model_types)
+ 											#print(model_scores)
+ 											print('score_key', score_key)
+ 											print('score_values', score_values)
+ 											#error_metric = model_list[key_model]['error_metric']
+ 											print('error metric', error_metric)
+
+ 					"""
+ 					print('value is not empty',type(y), x, y[item])
+-					print(y.keys())
++					for key in y.keys():
++						print(key)
+						error_metric = model_list[y.keys()]['error_metric']
+						significant_level = model_list[item]['significant_level']
+						tpr_range = model_list[item]['tpr_range']
+						fpr_range = model_list[item]['fpr_range']
+						print(error_metric, significant_level, tpr_range, fpr_range)
+					"""
+			"""
+			for item in dict_train_types:
+				for key, value in y.items():
+					print('key check', key)
+					print('value check', value)
+					if (item == key) & (len(value) > 1):
+						print('here is wanted input',item, value)
+				#print(item)
+				#print(y.keys())
+				#if item == y.keys():
+				#	print(item)
+			"""
+
+			"""
+			if item in model_list.keys() == x:
+				print('x', x)
+				print('y', y)
+				print('item', item)
+			"""
 
 # info for bikes
 file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
@@ -251,8 +321,9 @@ decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':
 #decision_tree_params_loan = ['test']
 nnl_params_bike = {'hidden_layer_sizes':(10, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_bike}
 kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
-model_score_dict = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-user_optmize_input = ['class', 'optimize', 'train', model_score_dict]
+model_score_dict = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+model_score_dict1 = {'logistic':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+user_optmize_input = ['class', 'constant', 'train', model_score_dict1]
 # bike model....
 #bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 #bike_predict._set_up_data_for_prob_predict()
@@ -267,12 +338,16 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
 # bike models for refractored class
 bike_predict = MachinePredictModel(df_bike, columns_all_bike_test, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars, user_input_for_model_output=user_optmize_input)
+"""
 log_model_combos = bike_predict.cycle_vars_return_desired_output_specific_model()
 for x,y in log_model_combos.items():
 	print(x)
 	print('_________________________')
 	print(y)
 	print('_________________________')
+"""
+data_wanted = bike_predict.return_desired_user_output_from_dict()
+print(data_wanted)
 #bike_predict.user_output_model()
 #bike_predict._set_up_data_for_prob_predict()
 #combos1 = bike_predict._cycle_vars_dict()

@@ -219,6 +219,8 @@ class RegressionCombined:
 				elif constant_or_optimize == 'optimize':
 					data = self.regression_probs_model_full_paramter_fit_with_user_input()
 					return data
+				else:
+					print('not an accetable constant_or_optimize var')
 			elif class_or_amount == 'amount':
 				print('still working on this part')
 			else:
@@ -368,7 +370,7 @@ class RegressionCombined:
 			dict_results_parameter_fit['logsitic'] = error_score
 		if 'decision_tree_array' in model_list:
 			print('doing decision tree')
-			clf = GridSearchCV(dtree, param_dict_decision_tree_array)
+			clf = GridSearchCV(dtree, self.param_dict_decision_tree_array)
 			clf.fit(self.X_train, self.y_train)
 			predictions = clf.predict(self.X_test)
 			error_score = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
@@ -377,7 +379,7 @@ class RegressionCombined:
 			dict_results_parameter_fit['decision_tree'] = error_score
 		if 'neural_network' in model_list:
 			print('doing nnl')
-			clf = GridSearchCV(nnl, param_dict_neural_network_array)
+			clf = GridSearchCV(nnl, self.param_dict_neural_network_array)
 			clf.fit(self.X_train, self.y_train)
 			predictions = clf.predict(self.X_test)
 			error_score = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)

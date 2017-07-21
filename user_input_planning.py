@@ -15,4 +15,13 @@ this can be a dictionary
 4. simple, train, kfold
 5. dict values : error metric and score, tpr, fpr
 
-model:{error_metric:mse, error_sig_level:.05, tpr_range[.6,.8]}
+model:{error_metric:mse, error_sig_level:.05, tpr_range[.6,.8], fpr_range}
+"""
+
+
+""" 
+not user input but use this for the if statements checking for defaults 
+mydict = {"key" : "value", "emptykey" : ""}
+print "True" if mydict["key"] else "False"  # prints true
+print "True" if mydict["emptykey"] else "False"  # prints false
+"""
