@@ -478,4 +478,10 @@ next....
 1. determine stat significance of vars?
 2. how to have data constantly feed in this
 3. take all of that and run on new data 
+4. return comvo variables sets by some type of order 
+"""
+
+"""
+idea to take in user variables, have user input variables, then for all of them 
+have method to turn in array?dict? and input from there? 
 """
