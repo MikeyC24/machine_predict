@@ -75,7 +75,8 @@ class MachinePredictModel:
 		# if no it will just use all the vars given
 		self.cycle_vars_user_check = kwargs.get('cycle_vars_user_check', None)
 		# if user it will user user entered params for models
-		# if no it will find best params and return those. 
+		# if no it will find best params and return those.
+		self.minimum_feature_count_for_var_cycle = kwargs.get('minimum_feature_count_for_var_cycle', None) 
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -159,6 +160,7 @@ class MachinePredictModel:
 
 	# iterate over self.columns_all to return different combinations of columns_all
 	# to run models on
+	# i dont think the is being used
 	def _cycle_vars(self):
 		cols_array = []
 		cols = self.columns_all
@@ -194,6 +196,7 @@ class MachinePredictModel:
 	# _set_up_data_for_models_test
 	def _cycle_vars_dict(self):
 		cols = self.columns_all
+		min_count = self.minimum_feature_count_for_var_cycle
 		#print(cols)
 		cols.remove(self.target_col_name)
 		var_combo_dict = {}
@@ -202,7 +205,11 @@ class MachinePredictModel:
 			for subset in itertools.combinations(cols, x):
 				subset = list(subset)
 				subset.append(self.target_col_name)
-				var_combo_dict[y] = subset
+				if min_count == None:
+					var_combo_dict[y] = subset
+				else:
+					if len(subset) > min_count:
+						var_combo_dict[y] = subset
 				y +=1
 		return var_combo_dict 
 		#cols_all1 = var_combo_dict[3]
@@ -340,7 +347,7 @@ file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
 df_bike = pd.read_csv(file_location)
 columns_to_drop_bike = ['casual', 'registered', 'dtedat']
 columns_all_bike = ['instant', 'season', 'yr', 'mnth', 'hr_new', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'cnt_binary']
-columns_all_bike_test = ['workingday','temp', 'cnt_binary']
+columns_all_bike_test = ['workingday','temp', 'cnt_binary', 'hr_new']
 create_target_dict_bike = {'column_name_old':['cnt'], 'column_name_new':['cnt_binary'], 'value':[10]}
 target_bike = 'cnt_binary'
 set_multi_class_bike = ['hr', 6, 12, 18, 24 , 'hr_new']
@@ -349,6 +356,7 @@ training_percent_bike = .08
 kfold_number_bike = 10 
 cycle_vars_user_check = 'yes'
 user_params_or_find_params= 'user'
+minimum_feature_count_for_var_cycle = 3
 logistic_regression_params_bike = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':'balanced', 'random_state':random_state_bike, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
 # max depht and min samples leaf can clash 
 decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':2, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':random_state_bike, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
@@ -359,7 +367,7 @@ model_score_dict = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range
 model_score_dict1 = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 model_score_dict2 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 model_score_dict3 = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-user_optmize_input = ['class', 'optimize', 'train', model_score_dict3]
+user_optmize_input = ['class', 'constant', 'train', model_score_dict3]
 # bike model....
 #bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 #bike_predict._set_up_data_for_prob_predict()
@@ -373,7 +381,7 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
 # bike models for refractored class
-bike_predict = MachinePredictModel(df_bike, columns_all_bike_test, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars, user_input_for_model_output=user_optmize_input, cycle_vars_user_check=cycle_vars_user_check)
+bike_predict = MachinePredictModel(df_bike, columns_all_bike_test, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars, user_input_for_model_output=user_optmize_input, cycle_vars_user_check=cycle_vars_user_check, minimum_feature_count_for_var_cycle=minimum_feature_count_for_var_cycle)
 """
 log_model_combos = bike_predict.cycle_vars_return_desired_output_specific_model()
 for x,y in log_model_combos.items():
@@ -464,19 +472,10 @@ in this order
 """
 
 """
-7/21
-can give back user vars, model based on desired error scores
-what needs to be done now
-1. give user option to iterate over vars or just run all vars (though if all cars are ran
-prob no need to pull our wanted input, set make sure methods express that)
-2. check if vars are stat significant but returning
-once these two are done, work on feeding data and then based on midlle
-run on new models or make decsions with data once scores are good enough
-3. if iterating over vars, be able to set a minimum number to return back
-4. for iterating over bars see if the key name can be cleaned up, it 
-kind of comes back as an arrat and an string 
-5. figure out where stat signifcant test would be best, on the error
-returned or maybe set up a another model than run look at data
-decesion base don what model would do and some control group 
-and see if they are different
+7/24/17
+basically working in terms of user inputs v outputs
+next....
+1. determine stat significance of vars?
+2. how to have data constantly feed in this
+3. take all of that and run on new data 
 """
