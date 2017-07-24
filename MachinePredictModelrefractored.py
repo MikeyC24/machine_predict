@@ -71,12 +71,6 @@ class MachinePredictModel:
 		self.param_dict_decision_tree_array = kwargs.get('param_dict_decision_tree_array', None)
 		self.param_dict_neural_network_array = kwargs.get('param_dict_neural_network_array', None)
 		self.user_input_for_model_output = kwargs.get('user_input_for_model_output', None)
-		# if yes this will cycle thru user params and return wanted scores
-		# if no it will just use all the vars given
-		self.cycle_vars_user_check = kwargs.get('cycle_vars_user_check', None)
-		# if cycling vars, minimum_features_number, is used to determine the minimum
-		# number of vars to be put into the tests
-		self.minimum_features_number = kwargs.get('minimum_features_number', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -128,7 +122,6 @@ class MachinePredictModel:
 		# actually lets do that
 
 	# take in df of cleaned model, return features, target, train and test data in dict
-	# this is used on all models alwaysnneeds to be run to get data rdy
 	def _set_up_data_for_models(self):
 		model_dataframe = self._set_up_data_for_prob_predict()
 		data_model_dict = {}
@@ -144,8 +137,7 @@ class MachinePredictModel:
 		data_model_dict['y_test'] = vars_for_train_test[3]
 		return data_model_dict
 
-	# this will prob get added somwhere else on refractoring, this is the less smart way
-	# to run user params test, based needs more explcit guidance
+		# can prob make this kwargs class variables
 	def predict_prob_model_full(self):
 		# vars
 		data = self._set_up_data_for_models() 
@@ -154,8 +146,6 @@ class MachinePredictModel:
 		predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
 		return predictions_results
 
-	# this will prob get added somwhere else on refractoring, this is the less smart way
-	# to run find best params test, based needs more explcit guidance
 	def predict_prob_model_full_fit_parameters(self):
 		data = self._set_up_data_for_models() 
 		predictions_instance = predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
@@ -164,7 +154,6 @@ class MachinePredictModel:
 
 	# iterate over self.columns_all to return different combinations of columns_all
 	# to run models on
-	# this does not seem like it is being used
 	def _cycle_vars(self):
 		cols_array = []
 		cols = self.columns_all
@@ -180,9 +169,6 @@ class MachinePredictModel:
 		return dict
 
 	# this is to take into a different var for feature column list
-	# this is paired with _set_up_data_from_models
-	# those two can prob be refractored to one method
-	# only difference is to take in an xtravariable of user columns
 	def _set_up_data_for_models_test(self, columns_all):
 		model_dataframe = self._set_up_data_for_prob_predict()
 		data_model_dict = {}
@@ -201,7 +187,6 @@ class MachinePredictModel:
 	# this takes in the user input columns all and returns a dict with all the
 	# different combinations of those columns. thesevalues can be fed into
 	# _set_up_data_for_models_test
-	# this should take in user input variable to determine minimum feature length
 	def _cycle_vars_dict(self):
 		cols = self.columns_all
 		#print(cols)
@@ -215,6 +200,13 @@ class MachinePredictModel:
 				var_combo_dict[y] = subset
 				y +=1
 		return var_combo_dict 
+		#cols_all1 = var_combo_dict[3]
+		#print(cols_all1)
+		#print(type(cols_all1))
+		#data = self._set_up_data_for_models_test(cols_all1)		 	
+		#predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
+		#predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
+		#return predictions_results
 
 	# method to iteerate over the different combos of vars and then spit out certain scores
 	def cycle_vars_return_desired_output_specific_model(self):
@@ -233,11 +225,6 @@ class MachinePredictModel:
 		return dict_score_combos
 			#print(dict_score_combos)
 
-	# this method uses all vars inputed and does the test and train data type inputed
-	# from user_input_for_model_output to give one dict of answers, right now it returns
-	# data no matter what the error scores are, unsure yet if this should check those
-	# should be easy to implment as the return_desired_user_output_from_dict method
-	# should work find on this and would just need some if statements
 	def user_output_model(self):
 		data = self._set_up_data_for_models() 
 		# start prediction instace 
@@ -245,11 +232,9 @@ class MachinePredictModel:
 		output = predictions_instance.classification_unifying_model()
 		return output
 
-	# takes in a dict from classification_unifying_model output format
-	# and cycles thru dicts to only return vars, and scores that meet user inputted threshold
-	# this is not working for when user chooses to optimize as the reurn dict from that 
-	# has different names
-	# find out what optmize 
+	#only works on one test, need to set forvariables at top, bascailly all possible options
+	# cmpare if user input has it and then return 
+	# also need to lead with model 
 	def return_desired_user_output_from_dict(self):
 		data_wanted = self.cycle_vars_return_desired_output_specific_model()
 		class_or_amount = self.user_input_for_model_output[0]
@@ -258,19 +243,24 @@ class MachinePredictModel:
 		model_list = self.user_input_for_model_output[3]
 		dict_train_types = ['dict_results_simple', 'dict_results_kfold', 'dict_results_train_set']
 		model_types = model_list.keys()
+		
 		# variables are the variables used for the regression
 		dict_all = {}
 		for model_use_key in model_types:
 			dict_returned  = {}
 			for variables,y in data_wanted.items():
+				#print('x', variables)
+				#print('y', type(y), y)
+				#print('key in data wanted', y.keys())
 				for train_test in dict_train_types:
 					if len(y[train_test]) > 0:
+						#print('value is not empty', type(y), variables, y[train_test])
+						#print(y.keys())
 						# value is the dictionary contained within the train type
 						for value in y.values():
 							# key model is the type of test, ir logstic, decision tree
 							# model scores is the dict containg all the different error scores of that model
-							# this dict1 is too keep the scores passed and then pass to bigger dict
-							dict1 = {}
+							counter = 1
 							for key_model, model_scores in value.items():
 								for model_item in model_types:
 									if key_model == model_item:
@@ -278,6 +268,8 @@ class MachinePredictModel:
 										# score value is the actual number/value
 										score_array = []
 										dict = {}
+										dict1 = {}
+
 										# score key and values are coming from test
 										# model_scores and model_list are coming from user
 										for score_key, score_values in model_scores.items():
@@ -292,16 +284,6 @@ class MachinePredictModel:
 											dict_returned[str(variables) + str(key_model)] = dict
 		return dict_returned
 
-	# this model takes no inputs from user other than initial vars
-	# it makes all decisions based inital inputs
-	def user_full_model(self):
-		#model_dataframe = self._set_up_data_for_prob_predict()
-		if self.cycle_vars_user_check == 'yes':
-			data_wanted = self.return_desired_user_output_from_dict()
-		else:
-			data_wanted = self.user_output_model()
-		return data_wanted
-
 # info for bikes
 file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
 df_bike = pd.read_csv(file_location)
@@ -314,8 +296,6 @@ set_multi_class_bike = ['hr', 6, 12, 18, 24 , 'hr_new']
 random_state_bike = 1
 training_percent_bike = .08
 kfold_number_bike = 10 
-cycle_vars_user_check = 'yes'
-minimum_features_number = 1
 logistic_regression_params_bike = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':'balanced', 'random_state':random_state_bike, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
 # max depht and min samples leaf can clash 
 decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':2, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':random_state_bike, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
@@ -324,8 +304,7 @@ nnl_params_bike = {'hidden_layer_sizes':(10, ), 'activation':'relu', 'solver':'a
 kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
 model_score_dict = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 model_score_dict1 = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-model_score_dict2 = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-user_optmize_input = ['class', 'train', 'train', model_score_dict]
+user_optmize_input = ['class', 'constant', 'train', model_score_dict]
 # bike model....
 #bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 #bike_predict._set_up_data_for_prob_predict()
@@ -339,7 +318,7 @@ neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['r
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars)
 #bike_predict.predict_prob_model_fit_parameters(training_percent_bike, kfold_number_bike, target_bike, param_dict_decision_tree_array=decision_tree_array_vars)
 # bike models for refractored class
-bike_predict = MachinePredictModel(df_bike, columns_all_bike_test, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars, user_input_for_model_output=user_optmize_input, cycle_vars_user_check=cycle_vars_user_check)
+bike_predict = MachinePredictModel(df_bike, columns_all_bike_test, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars, user_input_for_model_output=user_optmize_input)
 """
 log_model_combos = bike_predict.cycle_vars_return_desired_output_specific_model()
 for x,y in log_model_combos.items():
@@ -348,27 +327,12 @@ for x,y in log_model_combos.items():
 	print(y)
 	print('_________________________')
 """
-"""
-# this [art below is just for returning user data by cycling vars based if they meet score]
 data_wanted = bike_predict.return_desired_user_output_from_dict()
 print(data_wanted)
 print('_________________________')
 for x,y in data_wanted.items():
 	print(x)
 	print(y)
-	print('_______________________')
-"""
-# below for user_full_model( is unifying model
-data_wanted = bike_predict.user_full_model()
-print(data_wanted)
-#print(data_wanted)
-print(type(data_wanted))
-"""
-for x,y in data_wanted.items():
-	print(x)
-	print(y)
-	print('_______________________')
-"""
 #bike_predict.user_output_model()
 #bike_predict._set_up_data_for_prob_predict()
 #combos1 = bike_predict._cycle_vars_dict()
@@ -440,11 +404,4 @@ prob no need to pull our wanted input, set make sure methods express that)
 2. check if vars are stat significant but returning
 once these two are done, work on feeding data and then based on midlle
 run on new models or make decsions with data once scores are good enough
-3. if iterating over vars, be able to set a minimum number to return back
-4. for iterating over bars see if the key name can be cleaned up, it 
-kind of comes back as an arrat and an string 
-5. figure out where stat signifcant test would be best, on the error
-returned or maybe set up a another model than run look at data
-decesion base don what model would do and some control group 
-and see if they are different
 """
