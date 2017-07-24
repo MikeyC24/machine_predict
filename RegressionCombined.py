@@ -384,22 +384,26 @@ class RegressionCombined:
 		reg = LogisticRegression()
 		nnl = MLPClassifier()
 		dict_results_parameter_fit = {}
+		#print('below are inputs for param grid search, in order oglog, tree, nnl')
+		#print(self.param_dict_logistic_array)
+		#print(self.param_dict_decision_tree_array)
+		#print(self.param_dict_neural_network_array)
 		if 'logistic' in model_list:
 			print('doing log regress')
 			clf = GridSearchCV(reg, self.param_dict_logistic_array)
 			clf.fit(self.X_train, self.y_train)
 			predictions = clf.predict(self.X_test)
 			error_score = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
-			error_score['best_Score'] = clf.best_score_
+			error_score['best_score'] = clf.best_score_
 			error_score['best_params'] = clf.best_params_
-			dict_results_parameter_fit['logsitic'] = error_score
-		if 'decision_tree_array' in model_list:
+			dict_results_parameter_fit['logistic'] = error_score
+		if 'decision_tree' in model_list:
 			print('doing decision tree')
 			clf = GridSearchCV(dtree, self.param_dict_decision_tree_array)
 			clf.fit(self.X_train, self.y_train)
 			predictions = clf.predict(self.X_test)
 			error_score = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
-			error_score['best_Score'] = clf.best_score_
+			error_score['best_score'] = clf.best_score_
 			error_score['best_params'] = clf.best_params_
 			dict_results_parameter_fit['decision_tree'] = error_score
 		if 'neural_network' in model_list:
@@ -408,7 +412,7 @@ class RegressionCombined:
 			clf.fit(self.X_train, self.y_train)
 			predictions = clf.predict(self.X_test)
 			error_score = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
-			error_score['best_Score'] = clf.best_score_
+			error_score['best_score'] = clf.best_score_
 			error_score['best_params'] = clf.best_params_
 			dict_results_parameter_fit['neural_net'] = error_score
 		return dict_results_parameter_fit

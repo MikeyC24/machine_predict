@@ -222,7 +222,7 @@ class MachinePredictModel:
 		dict_score_combos = {}
 		for x in vars_combo.values():
 			if len(x) > 1:
-				print(x)
+				#print(x)
 				data = self._set_up_data_for_models_test(x)
 				predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output,param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array)
 				output = predictions_instance.classification_unifying_model()
@@ -238,7 +238,7 @@ class MachinePredictModel:
 	def user_output_model(self):
 		data = self._set_up_data_for_models() 
 		# start prediction instace 
-		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output)
+		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output,param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array)
 		output = predictions_instance.classification_unifying_model()
 		return output
 
@@ -257,37 +257,70 @@ class MachinePredictModel:
 		model_types = model_list.keys()
 		# variables are the variables used for the regression
 		dict_all = {}
-		for model_use_key in model_types:
-			dict_returned  = {}
-			for variables,y in data_wanted.items():
-				for train_test in dict_train_types:
-					if len(y[train_test]) > 0:
-						# value is the dictionary contained within the train type
-						for value in y.values():
-							# key model is the type of test, ir logstic, decision tree
-							# model scores is the dict containg all the different error scores of that model
-							# this dict1 is too keep the scores passed and then pass to bigger dict
-							dict1 = {}
-							for key_model, model_scores in value.items():
-								for model_item in model_types:
-									if key_model == model_item:
-										# score key is the error metric name such as roc_auc_score
-										# score value is the actual number/value
-										score_array = []
-										dict = {}
-										# score key and values are coming from test
-										# model_scores and model_list are coming from user
-										for score_key, score_values in model_scores.items():
-											for item in model_list[key_model]:
-												dict['train_type'] = train_test
-												dict['regression_ran'] = key_model
-												dict['variables'] = variables
-												if item == score_key:
-													if score_values > model_list[key_model][item]:
-														dict1[score_key] = [score_values]
-												dict['scores_passed'] = dict1
-											dict_returned[str(variables) + str(key_model)] = dict
-		return dict_returned
+		if constant_or_optimize == 'constant':
+			for model_use_key in model_types:
+				dict_returned  = {}
+				for variables,y in data_wanted.items():
+					for train_test in dict_train_types:
+						if len(y[train_test]) > 0:
+							# value is the dictionary contained within the train type
+							for value in y.values():
+								# key model is the type of test, ir logstic, decision tree
+								# model scores is the dict containg all the different error scores of that model
+								# this dict1 is too keep the scores passed and then pass to bigger dict
+								dict1 = {}
+								for key_model, model_scores in value.items():
+									for model_item in model_types:
+										if key_model == model_item:
+											# score key is the error metric name such as roc_auc_score
+											# score value is the actual number/value
+											score_array = []
+											dict = {}
+											# score key and values are coming from test
+											# model_scores and model_list are coming from user
+											for score_key, score_values in model_scores.items():
+												for item in model_list[key_model]:
+													dict['train_type'] = train_test
+													dict['regression_ran'] = key_model
+													dict['variables'] = variables
+													if item == score_key:
+														if score_values > model_list[key_model][item]:
+															dict1[score_key] = [score_values]
+													dict['scores_passed'] = dict1
+												dict_returned[str(variables) + str(key_model)] = dict
+			return dict_returned
+		else:
+			print('user chose optimize')
+			# key are the varaibles used
+			# value is the dict from returned with data, with key being model used
+			for key, value in data_wanted.items():
+				dict_multi = {}
+				for model_used in model_types:
+					if value.get(model_used, False):
+						score_data = value[model_used]
+						print('key', key)
+						print('value', value)
+						print('model_used', model_used)
+						print(score_data)
+						print(model_list.values())
+						dict1 = {}	
+						for score_value_wanted_key_value in model_list.values():
+							for score_value_wanted_key in score_value_wanted_key_value.keys():
+								if score_data.get(score_value_wanted_key, False):
+									print('score_value_wanted_key', score_value_wanted_key)
+									score_from_model = score_data[score_value_wanted_key]
+									score_from_user = score_value_wanted_key_value[score_value_wanted_key]
+									print('score_from_model', score_from_model)
+									print('score_from_user', score_from_user)
+									if score_from_model >= score_from_model:
+										dict1[score_value_wanted_key] = score_from_model
+								dict1['best_params'] = score_data['best_params']
+								dict1['best_score'] = score_data['best_score'] 
+								dict_all[str(key) +str(model_used)] = dict1
+								print(dict_all)
+			return dict_all
+
+
 
 	# this model takes no inputs from user other than initial vars
 	# it makes all decisions based inital inputs
@@ -324,8 +357,9 @@ nnl_params_bike = {'hidden_layer_sizes':(10, ), 'activation':'relu', 'solver':'a
 kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
 model_score_dict = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 model_score_dict1 = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-model_score_dict2 = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-user_optmize_input = ['class', 'constant', 'train', model_score_dict]
+model_score_dict2 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+model_score_dict3 = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+user_optmize_input = ['class', 'optimize', 'train', model_score_dict3]
 # bike model....
 #bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 #bike_predict._set_up_data_for_prob_predict()
