@@ -33,6 +33,7 @@ class RegressionCombined:
 		self.X_test = X_test
 		self.y_train = y_train
 		self.y_test = y_test
+		# this is to determine what test on run and on what traing data 
 		self.user_input_for_model_output = kwargs.get('user_input_for_model_output', None)
 		self.param_dict_logistic = kwargs.get('param_dict_logistic', None)
 		self.param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
