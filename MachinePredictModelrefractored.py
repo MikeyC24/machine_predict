@@ -112,6 +112,10 @@ class MachinePredictModel:
 		if self.time_period_returns_dict is not None:
 			model_dataframe.time_period_returns_dict(self.time_period_returns_dict)
 		if self.cols_to_drop is not None:
+			print('dropping cols')
+			# this is not working the drop_columns from arrange data drops everything
+			# so this should return an empt dataframe but the results arent getting passed
+			# thru 
 			model_dataframe.drop_columns(self.cols_to_drop)
 		if self.target_change_bin_dict is not None:
 			#model_dataframe.set_binary(self.col_to_make_target, self.target_col_name, self.target_amount)

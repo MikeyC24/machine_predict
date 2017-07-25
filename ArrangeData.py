@@ -69,7 +69,7 @@ class ArrangeData:
 		print(df.head(count))
 
 	# convert a column to a new datetime column
-	# dates need to be in datetime for pandas functionality
+	# dates need to be in datetime for pandas motfunctionality
 	def convert_to_datetime(self, column_name_to_convert, new_column_name):
 		df = self.dataframe
 		df[new_column_name] = pd.to_datetime(df[column_name])
