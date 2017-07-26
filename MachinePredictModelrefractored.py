@@ -122,7 +122,7 @@ class MachinePredictModel:
 			model_dataframe.set_binary_from_dict(self.target_change_bin_dict)
 		if self.set_multi_class is not None:
 			model_dataframe.set_multi_class_array(self.set_multi_class)
-		#model_dataframe.overall_data_display(8)
+		model_dataframe.overall_data_display(8)
 		return model_dataframe
 		# everything above is setting up data, more still needs to be added
 		# now comes the regressions on the bottom
@@ -349,7 +349,7 @@ class MachinePredictModel:
 # info for bikes
 file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
 df_bike = pd.read_csv(file_location)
-columns_to_drop_bike = ['casual', 'registered', 'dtedat']
+columns_to_drop_bike = ['casual', 'registered', 'dteday']
 columns_all_bike = ['instant', 'season', 'yr', 'mnth', 'hr_new', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'cnt_binary']
 columns_all_bike_test = ['workingday','temp', 'cnt_binary', 'hr_new']
 create_target_dict_bike = {'column_name_old':['cnt'], 'column_name_new':['cnt_binary'], 'value':[10]}

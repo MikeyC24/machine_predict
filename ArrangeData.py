@@ -350,7 +350,7 @@ class ArrangeData:
 
 	def drop_columns(self, column_array):
 		df = self.dataframe
-		for x in df:
+		for x in column_array:
 			df = df.drop([x], axis = 1)
 		return df
 

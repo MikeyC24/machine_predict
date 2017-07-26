@@ -25,6 +25,11 @@ df = ArrangeData(dataframe)
 8. set_multi_class_array
 """
 
+""" 
+other methods to test
+check dummy variables on categories page in test data
+"""
+
 class TestArrangeData(unittest.TestCase):
 
 	file_location = '/home/mike/Documents/coding_all/machine_predict/TestCSVForArrangeData.csv'
@@ -77,68 +82,46 @@ class TestArrangeData(unittest.TestCase):
 
 	# checks to make sure columns are actauly dropped from dataframe
 	def test_drop_columns(self):
-		self.df.overall_data_display(10)
 		cols_to_drop1 = ['EUR_BTC_EX_High', 'USD_BTC_EX_High']
-		print(cols_to_drop1)
-		df2 = df.drop_columns(cols_to_drop1)
-		print(df2)
+		df2 = self.df.drop_columns(cols_to_drop1)
+		for col in cols_to_drop1:
+			self.assertNotIn(col, df2.columns.values)
+
+	# test to make sure target column is created and everything in that column
+	# is 0 or 1 for binary classification
+	def test_set_binary_from_dict(self):
+		create_target_dict_bike = {'column_name_old':['cnt'], 'column_name_new':['cnt_binary'], 'value':[10]}
+		target_bike = 'cnt_binary'
+		df = self.df.set_binary_from_dict(create_target_dict_bike)
+		self.assertIn(target_bike, df.columns.values)
+		for x in range(df.shape[0]):
+			y = True if (df[target_bike][x] == 0 or df[target_bike][x] == 1) else False
+			self.assertTrue(y)
+
+	# test to mak sure a column was turned into a multi class col, betweem the ranges
+	# this may need to be changed as the method itself prob needs to be improved
+	# this test is no tperfect and can miss if all values are same when they shpuldnt be
+	def test_set_multi_class_array(self):
+		set_multi_class_bike = ['hr', 6, 12, 18, 24 , 'hr_new']
+		df = self.df.set_multi_class_array(set_multi_class_bike)
+		self.assertIn(set_multi_class_bike[5], df.columns.values)
+		for x in range(df.shape[0]):
+			self.assertTrue(0 <= df[set_multi_class_bike[5]][x] <= 5)
 
 
-#test_case = TestArrangeData()
-#test_case.test_format_unix_date()
-#test_case.test_resample_data()
-#test_case.test_normalize_new_column()
-#test_case.test_time_period_returns_dict()
-#test_case.test_drop_columns()
-
-# datetime64[ns]
-#1899.4756129
-#2645.25485714
-#2570.312
+test_case = TestArrangeData()
+test_case.test_format_unix_date()
+test_case.test_resample_data()
+test_case.test_normalize_new_column()
+test_case.test_time_period_returns_dict()
+test_case.test_drop_columns()
+test_case.test_set_binary_from_dict()
+test_case.test_set_multi_class_array()
 
 
-file_location1 = '/home/mike/Documents/coding_all/machine_predict/TestCSVForArrangeData.csv'
-file_location2 = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
-"""
-dataframe1 = pd.read_csv(file_location1)
-# ArrangeData class instance 
-df = ArrangeData(dataframe1)
-cols_to_drop1 = ['EUR_BTC_EX_High']
-#test = df.drop_columns(cols_to_drop1)
-test = df.shuffle_rows()
-print(test.shape)
-test = test.drop(['USD_BTC_EX_High'], axis = 1)
-print(test.shape)
-test = df.drop_columns(cols_to_drop1)
-print(test.shape)
-#test.overall_data_display(10)
-#print(test.head(10))
-print(type(test))
-"""
-drop = ['casual']
-dataframe2 = pd.read_csv(file_location2)
-df = ArrangeData(dataframe2)
-check = df.shuffle_rows()
-#print(check)
-#df.overall_data_display(10)
-
-"""
-print(test.shape)
-test = df.drop_columns(drop)
-print(test.shape)
-"""
-def set_up_df():
-	file_location2 = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
-	dataframe2 = pd.read_csv(file_location2)
-	df = ArrangeData(dataframe2)
-	df = df.shuffle_rows()
-	return df
-
-test = set_up_df()
-test.overall_data_display(10)
 """
 3 big things revealed
-1. drop columns is not working on Arrange data, it is wiping out whole dataframe
+1. drop columns is not working on Arrange data, it is wiping out whole dataframe - FIXED
 2. first method in MachinePredictModelrefractored return an instance of
 arrangedata class and not a df, dont know if this is desired yet
 3. only some of the methods from arrange data are triggering from that first method
