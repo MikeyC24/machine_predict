@@ -116,7 +116,7 @@ class MachinePredictModel:
 			# this is not working the drop_columns from arrange data drops everything
 			# so this should return an empt dataframe but the results arent getting passed
 			# thru 
-			model_dataframe.drop_columns(self.cols_to_drop)
+			model_dataframe.drop_columns_return_self(self.cols_to_drop)
 		if self.target_change_bin_dict is not None:
 			#model_dataframe.set_binary(self.col_to_make_target, self.target_col_name, self.target_amount)
 			model_dataframe.set_binary_from_dict(self.target_change_bin_dict)
@@ -358,7 +358,7 @@ set_multi_class_bike = ['hr', 6, 12, 18, 24 , 'hr_new']
 random_state_bike = 1
 training_percent_bike = .08
 kfold_number_bike = 10 
-cycle_vars_user_check = 'yes'
+cycle_vars_user_check = 'no'
 user_params_or_find_params= 'user'
 minimum_feature_count_for_var_cycle = 3
 logistic_regression_params_bike = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':'balanced', 'random_state':random_state_bike, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}

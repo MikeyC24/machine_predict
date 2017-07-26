@@ -351,8 +351,14 @@ class ArrangeData:
 	def drop_columns(self, column_array):
 		df = self.dataframe
 		for x in column_array:
-			df = df.drop([x], axis = 1)
+			df = df.drop([x], axis = 1, inplace=True)
 		return df
+
+	def drop_columns_return_self(self, column_array):
+		#df = self.dataframe
+		for x in column_array:
+			self.dataframe.drop([x], axis = 1, inplace=True)
+		return self
 
 	def convert_to_num(self, columns):
 		pass

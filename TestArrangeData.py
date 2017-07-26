@@ -115,6 +115,7 @@ class TestArrangeData(unittest.TestCase):
 		self.assertNotIn(target_col, features.values)
 		self.assertIn(target_col, y_target.values)
 
+"""
 test_case = TestArrangeData()
 test_case.test_format_unix_date()
 test_case.test_resample_data()
@@ -124,7 +125,7 @@ test_case.test_drop_columns()
 test_case.test_set_binary_from_dict()
 test_case.test_set_multi_class_array()
 test_case.test_set_features_and_target1()
-
+"""
 
 """
 3 big things revealed
@@ -136,3 +137,4 @@ actaully all but drop columns from testing, it seems creating a now column will
 alter the db, need to see what happens if col stays the same, shuffle rows also runs into this
 
 """
+
