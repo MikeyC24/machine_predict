@@ -112,10 +112,8 @@ class MachinePredictModel:
 		if self.time_period_returns_dict is not None:
 			model_dataframe.time_period_returns_dict(self.time_period_returns_dict)
 		if self.cols_to_drop is not None:
-			print('dropping cols')
-			# this is not working the drop_columns from arrange data drops everything
-			# so this should return an empt dataframe but the results arent getting passed
-			# thru 
+			# this is now working however this is the only equation below that
+			# returns the class instance itself instead of a dataframe
 			model_dataframe.drop_columns_return_self(self.cols_to_drop)
 		if self.target_change_bin_dict is not None:
 			#model_dataframe.set_binary(self.col_to_make_target, self.target_col_name, self.target_amount)
@@ -139,12 +137,16 @@ class MachinePredictModel:
 		x_y_vars = model_dataframe.set_features_and_target1(self.columns_all, self.target_col_name)
 		data_model_dict['features'] = x_y_vars[0]
 		data_model_dict['target'] = x_y_vars[1]
+		print('type', type(data_model_dict['features']))
 		# set up training and testing data
-		vars_for_train_test = model_dataframe.create_train_and_test_data_x_y_mixer(self.training_percent, data_model_dict['features'],data_model_dict['target'])
+		vars_for_train_test = model_dataframe.create_train_and_test_data_x_y_mixer(self.training_percent, data_model_dict['features'], data_model_dict['target'])
 		data_model_dict['X_train'] = vars_for_train_test[0]
 		data_model_dict['y_train'] = vars_for_train_test[1]
 		data_model_dict['X_test'] = vars_for_train_test[2]
 		data_model_dict['y_test'] = vars_for_train_test[3]
+		#print('data_model_dict', data_model_dict)
+		#print('xtest', len(data_model_dict['X_test']))
+		#print('xtrain', len(data_model_dict['X_train']))
 		return data_model_dict
 
 		# can prob make this kwargs class variables

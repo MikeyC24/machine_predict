@@ -77,9 +77,10 @@ class TestArrangeData(unittest.TestCase):
 		self.assertTrue(str(df['3day_highs_avg_change'][1]) == 'nan')
 
 	# checks to make sure columns are actauly dropped from dataframe
-	def test_drop_columns(self):
+	def test_drop_columns_return_self(self):
 		cols_to_drop1 = ['EUR_BTC_EX_High', 'USD_BTC_EX_High']
-		df2 = self.df.drop_columns(cols_to_drop1)
+		df2 = self.df.drop_columns_return_self(cols_to_drop1)
+		df2  = df2.shuffle_rows()
 		for col in cols_to_drop1:
 			self.assertNotIn(col, df2.columns.values)
 
@@ -107,25 +108,53 @@ class TestArrangeData(unittest.TestCase):
 	# this is bringing up the issue again of this class instance keeping some
 	# values such as created cols but not doing other things like dropping
 	def test_set_features_and_target1(self,):
-		columns = ['USD_BTC_EX_High', 'EUR_BTC_EX_High', 'date_unix', 'categories', 'instant', 'dteday', 'season', 'yr', 'mnth', 'hr', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'casual', 'registered', 'cnt', 'Datetime', 'month_highs_avg', 'week_highs_avg', 'day_highs_avg', 'EUR_BTC_EX_High_normalized', 'USD_BTC_EX_High_normalized', 'week_highs_avg_change', '3day_highs_avg_change', 'cnt_binary']
-		target_col = 'USD_BTC_EX_High'
-		vars_back = self.df.set_features_and_target1(target_col)
+		columns = ['date_unix', 'categories', 'instant', 'dteday', 'season', 'yr', 'mnth', 'hr', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'casual', 'registered', 'cnt', 'Datetime', 'month_highs_avg', 'week_highs_avg', 'day_highs_avg', 'EUR_BTC_EX_High_normalized', 'USD_BTC_EX_High_normalized', 'week_highs_avg_change', '3day_highs_avg_change', 'cnt_binary']
+		target_col = 'cnt_binary'
+		features = ['date_unix', 'categories', 'instant', 'dteday', 'season', 'yr', 'mnth', 'hr', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'casual', 'registered', 'cnt', 'Datetime', 'month_highs_avg', 'week_highs_avg', 'day_highs_avg', 'EUR_BTC_EX_High_normalized', 'USD_BTC_EX_High_normalized', 'week_highs_avg_change', '3day_highs_avg_change']
+		vars_back = self.df.set_features_and_target1(columns, target_col)
 		features = vars_back[0]
 		y_target = vars_back[1]
-		self.assertNotIn(target_col, features.values)
-		self.assertIn(target_col, y_target.values)
+		self.assertIn(target_col, y_target.name)
+		for col in features:
+			self.assertIn(col, features.columns.values)
 
-"""
+	def test_create_train_and_test_data_x_y_mixer_and_set_features_and_target1(self):
+		columns = ['date_unix', 'categories', 'instant', 'dteday', 'season', 'yr', 'mnth', 'hr', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'casual', 'registered', 'cnt', 'Datetime', 'month_highs_avg', 'week_highs_avg', 'day_highs_avg', 'EUR_BTC_EX_High_normalized', 'USD_BTC_EX_High_normalized', 'week_highs_avg_change', '3day_highs_avg_change', 'cnt_binary']
+		target_col = 'cnt_binary'
+		features = ['date_unix', 'categories', 'instant', 'dteday', 'season', 'yr', 'mnth', 'hr', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'casual', 'registered', 'cnt', 'Datetime', 'month_highs_avg', 'week_highs_avg', 'day_highs_avg', 'EUR_BTC_EX_High_normalized', 'USD_BTC_EX_High_normalized', 'week_highs_avg_change', '3day_highs_avg_change']
+		vars_back = self.df.set_features_and_target1(columns, target_col)
+		features = vars_back[0]
+		y_target = vars_back[1]
+		self.assertIn(target_col, y_target.name)
+		for col in features:
+			self.assertIn(col, features.columns.values)
+		training_percent = .8
+		data_model_dict = {}
+		vars_for_train_test = self.df.create_train_and_test_data_x_y_mixer(training_percent, features, y_target)
+		data_model_dict['X_train'] = vars_for_train_test[0]
+		data_model_dict['y_train'] = vars_for_train_test[1]
+		data_model_dict['X_test'] = vars_for_train_test[2]
+		data_model_dict['y_test'] = vars_for_train_test[3]
+		self.assertEqual(len(data_model_dict['X_test']), 326)
+		self.assertEqual(len(data_model_dict['X_train']), 1304)
+		self.assertEqual(len(data_model_dict['y_test']), 326)
+		self.assertEqual(len(data_model_dict['y_train']), 1304)
+		
+
+
+
 test_case = TestArrangeData()
 test_case.test_format_unix_date()
 test_case.test_resample_data()
 test_case.test_normalize_new_column()
 test_case.test_time_period_returns_dict()
-test_case.test_drop_columns()
+test_case.test_drop_columns_return_self()
 test_case.test_set_binary_from_dict()
 test_case.test_set_multi_class_array()
-test_case.test_set_features_and_target1()
-"""
+#test_case.test_set_features_and_target1()
+test_case.test_create_train_and_test_data_x_y_mixer_and_set_features_and_target1()
+
+
 
 """
 3 big things revealed
