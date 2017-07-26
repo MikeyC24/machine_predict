@@ -5,12 +5,6 @@ import unittest
 # by MachinePredictModel at this point
 # will at some point add a list of tested methods and ones not looked at
 	
-#prob should make test csv for this that has everything needed 
-# csv file dataframe load
-file_location = '/home/mike/Documents/coding_all/machine_predict/TestCSVForArrangeData.csv'
-dataframe = pd.read_csv(file_location)
-# ArrangeData class instance 
-df = ArrangeData(dataframe)
 
 """ methods to test used in MachinePredictModel
 1. format_unix_date
@@ -23,6 +17,8 @@ df = ArrangeData(dataframe)
 6. drop_columns
 7. set_binary_from_dict
 8. set_multi_class_array
+9. set_features_and_target1
+10. create_train_and_test_data_x_y_mixer(
 """
 
 """ 
@@ -108,6 +104,16 @@ class TestArrangeData(unittest.TestCase):
 		for x in range(df.shape[0]):
 			self.assertTrue(0 <= df[set_multi_class_bike[5]][x] <= 5)
 
+	# this is bringing up the issue again of this class instance keeping some
+	# values such as created cols but not doing other things like dropping
+	def test_set_features_and_target1(self,):
+		columns = ['USD_BTC_EX_High', 'EUR_BTC_EX_High', 'date_unix', 'categories', 'instant', 'dteday', 'season', 'yr', 'mnth', 'hr', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed', 'casual', 'registered', 'cnt', 'Datetime', 'month_highs_avg', 'week_highs_avg', 'day_highs_avg', 'EUR_BTC_EX_High_normalized', 'USD_BTC_EX_High_normalized', 'week_highs_avg_change', '3day_highs_avg_change', 'cnt_binary']
+		target_col = 'USD_BTC_EX_High'
+		vars_back = self.df.set_features_and_target1(target_col)
+		features = vars_back[0]
+		y_target = vars_back[1]
+		self.assertNotIn(target_col, features.values)
+		self.assertIn(target_col, y_target.values)
 
 test_case = TestArrangeData()
 test_case.test_format_unix_date()
@@ -117,6 +123,7 @@ test_case.test_time_period_returns_dict()
 test_case.test_drop_columns()
 test_case.test_set_binary_from_dict()
 test_case.test_set_multi_class_array()
+test_case.test_set_features_and_target1()
 
 
 """
@@ -126,6 +133,6 @@ test_case.test_set_multi_class_array()
 arrangedata class and not a df, dont know if this is desired yet
 3. only some of the methods from arrange data are triggering from that first method
 actaully all but drop columns from testing, it seems creating a now column will 
-alter the db, need to see what happens if col stays the same
+alter the db, need to see what happens if col stays the same, shuffle rows also runs into this
 
 """

@@ -376,8 +376,11 @@ class ArrangeData:
 	# 1. will prob end in testing class
 	# 2. dont know yet if this should take in x,y or take in a df
 	# right now this returns 4 variables to use for testing
+	# the shuffled rows portin was added in later, make sure this is tested
 	def create_train_and_test_data_x_y_mixer(self, percent, X, y):
 		df = self.dataframe
+		shuffled_rows = np.random.permutation(df.index)
+		df = df.loc[shuffled_rows,:]
 		highest_train_row = int(df.shape[0]*(percent))
 		X_train = X[:highest_train_row]
 		y_train = y[:highest_train_row]
@@ -412,6 +415,7 @@ class ArrangeData:
 		# loans['int_rate'] = loans['int_rate'].str.rstrip('%').astype('float')
 
 	# return x y vars
+	# not being used right now
 	def set_features_and_target(self, feature_col, y_target):
 		df = self.dataframe
 		features = df[feature_col]
