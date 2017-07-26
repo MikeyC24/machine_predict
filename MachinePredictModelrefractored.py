@@ -369,11 +369,12 @@ decision_tree_params_bike = {'criterion':'gini', 'splitter':'best', 'max_depth':
 #decision_tree_params_loan = ['test']
 nnl_params_bike = {'hidden_layer_sizes':(10, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state_bike}
 kfold_dict = {'n_splits':10, 'random_state':random_state_bike, 'shuffle':False}
-model_score_dict = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-model_score_dict1 = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-model_score_dict2 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-model_score_dict3 = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-user_optmize_input = ['class', 'constant', 'train', model_score_dict3]
+model_score_dict_all = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+model_score_dict_nnl = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+model_score_dict_log = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+model_score_dict_tree = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+model_score_dict_log_tree = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+user_optmize_input = ['class', 'constant', 'kfold', model_score_dict_log_tree]
 # bike model....
 #bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 #bike_predict._set_up_data_for_prob_predict()
@@ -407,6 +408,7 @@ for x,y in data_wanted.items():
 	print('_______________________')
 """
 # below for user_full_model( is unifying model
+"""
 data_wanted = bike_predict.user_full_model()
 #print(data_wanted)
 print(type(data_wanted))
@@ -414,7 +416,7 @@ for x,y in data_wanted.items():
 	print(x)
 	print(y)
 	print('_______________________')
-
+"""
 #bike_predict.user_output_model()
 #bike_predict._set_up_data_for_prob_predict()
 #combos1 = bike_predict._cycle_vars_dict()
@@ -490,4 +492,15 @@ next....
 """
 idea to take in user variables, have user input variables, then for all of them 
 have method to turn in array?dict? and input from there? 
+"""
+"""
+major milestones next - 
+AA. when tests are done, fix this method _set_up_data_for_models_test(
+all that needs to be done is to add in a *arg where defaults is self.columns_all
+# or can take in a custom set are when the need to cycle thru the vars arrives
+1.have the var returns be more readable than
+the sloppy way the key is returned now
+2. be able to store all answers in database, this may  mean making
+some of th return dicts more aligned
+3. be able to get data out of those databases to run future tests
 """
