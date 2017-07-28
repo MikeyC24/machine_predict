@@ -111,7 +111,7 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 	3. tree, log, nnl,
 	"""
 	# case 1 no var cycle user param input, train,  all 6 cases of models
-	def train_user_no_cycle_all_models(self):
+	def test_right_training_method_and_scores(self):
 		cycle_vars = 'no'
 		model_score_dict_all = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 		model_score_dict_nnl = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
@@ -120,7 +120,8 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 		model_score_dict_tree_log = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 		model_score_dict_tree_nnl = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}	
 		model_score_dict_nnl_log = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-		user_optmize_input = ['class', 'constant', 'train', model_score_dict_all]
+		user_optmize_input = ['class', 'constant', 'kfold', model_score_dict_all]
+		key_poss_of_return_dict = ['dict_results_simple', 'dict_results_kfold', 'dict_results_train_set']
 		bike_predict = MachinePredictModel(self.df_bike, self.columns_all_bike_test, self.random_state_bike, self.training_percent_bike, 
 											self.kfold_number_bike, self.target_bike, cols_to_drop=self.columns_to_drop_bike,set_multi_class=self.set_multi_class_bike, 	
 											target_change_bin_dict=self.create_target_dict_bike, kfold_dict=self.kfold_dict, 
@@ -132,13 +133,52 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 			print(key)
 			print(value)
 			print('_________________')
+		# test to make sure right train model was chosen 
+		# and there others are blank
+		if user_optmize_input[2] == 'train':
+			self.assertTrue(len(data_wanted['dict_results_train_set']) > 0)
+			self.assertTrue(len(data_wanted['dict_results_kfold']) <= 0)
+			self.assertTrue(len(data_wanted['dict_results_simple']) <= 0)
+			self.assertTrue(round(data_wanted['dict_results_train_set']['LogisticRegress']['sensitivity'],3) == .829 )
+			self.assertTrue(round(data_wanted['dict_results_train_set']['LogisticRegress']['fallout_rate'],3) == .171 )
+			self.assertTrue(round(data_wanted['dict_results_train_set']['DecisionTreeCla']['sensitivity'],3) == .842 )
+			self.assertTrue(round(data_wanted['dict_results_train_set']['DecisionTreeCla']['fallout_rate'],3) == .158 )
+			self.assertTrue(round(data_wanted['dict_results_train_set']['MLPClassifier(a']['sensitivity'],3) == .896 )
+			self.assertTrue(round(data_wanted['dict_results_train_set']['MLPClassifier(a']['fallout_rate'],3) == .104 )
+		elif user_optmize_input[2] == 'kfold':
+			self.assertTrue(len(data_wanted['dict_results_train_set']) <= 0)
+			self.assertTrue(len(data_wanted['dict_results_kfold']) > 0)
+			self.assertTrue(len(data_wanted['dict_results_simple']) <= 0)
+			self.assertTrue(round(data_wanted['dict_results_kfold']['LogisticRegress']['tpr'], 3) == .830 )
+			self.assertTrue(round(data_wanted['dict_results_kfold']['LogisticRegress']['fpr'], 3) == .047 )
+			self.assertTrue(round(data_wanted['dict_results_kfold']['DecisionTreeCla']['tpr'], 3) == .796 )
+			self.assertTrue(round(data_wanted['dict_results_kfold']['DecisionTreeCla']['fpr'], 3) == .012)
+			self.assertTrue(round(data_wanted['dict_results_kfold']['MLPClassifier(a']['tpr'], 3) == .923 )
+			self.assertTrue(round(data_wanted['dict_results_kfold']['MLPClassifier(a']['fpr'], 3) == .398)
+		elif user_optmize_input[2] == 'simple':
+			self.assertTrue(len(data_wanted['dict_results_train_set']) <= 0)
+			self.assertTrue(len(data_wanted['dict_results_kfold']) <= 0)
+			self.assertTrue(len(data_wanted['dict_results_simple']) > 0)
+			#self.assertTrue(round(data_wanted['dict_results_simple']['LogisticRegress']['sensitivity'], 3) == )
+			#self.assertTrue(round(data_wanted['dict_results_simple']['LogisticRegress']['fallout_rate'], 3) == )
+			#self.assertTrue(round(data_wanted['dict_results_simple']['DecisionTreeCla']['sensitivity'], 3) == )
+			#self.assertTrue(round(data_wanted['dict_results_simple']['DecisionTreeCla']['fallout_rate'], 3) == )
+			#self.assertTrue(round(data_wanted['dict_results_simple']['MLPClassifier(a']['sensitivity'], 3) == )
+			#self.assertTrueround((data_wanted['dict_results_simple']['MLPClassifier(a']['fallout_rate'], 3) == )
+		else:
+			print('improper training method chosen')
+
+		
 
 test_instance = TestRegressionsAndMachinePredict()
-test_instance.train_user_no_cycle_all_models()
+test_instance.test_right_training_method_and_scores()
 
 """
 issues
 for kfold and train (prob for simple too) when running more than one model
 all the nested dicts containing scores are returning the same scores all from one
 particular model rather than their wn respective models
+***fixed these two issues, havent looked at simple yet but I would still 
+call the fix a bandaid at this point as i dont like the consistency 
+of the key returned
 """

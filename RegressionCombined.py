@@ -320,54 +320,56 @@ class RegressionCombined:
 					#return dict_results_simple
 		elif train_method == 'train':
 			for x in instance_array_classes:
-				for y in range(len(instance_array_classes)):
-					instance = x.fit(self.X_train, self.y_train)
-					predictions = x.predict(self.X_test)
-					results = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
-					dict_results_train_set[instance_array_names[y]] = results
+				#for y in range(len(instance_array_classes)):
+				instance = x.fit(self.X_train, self.y_train)
+				predictions = x.predict(self.X_test)
+				results = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
+				dict_results_train_set[str(x)[:15]] = results
+				#dict_results_train_set[str(x)[:15]] = results
 		elif train_method == 'kfold':
 			for x in instance_array_classes:
-				for y in range(len(instance_array_classes)):
-					dict ={}
-					variance_values = []
-					mse_values = []
-					ame_values =[]
-					r2_score_values = []
-					true_positive_rate_values = []
-					false_positive_rate_values = []
-					for train_index, test_index in kfold:
-						X_train, X_test = self.features.iloc[train_index], self.features.iloc[test_index]
-						y_train, y_test = self.target.iloc[train_index], self.target.iloc[test_index]
-						instance = x.fit(self.features, self.target)
-						predictions = x.predict(X_test)
-						mse = mean_squared_error(y_test, predictions)
-						variance = np.var(predictions)
-						mae = mean_absolute_error(y_test, predictions)
-						r2_scores = r2_score(y_test, predictions)
-						#append to array 
-						variance_values.append(variance)
-						mse_values.append(mse)
-						ame_values.append(mae)
-						r2_score_values.append(r2_scores)
-						tp_filter = (predictions == 1) & (y_test == 1)
-						tn_filter = (predictions == 0) & (y_test == 0)
-						fp_filter = (predictions == 1) & (y_test == 0)
-						fn_filter = (predictions == 0) & (y_test == 1)
-						tp = len(predictions[tp_filter])
-						tn = len(predictions[tn_filter])
-						fp = len(predictions[fp_filter])
-						fn = len(predictions[fn_filter])
-						true_positive_rate = tp / (tp+fn)
-						false_positive_rate = fp / (fp + tn)
-						true_positive_rate_values.append(true_positive_rate)
-						false_positive_rate_values.append(false_positive_rate)
-					dict['avg_mse'] = np.mean(mse_values)
-					dict['avg_ame'] = np.mean(ame_values)
-					dict['r2_score_values'] = np.mean(r2_score_values)
-					dict['ave_var'] = np.mean(variance_values)
-					dict['tpr'] = np.mean(true_positive_rate)
-					dict['fpr'] = np.mean(false_positive_rate)
-					dict_results_kfold[instance_array_names[y]] = dict
+				#for y in range(len(instance_array_classes)):
+				dict ={}
+				variance_values = []
+				mse_values = []
+				ame_values =[]
+				r2_score_values = []
+				true_positive_rate_values = []
+				false_positive_rate_values = []
+				for train_index, test_index in kfold:
+					X_train, X_test = self.features.iloc[train_index], self.features.iloc[test_index]
+					y_train, y_test = self.target.iloc[train_index], self.target.iloc[test_index]
+					instance = x.fit(self.features, self.target)
+					predictions = x.predict(X_test)
+					mse = mean_squared_error(y_test, predictions)
+					variance = np.var(predictions)
+					mae = mean_absolute_error(y_test, predictions)
+					r2_scores = r2_score(y_test, predictions)
+					#append to array 
+					variance_values.append(variance)
+					mse_values.append(mse)
+					ame_values.append(mae)
+					r2_score_values.append(r2_scores)
+					tp_filter = (predictions == 1) & (y_test == 1)
+					tn_filter = (predictions == 0) & (y_test == 0)
+					fp_filter = (predictions == 1) & (y_test == 0)
+					fn_filter = (predictions == 0) & (y_test == 1)
+					tp = len(predictions[tp_filter])
+					tn = len(predictions[tn_filter])
+					fp = len(predictions[fp_filter])
+					fn = len(predictions[fn_filter])
+					true_positive_rate = tp / (tp+fn)
+					false_positive_rate = fp / (fp + tn)
+					true_positive_rate_values.append(true_positive_rate)
+					false_positive_rate_values.append(false_positive_rate)
+				dict['avg_mse'] = np.mean(mse_values)
+				dict['avg_ame'] = np.mean(ame_values)
+				dict['r2_score_values'] = np.mean(r2_score_values)
+				dict['ave_var'] = np.mean(variance_values)
+				dict['tpr'] = np.mean(true_positive_rate)
+				dict['fpr'] = np.mean(false_positive_rate)
+				#dict_results_kfold[instance_array_names[y]] = dict
+				dict_results_kfold[str(x)[:15]] = dict
 		else:
 			print('none of those data training methods are supported')
 		dict_all['dict_results_simple'] = dict_results_simple
