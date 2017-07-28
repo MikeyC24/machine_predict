@@ -312,12 +312,12 @@ class RegressionCombined:
 		#reg_instance = reg.fit(self.features, self.target)
 		if train_method == 'simple':
 			for x in instance_array_classes:
-				for y in range(len(instance_array_classes)):
-					instance = x.fit(self.features, self.target)
-					predictions = x.predict(self.features)
-					results = self._get_error_scores_with_tpr_fpr(self.target, predictions)
-					dict_results_simple[instance_array_names[y]] = results
-					#return dict_results_simple
+				#for y in range(len(instance_array_classes)):
+				instance = x.fit(self.features, self.target)
+				predictions = x.predict(self.features)
+				results = self._get_error_scores_with_tpr_fpr(self.target, predictions)
+				dict_results_simple[str(x)[:15]] = results
+				#return dict_results_simple
 		elif train_method == 'train':
 			for x in instance_array_classes:
 				#for y in range(len(instance_array_classes)):
