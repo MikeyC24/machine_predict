@@ -103,7 +103,7 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 	#model_score_dict3 = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 	#user_optmize_input = ['class', 'constant', 'train', model_score_dict3]
 	#cycle_vars_user_check = 'no'
-
+	# minimum_feature_count_for_var_cycle =  3
 	"""
 	# differ use cases
 	1. cycle or dont cycle vars
@@ -198,10 +198,43 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 			else:
 				print('improper training method chosen')
 
+	def cycle_vars_is_working(self):
+		cycle_vars_user_check = 'yes'
+		minimum_feature_count_for_var_cycle =  [1,2,3]
+		model_score_dict_all1 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+		user_optmize_input1 = ['class', 'constant', 'train', model_score_dict_all1]
+		for num in minimum_feature_count_for_var_cycle:
+			columns_all_bike_test = ['workingday','temp', 'cnt_binary', 'hr_new']
+			df_bike3 = pd.read_csv(file_location)
+			bike_predict3 = MachinePredictModel(df_bike3, columns_all_bike_test, self.random_state_bike, self.training_percent_bike, 
+												self.kfold_number_bike, self.target_bike, cols_to_drop=self.columns_to_drop_bike,set_multi_class=self.set_multi_class_bike, 	
+												target_change_bin_dict=self.create_target_dict_bike, kfold_dict=self.kfold_dict, 
+												param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=self.decision_tree_params_bike,
+												param_dict_neural_network=self.nnl_params_bike, user_input_for_model_output=user_optmize_input1,
+												cycle_vars_user_check=cycle_vars_user_check,
+												minimum_feature_count_for_var_cycle=num) 
+			self.assertTrue(bike_predict3.minimum_feature_count_for_var_cycle is not None)
+			self.assertTrue(bike_predict3.cycle_vars_user_check is not None)
+			var_combo_dict = bike_predict3._cycle_vars_dict()
+			if num == 1:
+				self.assertTrue(len(var_combo_dict) == 7)
+			elif num == 2:
+				self.assertTrue(len(var_combo_dict) == 4)
+			elif num == 3:
+				self.assertTrue(len(var_combo_dict) == 1)
+			else:
+				print('something went wrong on vars dcit test')
+
+	def model_select_params(self):
+		pass
+
 		
 
 test_instance = TestRegressionsAndMachinePredict()
-test_instance.test_right_training_method_and_scores()
+#test_instance.test_right_training_method_and_scores()
+test_instance.cycle_vars_is_working()
+# temp print for now
+print('passed all regressions tests')
 
 """
 issues

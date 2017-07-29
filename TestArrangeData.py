@@ -153,7 +153,8 @@ test_case.test_set_binary_from_dict()
 test_case.test_set_multi_class_array()
 #test_case.test_set_features_and_target1()
 test_case.test_create_train_and_test_data_x_y_mixer_and_set_features_and_target1()
-
+# temp print for now
+print('passed all arrange data tests')
 
 
 """
