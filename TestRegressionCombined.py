@@ -198,7 +198,7 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 			else:
 				print('improper training method chosen')
 
-	def cycle_vars_is_working(self):
+	def test_cycle_vars_is_working(self):
 		cycle_vars_user_check = 'yes'
 		minimum_feature_count_for_var_cycle =  [1,2,3]
 		model_score_dict_all1 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
@@ -225,14 +225,86 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 			else:
 				print('something went wrong on vars dcit test')
 
-	def model_select_params(self):
-		pass
+	def test_model_select_params(self):
+		# params options for optimize
+		decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced'], 'random_state':[random_state_bike]}
+		logistic_regression_array_vars = {'penalty':['l1','l2'], 'tol':[0.0001, .001, .01], 'C':[.02,1.0,2], 'fit_intercept':[True], 'intercept_scaling':[.1,1,2], 'class_weight':[None, 'balanced'], 'solver':['liblinear'], 'max_iter':[10,100,200], 'n_jobs':[1], 'random_state':[random_state_bike]}
+		neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['relu', 'logistic', 'tanh', 'identity'], 'solver':['adam', 'lbfgs', 'sgd'], 'alpha':[0.0001], 'batch_size':['auto'], 'learning_rate':['constant', 'invscaling', 'adaptive'], 'learning_rate_init':[0.001], 'power_t':[0.5], 'max_iter':[50], 'shuffle':[True, False], 'tol':[0.0001], 'verbose':[False], 'warm_start':[False, True], 'momentum':[.1,0.9], 'nesterovs_momentum':[True], 'early_stopping':[True], 'validation_fraction':[0.1], 'beta_1':[0.9], 'beta_2':[0.999], 'epsilon':[1e-08], 'random_state':[random_state_bike]}
+		# other vars specific to this test
+		opt_key_list = ['logistic', 'decision_tree', 'neural_net']
+		cycle_vars_user_check = 'no'
+		model_score_dict_all1 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+		model_score_dict_nnl = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+		model_score_dict_log = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+		model_score_dict_tree = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+		model_score_dict_log_tree = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+		user_optmize_input1 = ['class', 'optimize', 'train', model_score_dict_all1]
+		df_bike3 = pd.read_csv(file_location)
+		bike_predict3 = MachinePredictModel(df_bike3, columns_all_bike_test, self.random_state_bike, self.training_percent_bike, 
+												self.kfold_number_bike, self.target_bike, cols_to_drop=self.columns_to_drop_bike,set_multi_class=self.set_multi_class_bike, 	
+												target_change_bin_dict=self.create_target_dict_bike, kfold_dict=self.kfold_dict, 
+												user_input_for_model_output=user_optmize_input1,
+												cycle_vars_user_check=cycle_vars_user_check, param_dict_logistic_array=logistic_regression_array_vars, 
+												param_dict_decision_tree_array=decision_tree_array_vars, 
+												param_dict_neural_network_array=neural_net_array_vars)
+		data_wanted = bike_predict3.user_full_model()
+		print('data_type', type(data_wanted))
+		for key in data_wanted.keys():
+			if key == 'logistic':
+				self.assertTrue(round(data_wanted['logistic']['sensitivity'],3) == .876)
+				self.assertTrue(round(data_wanted['logistic']['fallout_rate'],3) == .124)
+				self.assertTrue(round(data_wanted['logistic']['best_score'],3) == .917)
+				self.assertTrue(data_wanted['logistic']['best_params'] == {'C': 0.02, 'class_weight': 'balanced', 'fit_intercept': True, 'intercept_scaling': 0.1, 'max_iter': 10, 'n_jobs': 1, 'penalty': 'l2', 'random_state': 1, 'solver': 'liblinear', 'tol': 0.0001})
+			elif key == 'decision_tree':
+				self.assertTrue(round(data_wanted['decision_tree']['sensitivity'],3) == .896)
+				self.assertTrue(round(data_wanted['decision_tree']['fallout_rate'],3) == .104)
+				self.assertTrue(round(data_wanted['decision_tree']['best_score'],3) == .917)
+				self.assertTrue(data_wanted['decision_tree']['best_params'] == {'class_weight': None, 'criterion': 'gini', 'max_depth': 2, 'max_features': None, 'min_samples_leaf': 1, 'min_samples_split': 3, 'random_state': 1, 'splitter': 'best'})
+			elif key == 'neural_net':
+				self.assertTrue(round(data_wanted['neural_net']['sensitivity'],3) == .722)
+				self.assertTrue(round(data_wanted['neural_net']['fallout_rate'],3) == .278)
+				self.assertTrue(round(data_wanted['neural_net']['best_score'],3) == .917)
+				self.assertTrue(data_wanted['neural_net']['best_params'] == {'activation': 'relu', 'alpha': 0.0001, 'batch_size': 'auto', 'beta_1': 0.9, 'beta_2': 0.999, 'early_stopping': True, 'epsilon': 1e-08, 'hidden_layer_sizes': (100,), 'learning_rate': 'constant', 'learning_rate_init': 0.001, 'max_iter': 50, 'momentum': 0.1, 'nesterovs_momentum': True, 'power_t': 0.5, 'random_state': 1, 'shuffle': True, 'solver': 'adam', 'tol': 0.0001, 'validation_fraction': 0.1, 'verbose': False, 'warm_start': False})
+			else:
+				print('no model to optimize')
 
+	# amount models are not done yet, this will be for TDD later
+	def test_amount_models(self):
+		# model scor dict key should not matter yet
+		model_score_dict_all1 = 'test'
+		user_optmize_input1 = ['amount', 'optimize', 'train', model_score_dict_all1]
+		df_bike3 = pd.read_csv(file_location)
+		bike_predict3 = MachinePredictModel(df_bike3, columns_all_bike_test, self.random_state_bike, self.training_percent_bike, 
+												self.kfold_number_bike, self.target_bike, cols_to_drop=self.columns_to_drop_bike,set_multi_class=self.set_multi_class_bike, 	
+												target_change_bin_dict=self.create_target_dict_bike, kfold_dict=self.kfold_dict, 
+												user_input_for_model_output=user_optmize_input1,
+												cycle_vars_user_check=cycle_vars_user_check,)
+		data_wanted = bike_predict3.user_full_model()
+		print('data_type', type(data_wanted))
+		self.assertTrue(data_wanted is None)
+
+	# test to maken sure right response is given with wrong inputs and
+	# mostly no actaul data is given
+	def test_wrong_inputs(self):
+		model_score_dict_all1 = 'test'
+		user_optmize_input1 = ['class', 'optimize', 'train', model_score_dict_all1]
+		df_bike3 = pd.read_csv(file_location)
+		bike_predict3 = MachinePredictModel(df_bike3, columns_all_bike_test, self.random_state_bike, self.training_percent_bike, 
+												self.kfold_number_bike, self.target_bike, cols_to_drop=self.columns_to_drop_bike,set_multi_class=self.set_multi_class_bike, 	
+												target_change_bin_dict=self.create_target_dict_bike, kfold_dict=self.kfold_dict, 
+												user_input_for_model_output=user_optmize_input1,
+												cycle_vars_user_check=cycle_vars_user_check,)
+		data_wanted = bike_predict3.user_full_model()
+		print('data_type', type(data_wanted))
+		self.assertTrue(data_wanted is None)
 		
 
 test_instance = TestRegressionsAndMachinePredict()
 #test_instance.test_right_training_method_and_scores()
-test_instance.cycle_vars_is_working()
+#test_instance.test_cycle_vars_is_working()
+#test_instance.test_model_select_params()
+test_instance.test_amount_models()
+#test_instance.test_wrong_inputs()
 # temp print for now
 print('passed all regressions tests')
 

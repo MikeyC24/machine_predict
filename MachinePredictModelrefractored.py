@@ -374,7 +374,7 @@ model_score_dict_nnl = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 
 model_score_dict_log = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 model_score_dict_tree = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 model_score_dict_log_tree = {'decision_tree':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
-user_optmize_input = ['class', 'constant', 'kfold', model_score_dict_all]
+user_optmize_input = ['class', 'optimize', 'train', model_score_dict_log_tree]
 # bike model....
 #bike_predict = MachinePredictModel(df_bike, columns_all_bike, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict)
 #bike_predict._set_up_data_for_prob_predict()
