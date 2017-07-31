@@ -23,10 +23,7 @@ from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import ParameterGrid, GridSearchCV
-from Regression import *
 from ArrangeData import *
-from DecisionTrees import *
-from NeuralNetwork import *
 from RegressionCombined import *
 
 """
@@ -112,9 +109,10 @@ class MachinePredictModel:
 		if self.time_period_returns_dict is not None:
 			model_dataframe.time_period_returns_dict(self.time_period_returns_dict)
 		if self.cols_to_drop is not None:
+			if self.cols_to_drop[0] in model_dataframe.return_col_values():
 			# this is now working however this is the only equation below that
 			# returns the class instance itself instead of a dataframe
-			model_dataframe.drop_columns_return_self(self.cols_to_drop)
+				model_dataframe.drop_columns_return_self(self.cols_to_drop)
 		if self.target_change_bin_dict is not None:
 			#model_dataframe.set_binary(self.col_to_make_target, self.target_col_name, self.target_amount)
 			model_dataframe.set_binary_from_dict(self.target_change_bin_dict)
@@ -227,6 +225,7 @@ class MachinePredictModel:
 	# this needs to check if user put in params or if they are optmizied
 	def return_desired_user_output_from_dict(self):
 		data_wanted = self.cycle_vars_return_desired_output_specific_model()
+		print('data dict from return desired user ut put from dict', data_wanted)
 		class_or_amount = self.user_input_for_model_output[0]
 		constant_or_optimize = self.user_input_for_model_output[1] 
 		train_method = self.user_input_for_model_output[2]
@@ -311,5 +310,6 @@ class MachinePredictModel:
 		else:
 			print('not cycling vars')
 			data_wanted = self.user_output_model()
+		print('datawanted len in user_full_model', len(data_wanted))
 		return data_wanted
 

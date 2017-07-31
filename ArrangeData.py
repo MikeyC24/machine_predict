@@ -63,6 +63,10 @@ class ArrangeData:
 		x = df.loc[:,column_name]
 		print(x)
 
+	def return_col_values(self):
+		df = self.dataframe
+		return df.columns.values
+
 	# print all columns down to number of rows specified
 	def print_headers(self, count):
 		df = df = self.dataframe
