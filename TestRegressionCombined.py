@@ -122,21 +122,6 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 		model_score_dict_nnl_log = {'neural_network':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]},'logistic':{'roc_auc_score':.03, 'precision':.06, 'significant_level':.05, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
 		user_optmize_input = ['class', 'constant', 'train', model_score_dict_all]
 		key_poss_of_return_dict = ['dict_results_simple', 'dict_results_kfold', 'dict_results_train_set']
-		"""
-		bike_predict = MachinePredictModel(self.df_bike, self.columns_all_bike_test, self.random_state_bike, self.training_percent_bike, 
-											self.kfold_number_bike, self.target_bike, cols_to_drop=self.columns_to_drop_bike,set_multi_class=self.set_multi_class_bike, 	
-											target_change_bin_dict=self.create_target_dict_bike, kfold_dict=self.kfold_dict, 
-											param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=self.decision_tree_params_bike,
-											param_dict_neural_network=self.nnl_params_bike, user_input_for_model_output=user_optmize_input,
-											cycle_vars_user_check=cycle_vars) 
-		data_wanted = bike_predict.user_full_model()
-		for key,value in data_wanted.items():
-			print(key)
-			print(value)
-			print('_________________')
-		"""
-		# test to make sure right train model was chosen 
-		# and there others are blank
 		data_choices = ['simple', 'train', 'kfold']
 		for x in data_choices:
 			model_score_dict_all1 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
@@ -225,6 +210,7 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 			else:
 				print('something went wrong on vars dcit test')
 
+
 	def test_model_select_params(self):
 		# params options for optimize
 		decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced'], 'random_state':[random_state_bike]}
@@ -266,8 +252,8 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 				self.assertTrue(round(data_wanted['neural_net']['best_score'],3) == .917)
 				self.assertTrue(data_wanted['neural_net']['best_params'] == {'activation': 'relu', 'alpha': 0.0001, 'batch_size': 'auto', 'beta_1': 0.9, 'beta_2': 0.999, 'early_stopping': True, 'epsilon': 1e-08, 'hidden_layer_sizes': (100,), 'learning_rate': 'constant', 'learning_rate_init': 0.001, 'max_iter': 50, 'momentum': 0.1, 'nesterovs_momentum': True, 'power_t': 0.5, 'random_state': 1, 'shuffle': True, 'solver': 'adam', 'tol': 0.0001, 'validation_fraction': 0.1, 'verbose': False, 'warm_start': False})
 			else:
-				print('no model to optimize')
-
+				print('wrong model input')
+	
 	# amount models are not done yet, this will be for TDD later
 	def test_amount_models(self):
 		# model scor dict key should not matter yet
@@ -283,12 +269,12 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 		print('data_type', type(data_wanted))
 		self.assertTrue(data_wanted is None)
 
+	"""
 	# test to maken sure right response is given with wrong inputs and
 	# mostly no actaul data is given
 	# not to be tested until more refractored is done
 	def test_wrong_inputs(self):
 		pass
-		"""
 		model_score_dict_all1 = 'test'
 		user_optmize_input1 = ['class', 'constant', 'train', model_score_dict_all1]
 		df_bike3 = pd.read_csv(file_location)
@@ -300,17 +286,22 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 		data_wanted = bike_predict3.user_full_model()
 		print('data_type', type(data_wanted))
 		#self.assertTrue(data_wanted is None)
-		"""
+	"""
 
+if __name__ == '__main__':
+	unittest.main()
+
+
+"""
 test_instance = TestRegressionsAndMachinePredict()
-#test_instance.test_right_training_method_and_scores()
+test_instance.test_right_training_method_and_scores()
 #test_instance.test_cycle_vars_is_working()
 #test_instance.test_model_select_params()
-test_instance.test_amount_models()
+#test_instance.test_amount_models()
 #test_instance.test_wrong_inputs()
 # temp print for now
 print('passed all regressions tests')
-
+"""
 """
 issues
 for kfold and train (prob for simple too) when running more than one model
