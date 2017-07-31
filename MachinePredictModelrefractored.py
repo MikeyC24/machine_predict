@@ -129,37 +129,18 @@ class MachinePredictModel:
 		# in fact the above method may become only class method
 		# actually lets do that
 
-	# take in df of cleaned model, return features, target, train and test data in dict
-	def _set_up_data_for_models(self):
-		model_dataframe = self._set_up_data_for_prob_predict()
-		data_model_dict = {}
-		model_dataframe.shuffle_rows()
-		x_y_vars = model_dataframe.set_features_and_target1(self.columns_all, self.target_col_name)
-		data_model_dict['features'] = x_y_vars[0]
-		data_model_dict['target'] = x_y_vars[1]
-		print('type', type(data_model_dict['features']))
-		# set up training and testing data
-		vars_for_train_test = model_dataframe.create_train_and_test_data_x_y_mixer(self.training_percent, data_model_dict['features'], data_model_dict['target'])
-		data_model_dict['X_train'] = vars_for_train_test[0]
-		data_model_dict['y_train'] = vars_for_train_test[1]
-		data_model_dict['X_test'] = vars_for_train_test[2]
-		data_model_dict['y_test'] = vars_for_train_test[3]
-		#print('data_model_dict', data_model_dict)
-		#print('xtest', len(data_model_dict['X_test']))
-		#print('xtrain', len(data_model_dict['X_train']))
-		return data_model_dict
 
-		# can prob make this kwargs class variables
+	# can prob make this kwargs class variables
 	def predict_prob_model_full(self):
 		# vars
-		data = self._set_up_data_for_models() 
+		data = self._set_up_data_for_models_test(self.columns_all) 
 		# start prediction instace 
 		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
 		predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
 		return predictions_results
 
 	def predict_prob_model_full_fit_parameters(self):
-		data = self._set_up_data_for_models() 
+		data = self._set_up_data_for_models_test(self.columns_all) 
 		predictions_instance = predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
 		predictions_results = predictions_instance.regression_probs_model_full_paramter_fit(param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array )
 		return predictions_results
@@ -181,7 +162,7 @@ class MachinePredictModel:
 				y +=1 	
 		return dict
 
-	# this is to take into a different var for feature column list
+	# # take in df of cleaned model, return features, target, train and test data in dict
 	def _set_up_data_for_models_test(self, columns_all):
 		model_dataframe = self._set_up_data_for_prob_predict()
 		data_model_dict = {}
@@ -249,7 +230,7 @@ class MachinePredictModel:
 	# should be easy to implment as the return_desired_user_output_from_dict method
 	# should work find on this and would just need some if statements
 	def user_output_model(self):
-		data = self._set_up_data_for_models() 
+		data = self._set_up_data_for_models_test(self.columns_all) 
 		# start prediction instace 
 		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output,param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array)
 		output = predictions_instance.classification_unifying_model()
