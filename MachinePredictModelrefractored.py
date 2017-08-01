@@ -317,26 +317,26 @@ class MachinePredictModel:
 						print(dict_data[train_type])
 						for model in model_types:
 							if dict_data[train_type].get(model, False):
+								# score values are what the model put out
 								score_values = dict_data[train_type][model]
 								print('score values', score_values)
 								print(score_key.items())
-								for score_metric in score_key.keys():
+								for score_metric in score_key.values():
 									print('score_metric', score_metric)
-									if score_values.get(score_metric, False):
-										user_var_wanted = score_values[score_metric]
-										print('user_wanted_var', user_var_wanted)
-
-				"""
-				for train_type, train_type_dict in dict_data.items():
-					#print('train method', train_method)
-					print('second key', train_type)
-					print('second value', train_type_dict)
-					for model, model_scores in train_type_dict.items():
-						print('3rd key', model)
-						print('3rd value', model_scores)
-						print('input from user', model_types)
-				"""
-			#return dict_returned
+									# user_score_m and user_score_v are what the user put in
+									for user_score_m, user_score_v in score_metric.items():
+										print('user_scores', user_score_m, user_score_v)
+										if score_values.get(user_score_m, False):
+											# this is score from model
+											user_var_wanted_from_model = score_values[user_score_m]
+											print('user_wanted_var', user_var_wanted_from_model)
+											dict_all[model]['train_type'] = train_type
+											dict_all[model]['vars'] = variables
+											if (user_var_wanted_from_model > user_score_v[0]) & (user_var_wanted_from_model > user_score_v[0]):
+												print('metric',user_score_m)
+												print('score', user_var_wanted_from_model)
+												dict_all[model][user_score_m] = user_var_wanted_from_model
+			return dict_all
 		else:
 			print('user chose optimize')
 			# key are the varaibles used
