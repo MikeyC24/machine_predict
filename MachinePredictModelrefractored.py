@@ -297,6 +297,77 @@ class MachinePredictModel:
 								print(dict_all)
 			return dict_all
 
+	def return_desired_user_output_from_dict_refrac(self):
+		data_wanted = self.cycle_vars_return_desired_output_specific_model()
+		#print('data dict from return desired user ut put from dict', data_wanted)
+		class_or_amount = self.user_input_for_model_output[0]
+		constant_or_optimize = self.user_input_for_model_output[1] 
+		train_method = self.user_input_for_model_output[2]
+		score_key = self.user_input_for_model_output[3]
+		dict_train_types = ['dict_results_simple', 'dict_results_kfold', 'dict_results_train_set']
+		model_types = ['LogisticRegress', 'DecisionTreeCla', 'MLPClassifier']
+		# variables are the variables used for the regression
+		dict_all = {}
+		if constant_or_optimize == 'constant':
+			for variables, dict_data in data_wanted.items():
+				print('first key', variables)
+				print('first value', dict_data)
+				for train_type in dict_train_types:
+					if len(dict_data[train_type]) > 0:
+						print(dict_data[train_type])
+						for model in model_types:
+							if dict_data[train_type].get(model, False):
+								score_values = dict_data[train_type][model]
+								print('score values', score_values)
+								print(score_key.items())
+								for score_metric in score_key.keys():
+									print('score_metric', score_metric)
+									if score_values.get(score_metric, False):
+										user_var_wanted = score_values[score_metric]
+										print('user_wanted_var', user_var_wanted)
+
+				"""
+				for train_type, train_type_dict in dict_data.items():
+					#print('train method', train_method)
+					print('second key', train_type)
+					print('second value', train_type_dict)
+					for model, model_scores in train_type_dict.items():
+						print('3rd key', model)
+						print('3rd value', model_scores)
+						print('input from user', model_types)
+				"""
+			#return dict_returned
+		else:
+			print('user chose optimize')
+			# key are the varaibles used
+			# value is the dict from returned with data, with key being model used
+			for key, value in data_wanted.items():
+				dict_multi = {}
+				for model_used in model_types:
+					if value.get(model_used, False):
+						score_data = value[model_used]
+						print('key', key)
+						print('value', value)
+						print('model_used', model_used)
+						print(score_data)
+						print(model_list.values())
+						dict1 = {}	
+						for score_value_wanted_key_value in model_list.values():
+							for score_value_wanted_key in score_value_wanted_key_value.keys():
+								if score_data.get(score_value_wanted_key, False):
+									print('score_value_wanted_key', score_value_wanted_key)
+									score_from_model = score_data[score_value_wanted_key]
+									score_from_user = score_value_wanted_key_value[score_value_wanted_key]
+									print('score_from_model', score_from_model)
+									print('score_from_user', score_from_user)
+									if score_from_model >= score_from_model:
+										dict1[score_value_wanted_key] = score_from_model
+								dict1['best_params'] = score_data['best_params']
+								dict1['best_score'] = score_data['best_score'] 
+								dict_all[str(key) +str(model_used)] = dict1
+								print(dict_all)
+			return dict_all
+
 
 
 	# this model takes no inputs from user other than initial vars
@@ -306,7 +377,7 @@ class MachinePredictModel:
 		#model_dataframe = self._set_up_data_for_prob_predict()
 		if self.cycle_vars_user_check == 'yes':
 			print('cycling vars')
-			data_wanted = self.return_desired_user_output_from_dict()
+			data_wanted = self.return_desired_user_output_from_dict_refrac()
 		else:
 			print('not cycling vars')
 			data_wanted = self.user_output_model()
