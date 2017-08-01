@@ -25,6 +25,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import ParameterGrid, GridSearchCV
 from ArrangeData import *
 from RegressionCombined import *
+# for database 
+import sqlite3
+import time
+import datetime
+import calendar
 
 """
 steps
@@ -74,6 +79,9 @@ class MachinePredictModel:
 		# if user it will user user entered params for models
 		# if no it will find best params and return those.
 		self.minimum_feature_count_for_var_cycle = kwargs.get('minimum_feature_count_for_var_cycle', None) 
+		self.database_name = kwargs.get('database_name', None) 
+		self.table_name = kwargs.get('table_name', None)
+		self.db_location_base = kwargs.get('db_location_base', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -388,9 +396,27 @@ class MachinePredictModel:
 		if self.cycle_vars_user_check == 'yes':
 			print('cycling vars')
 			data_wanted = self.return_desired_user_output_from_dict_refrac()
+			self.write_results_to_db_for_user_params(data_wanted)
 		else:
 			print('not cycling vars')
 			data_wanted = self.user_output_model()
-		print('datawanted len in user_full_model', len(data_wanted))
 		return data_wanted
 
+
+	def write_results_to_db_for_user_params(self, data_dict):
+		location = self.db_location_base+self.database_name
+		date_utc = datetime.datetime.utcnow()
+		table_name = self.table_name
+		# open and con to db
+		conn = sqlite3.connect(location)
+		curr = conn.cursor()
+		curr.execute('''CREATE TABLE IF NOT EXISTS %s
+					(date_added, train_type, model_type, score_name
+					''') % (table_name)
+		for keys, values in data_dict.items():
+			if len(values) > 0:
+				print('keys', keys)
+				print('values', values)
+				print('_______________')
+			else:
+				print('all traing method dicts are empty')
