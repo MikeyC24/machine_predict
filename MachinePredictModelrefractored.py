@@ -305,9 +305,10 @@ class MachinePredictModel:
 		train_method = self.user_input_for_model_output[2]
 		score_key = self.user_input_for_model_output[3]
 		dict_train_types = ['dict_results_simple', 'dict_results_kfold', 'dict_results_train_set']
-		model_types = ['LogisticRegress', 'DecisionTreeCla', 'MLPClassifier']
+		model_types = ['LogisticRegress', 'DecisionTreeCla', 'MLPClassifier(a']
 		# variables are the variables used for the regression
 		dict_all = {}
+		dict_final = {}
 		if constant_or_optimize == 'constant':
 			for variables, dict_data in data_wanted.items():
 				print('first key', variables)
@@ -315,7 +316,9 @@ class MachinePredictModel:
 				for train_type in dict_train_types:
 					if len(dict_data[train_type]) > 0:
 						print(dict_data[train_type])
+						dict1 = {}
 						for model in model_types:
+							print('model_types', model_types)
 							if dict_data[train_type].get(model, False):
 								# score values are what the model put out
 								score_values = dict_data[train_type][model]
@@ -330,13 +333,20 @@ class MachinePredictModel:
 											# this is score from model
 											user_var_wanted_from_model = score_values[user_score_m]
 											print('user_wanted_var', user_var_wanted_from_model)
-											dict_all[model]['train_type'] = train_type
-											dict_all[model]['vars'] = variables
-											if (user_var_wanted_from_model > user_score_v[0]) & (user_var_wanted_from_model > user_score_v[0]):
+											#dict1 = {} 
+											dict1['train_type'] = train_type
+											dict1['model'] = model
+											print(dict1)
+											if (user_var_wanted_from_model > user_score_v[0]) & (user_var_wanted_from_model < user_score_v[1]):
+												print('user_score_v', user_score_v)
 												print('metric',user_score_m)
 												print('score', user_var_wanted_from_model)
-												dict_all[model][user_score_m] = user_var_wanted_from_model
-			return dict_all
+												dict1[user_score_m] = user_var_wanted_from_model
+												print('dict1', dict1)
+											dict_all[variables] = dict1
+											dict_final[model] = dict_all
+
+			return dict_final
 		else:
 			print('user chose optimize')
 			# key are the varaibles used

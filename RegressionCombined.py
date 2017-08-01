@@ -159,15 +159,15 @@ class RegressionCombined:
 		instance_array_classes = []
 		instance_array_names = []
 		for item in instance_array_var:
-			if item == 'logistic':
+			if item == 'LogisticRegress':
 				logistic = LogisticRegression(penalty=param_dict_logistic['penalty'], dual=param_dict_logistic['dual'], tol=param_dict_logistic['tol'], C=param_dict_logistic['C'], fit_intercept=param_dict_logistic['fit_intercept'], intercept_scaling=param_dict_logistic['intercept_scaling'], class_weight=param_dict_logistic['class_weight'], random_state=param_dict_logistic['random_state'], solver=param_dict_logistic['solver'], max_iter=param_dict_logistic['max_iter'], multi_class=param_dict_logistic['multi_class'], verbose=param_dict_logistic['verbose'], warm_start=param_dict_logistic['warm_start'], n_jobs=param_dict_logistic['n_jobs'])
 				instance_array_classes.append(logistic)
 				instance_array_names.append('logistic')
-			elif item == 'decision_tree':
+			elif item == 'DecisionTreeCla':
 				decision_tree = DecisionTreeClassifier(criterion=param_dict_decision_tree['criterion'], splitter=param_dict_decision_tree['splitter'], max_depth=param_dict_decision_tree['max_depth'], min_samples_split=param_dict_decision_tree['min_samples_split'], min_samples_leaf=param_dict_decision_tree['min_samples_leaf'], min_weight_fraction_leaf=param_dict_decision_tree['min_weight_fraction_leaf'], max_features=param_dict_decision_tree['max_features'], random_state=param_dict_decision_tree['random_state'], max_leaf_nodes=param_dict_decision_tree['max_leaf_nodes'], min_impurity_split=param_dict_decision_tree['min_impurity_split'], class_weight=param_dict_decision_tree['class_weight'], presort=param_dict_decision_tree['presort'])
 				instance_array_classes.append(decision_tree)
 				instance_array_names.append('decision_tree')
-			elif item == 'neural_network':
+			elif item == 'MLPClassifier(a':
 				neural_network = nnl = MLPClassifier(hidden_layer_sizes=param_dict_neural_network['hidden_layer_sizes'], activation=param_dict_neural_network['activation'], solver=param_dict_neural_network['solver'], alpha=param_dict_neural_network['alpha'], batch_size=param_dict_neural_network['batch_size'], learning_rate=param_dict_neural_network['learning_rate'], learning_rate_init=param_dict_neural_network['learning_rate_init'], power_t=param_dict_neural_network['power_t'], max_iter=param_dict_neural_network['max_iter'], shuffle=param_dict_neural_network['shuffle'], random_state=param_dict_neural_network['random_state'], tol=param_dict_neural_network['tol'], verbose=param_dict_neural_network['verbose'], warm_start=param_dict_neural_network['warm_start'], momentum=param_dict_neural_network['momentum'], nesterovs_momentum=param_dict_neural_network['nesterovs_momentum'], early_stopping=param_dict_neural_network['early_stopping'], validation_fraction=param_dict_neural_network['validation_fraction'], beta_1=param_dict_neural_network['beta_1'], beta_2=param_dict_neural_network['beta_2'], epsilon=param_dict_neural_network['epsilon'])
 				instance_array_classes.append(neural_network)
 				instance_array_names.append('neural_network')
@@ -260,7 +260,7 @@ class RegressionCombined:
 		#print(self.param_dict_logistic_array)
 		#print(self.param_dict_decision_tree_array)
 		#print(self.param_dict_neural_network_array)
-		if 'logistic' in model_list:
+		if 'LogisticRegress' in model_list:
 			print('doing log regress')
 			clf = GridSearchCV(reg, self.param_dict_logistic_array)
 			clf.fit(self.X_train, self.y_train)
@@ -268,8 +268,8 @@ class RegressionCombined:
 			error_score = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
 			error_score['best_score'] = clf.best_score_
 			error_score['best_params'] = clf.best_params_
-			dict_results_parameter_fit['logistic'] = error_score
-		if 'decision_tree' in model_list:
+			dict_results_parameter_fit['LogisticRegress'] = error_score
+		if 'DecisionTreeCla' in model_list:
 			print('doing decision tree')
 			clf = GridSearchCV(dtree, self.param_dict_decision_tree_array)
 			clf.fit(self.X_train, self.y_train)
@@ -277,8 +277,8 @@ class RegressionCombined:
 			error_score = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
 			error_score['best_score'] = clf.best_score_
 			error_score['best_params'] = clf.best_params_
-			dict_results_parameter_fit['decision_tree'] = error_score
-		if 'neural_network' in model_list:
+			dict_results_parameter_fit['DecisionTreeCla'] = error_score
+		if 'MLPClassifier(a' in model_list:
 			print('doing nnl')
 			clf = GridSearchCV(nnl, self.param_dict_neural_network_array)
 			clf.fit(self.X_train, self.y_train)
@@ -286,6 +286,6 @@ class RegressionCombined:
 			error_score = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
 			error_score['best_score'] = clf.best_score_
 			error_score['best_params'] = clf.best_params_
-			dict_results_parameter_fit['neural_net'] = error_score
+			dict_results_parameter_fit['MLPClassifier'] = error_score
 		return dict_results_parameter_fit
 
