@@ -30,6 +30,7 @@ import sqlite3
 import time
 import datetime
 import calendar
+import csv
 
 """
 steps
@@ -411,7 +412,7 @@ class MachinePredictModel:
 		conn = sqlite3.connect(location)
 		curr = conn.cursor()
 		curr.execute('''CREATE TABLE IF NOT EXISTS %s
-					(date_added, train_type, model_type, metric, metric_result)
+					(date_added, train_type, model_type, metric, metric_result, metric_result_combined, model_vars)
 					''' % (table_name))
 
 		if self.cycle_vars_user_check == 'yes':
@@ -427,6 +428,20 @@ class MachinePredictModel:
 							for metric, result in score_set.items():
 								dict_to_add['metric'] = metric
 								dict_to_add['metric_result'] = result
+								array_model = []
+								array_model.append(model)
+								array_model.append(var_set) 
+								test = var_set
+								test = test.replace('[', '')
+								test = test.replace(']', '')
+								test = test.split(',')
+								test.append(model)
+								dict_to_add['model_vars'] = str(test)
+								#dict_to_add['metric_result_combined'] = str(metric) + ',' + str(result)
+								array = []
+								array.append(metric)
+								array.append(result)
+								dict_to_add['metric_result_combined'] = str(array)
 								print('model', model)
 								print('model_results', model_results)
 								print('var_set', var_set)
@@ -435,10 +450,41 @@ class MachinePredictModel:
 								print('result', result)
 								print('dict_to_add', dict_to_add)
 								print('_______________')
-								insert = "INSERT INTO {} VALUES (?,?,?,?,?)".format(table_name)
-								data_values = dict_to_add['date_added'], dict_to_add['model_type'], dict_to_add['vars'], dict_to_add['metric'], dict_to_add['metric_result']
+								insert = "INSERT INTO {} VALUES (?,?,?,?,?,?,?)".format(table_name)
+								data_values = dict_to_add['date_added'], dict_to_add['model_type'], dict_to_add['vars'], dict_to_add['metric'], dict_to_add['metric_result'], dict_to_add['metric_result_combined'],dict_to_add['model_vars']
 								curr.execute(insert, data_values)
 								conn.commit()
 				else:
-					print('all traing method dicts are empty')
+					print('dicts are empty')
 			conn.close()
+			"""
+			sorted_columns_headers_list = []
+			sorted_columns_values_list = []
+			for k,v in dict_to_add.items():
+				sorted_columns_headers_list.append(k)
+				sorted_columns_values_list.append(v)
+			columns = ', '.join(dict_add_all.keys())
+			placeholders = ', '.join('?' * len(dict_to_add)
+			sql = 'INSERT INTO table_name ({}) VALUES ({})'.format(columns, placeholders) 
+			cur.execute(sql, values.values())
+			"""
+			"""
+			print(dict_to_add)
+			sorted_columns_headers_list = []
+			sorted_columns_values_list = []
+			for k,v in dict_to_add.items():
+				sorted_columns_headers_list.append(k)
+				sorted_columns_values_list.append(v)
+			with open('file.csv', 'w') as f:
+				writer = csv.DictWriter(f, dict_to_add.keys())
+				writer.writeheader()
+				writer.writerow(dict_to_add.values())
+			"""
+
+"""
+what i think needs to happen next, 
+create dummies for model vars in array for, call each one a number, that
+represent all the unqiue combo of vars + its model 
+then for each of those combos, iterate thru one best pairis returned
+maybe database step should wait and be more final no reason return dict cant be iterated over
+actualy next needs to be what how to get best result
