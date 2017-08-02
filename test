@@ -7,3 +7,48 @@ dict_results_train_set
 simple
 
 {'LogisticRegress': {'sensitivity': 0.8353478204963354, 'false_negative_rate': 0.16465217950366465, 'fallout_rate': 0.16465217950366465, 'specificty': 0.9424657534246575, 'precision': 0.9919835089326615, 'false_discovery_rate': 0.008016491067338524, 'negative_predictive_value': 0.40177528614809627, 'roc_auc_score': 0.88890678696049641, 'mse': 0.15340353299959722, 'mae': 0.15340353299959722, 'r2_score': -0.63222477237939079, 'variance': 0.18565243402716228, 'ACC': 0.8465964670004028}, 'DecisionTreeCla': {'sensitivity': 0.8327118426128327, 'false_negative_rate': 0.1672881573871673, 'fallout_rate': 0.1672881573871673, 'specificty': 0.9671232876712329, 'precision': 0.9953888718106363, 'false_discovery_rate': 0.0046111281893636644, 'negative_predictive_value': 0.40416762079230595, 'roc_auc_score': 0.89991756514203269, 'mse': 0.15317337015938776, 'mae': 0.15317337015938776, 'r2_score': -0.62977582298347268, 'variance': 0.1881385012804091, 'ACC': 0.8468266298406122}, 'MLPClassifier(a': {'sensitivity': 0.97003986112897, 'false_negative_rate': 0.02996013887102996, 'fallout_rate': 0.02996013887102996, 'specificty': 0.39835616438356164, 'precision': 0.9321635981712592, 'false_discovery_rate': 0.06783640182874089, 'negative_predictive_value': 0.6093880972338642, 'roc_auc_score': 0.68419801275626591, 'mse': 0.089993670521894234, 'mae': 0.089993670521894234, 'r2_score': 0.042460786196036326, 'variance': 0.063933784565204307, 'ACC': 0.9100063294781058}}
+
+
+for cycle vars
+
+LogisticRegress
+_______________________
+['workingday', 'temp', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.5, 'precision': 0.9024329226343111, 'sensitivity': 0.8390047820361771, 'fallout_rate': 0.16099521796382285}
+_____________________
+['workingday', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.89442408984043897, 'precision': 0.9947622214832058, 'sensitivity': 0.8292327950654931, 'fallout_rate': 0.1707672049345069}
+_____________________
+['temp', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.89442408984043897, 'precision': 0.9947622214832058, 'sensitivity': 0.8292327950654931, 'fallout_rate': 0.1707672049345069}
+_____________________
+['workingday', 'temp', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.83740977038762754, 'precision': 0.97400738340993, 'sensitivity': 0.8959733869291011, 'fallout_rate': 0.10402661307089889}
+_____________________
+DecisionTreeCla
+_______________________
+['workingday', 'temp', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.5, 'precision': 0.9024329226343111, 'sensitivity': 0.8390047820361771, 'fallout_rate': 0.16099521796382285}
+_____________________
+['workingday', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.89442408984043897, 'precision': 0.9947622214832058, 'sensitivity': 0.8292327950654931, 'fallout_rate': 0.1707672049345069}
+_____________________
+['temp', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.89442408984043897, 'precision': 0.9947622214832058, 'sensitivity': 0.8292327950654931, 'fallout_rate': 0.1707672049345069}
+_____________________
+['workingday', 'temp', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.83740977038762754, 'precision': 0.97400738340993, 'sensitivity': 0.8959733869291011, 'fallout_rate': 0.10402661307089889}
+_____________________
+MLPClassifier(a
+_______________________
+['workingday', 'temp', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.5, 'precision': 0.9024329226343111, 'sensitivity': 0.8390047820361771, 'fallout_rate': 0.16099521796382285}
+_____________________
+['workingday', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.89442408984043897, 'precision': 0.9947622214832058, 'sensitivity': 0.8292327950654931, 'fallout_rate': 0.1707672049345069}
+_____________________
+['temp', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.89442408984043897, 'precision': 0.9947622214832058, 'sensitivity': 0.8292327950654931, 'fallout_rate': 0.1707672049345069}
+_____________________
+['workingday', 'temp', 'hr_new', 'cnt_binary']
+{'train_type': 'dict_results_train_set', 'model': 'MLPClassifier(a', 'roc_auc_score': 0.83740977038762754, 'precision': 0.97400738340993, 'sensitivity': 0.8959733869291011, 'fallout_rate': 0.10402661307089889}

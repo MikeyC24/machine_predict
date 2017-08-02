@@ -74,7 +74,7 @@ table_name = 'bike_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 bike_predict = MachinePredictModel(df_bike, columns_all_bike_test, random_state_bike, training_percent_bike, kfold_number_bike, target_bike, cols_to_drop=columns_to_drop_bike,set_multi_class=set_multi_class_bike, target_change_bin_dict=create_target_dict_bike, kfold_dict=kfold_dict, param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=decision_tree_params_bike, param_dict_neural_network=nnl_params_bike, param_dict_logistic_array=logistic_regression_array_vars, param_dict_decision_tree_array=decision_tree_array_vars, param_dict_neural_network_array=neural_net_array_vars, user_input_for_model_output=user_optmize_input, cycle_vars_user_check=cycle_vars_user_check, minimum_feature_count_for_var_cycle=minimum_feature_count_for_var_cycle, db_location_base=db_location_base, table_name=table_name, database_name= database_name)
 data_wanted = bike_predict.user_full_model()
-"""
+
 print(type(data_wanted))
 print(len(data_wanted))
 for x,y in data_wanted.items():
@@ -85,4 +85,3 @@ for x,y in data_wanted.items():
 		print(v)
 		print('_____________________')
 
-"""

@@ -83,6 +83,7 @@ class MachinePredictModel:
 		self.database_name = kwargs.get('database_name', None) 
 		self.table_name = kwargs.get('table_name', None)
 		self.db_location_base = kwargs.get('db_location_base', None)
+		self.write_to_db = kwargs.get('write_to_db', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -397,7 +398,8 @@ class MachinePredictModel:
 		if self.cycle_vars_user_check == 'yes':
 			print('cycling vars')
 			data_wanted = self.return_desired_user_output_from_dict_refrac()
-			self.write_results_to_db_for_user_params(data_wanted)
+			if self.write_to_db == 'yes':
+				self.write_results_to_db_for_user_params(data_wanted)
 		else:
 			print('not cycling vars')
 			data_wanted = self.user_output_model()
@@ -488,3 +490,4 @@ represent all the unqiue combo of vars + its model
 then for each of those combos, iterate thru one best pairis returned
 maybe database step should wait and be more final no reason return dict cant be iterated over
 actualy next needs to be what how to get best result
+"""

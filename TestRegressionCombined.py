@@ -186,7 +186,8 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 	def test_cycle_vars_is_working(self):
 		cycle_vars_user_check = 'yes'
 		minimum_feature_count_for_var_cycle =  [1,2,3]
-		model_score_dict_all1 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+		#model_score_dict_all1 = {'logistic':{'roc_auc_score':.03, 'precision':.06, 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'decision_tree':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}, 'neural_network':{'error_metric':'roc_auc_score', 'tpr_range':[.06,1], 'fpr_range':[.0,.05]}}
+		model_score_dict_all1 = {'LogisticRegress':{'roc_auc_score':[.03,1], 'precision':[.06,1], 'significant_level':.05, 'sensitivity':[.06,1], 'fallout_rate':[0,.5]}, 'DecisionTreeCla':{'roc_auc_score':[.03,1], 'precision':[.06,1], 'significant_level':.05, 'sensitivity':[.06,1], 'fallout_rate':[0,.5]}, 'MLPClassifier(a':{'roc_auc_score':[.03,1], 'precision':[.06,1], 'significant_level':.05, 'sensitivity':[.06,1], 'fallout_rate':[0,.5]}}
 		user_optmize_input1 = ['class', 'constant', 'train', model_score_dict_all1]
 		for num in minimum_feature_count_for_var_cycle:
 			columns_all_bike_test = ['workingday','temp', 'cnt_binary', 'hr_new']
@@ -209,6 +210,34 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 				self.assertTrue(len(var_combo_dict) == 1)
 			else:
 				print('something went wrong on vars dcit test')
+		columns_all_bike_test = ['workingday','temp', 'cnt_binary', 'hr_new']
+		df_bike3 = pd.read_csv(file_location)
+		num = 2
+		bike_predict3 = MachinePredictModel(df_bike3, columns_all_bike_test, self.random_state_bike, self.training_percent_bike, 
+												self.kfold_number_bike, self.target_bike, cols_to_drop=self.columns_to_drop_bike,set_multi_class=self.set_multi_class_bike, 	
+												target_change_bin_dict=self.create_target_dict_bike, kfold_dict=self.kfold_dict, 
+												param_dict_logistic=logistic_regression_params_bike, param_dict_decision_tree=self.decision_tree_params_bike,
+												param_dict_neural_network=self.nnl_params_bike, user_input_for_model_output=user_optmize_input1,
+												cycle_vars_user_check=cycle_vars_user_check,
+												minimum_feature_count_for_var_cycle=num)
+		data_wanted = bike_predict3.user_full_model()
+		for model, model_values in data_wanted.items():
+			models = ['DecisionTreeCla', 'MLPClassifier(a', 'LogisticRegress']
+			if model in models:
+				check = True
+				self.assertTrue(check == True)
+			var_list = ['workingday', 'temp', 'cnt_binary']
+			for var in var_list:
+				if var in model_values.keys():
+					check = True
+					self.assertTrue(check == True)
+		self.assertTrue(round(data_wanted['LogisticRegress'][str(['workingday', 'temp', 'cnt_binary'])]['roc_auc_score'], 3) == .5)
+		self.assertTrue(round(data_wanted['LogisticRegress'][str(['workingday', 'temp', 'hr_new', 'cnt_binary'])]['fallout_rate'], 3) == .104)
+		self.assertTrue(round(data_wanted['DecisionTreeCla'][str(['workingday', 'hr_new', 'cnt_binary'])]['sensitivity'], 3) == .829)
+		self.assertTrue(round(data_wanted['DecisionTreeCla']['DecisionTreeCla']['fallout_rate'], 3) == .167)
+		self.assertTrue(round(data_wanted['MLPClassifier(a']['MLPClassifier(a']['sensitivity'], 3) == .970)
+		self.assertTrue(round(data_wanted['MLPClassifier(a']['MLPClassifier(a']['fallout_rate'], 3) == .030) 
+
 
 
 	def test_model_select_params(self):
