@@ -411,7 +411,7 @@ class MachinePredictModel:
 		conn = sqlite3.connect(location)
 		curr = conn.cursor()
 		curr.execute('''CREATE TABLE IF NOT EXISTS %s
-					(date_added, train_type, model_type, score_name)
+					(date_added, train_type, model_type, metric, metric_result)
 					''' % (table_name))
 
 		if self.cycle_vars_user_check == 'yes':
@@ -421,6 +421,7 @@ class MachinePredictModel:
 				if len(model_results) > 0:
 					dict_to_add['model_type'] = model
 					dict_to_add['date_added'] = date_utc
+					print('model_results_keys', model_results.keys())
 					for var_set, score_set in model_results.items():
 							dict_to_add['vars'] = var_set
 							for metric, result in score_set.items():
@@ -434,7 +435,10 @@ class MachinePredictModel:
 								print('result', result)
 								print('dict_to_add', dict_to_add)
 								print('_______________')
-								#insert = "INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)".format(table_name)
-								#data_values = dict_to_add['date_added'], dict_to_add['dat']
+								insert = "INSERT INTO {} VALUES (?,?,?,?,?)".format(table_name)
+								data_values = dict_to_add['date_added'], dict_to_add['model_type'], dict_to_add['vars'], dict_to_add['metric'], dict_to_add['metric_result']
+								curr.execute(insert, data_values)
+								conn.commit()
 				else:
 					print('all traing method dicts are empty')
+			conn.close()
