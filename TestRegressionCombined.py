@@ -234,9 +234,9 @@ class TestRegressionsAndMachinePredict(unittest.TestCase):
 		self.assertTrue(round(data_wanted['LogisticRegress'][str(['workingday', 'temp', 'cnt_binary'])]['roc_auc_score'], 3) == .5)
 		self.assertTrue(round(data_wanted['LogisticRegress'][str(['workingday', 'temp', 'hr_new', 'cnt_binary'])]['fallout_rate'], 3) == .104)
 		self.assertTrue(round(data_wanted['DecisionTreeCla'][str(['workingday', 'hr_new', 'cnt_binary'])]['sensitivity'], 3) == .829)
-		self.assertTrue(round(data_wanted['DecisionTreeCla']['DecisionTreeCla']['fallout_rate'], 3) == .167)
-		self.assertTrue(round(data_wanted['MLPClassifier(a']['MLPClassifier(a']['sensitivity'], 3) == .970)
-		self.assertTrue(round(data_wanted['MLPClassifier(a']['MLPClassifier(a']['fallout_rate'], 3) == .030) 
+		self.assertTrue(round(data_wanted['DecisionTreeCla'][str(['workingday', 'temp', 'hr_new', 'cnt_binary'])]['fallout_rate'], 3) == .104)
+		self.assertTrue(round(data_wanted['MLPClassifier(a'][str(['workingday', 'hr_new', 'cnt_binary'])]['precision'], 3) == .995)
+		self.assertTrue(round(data_wanted['MLPClassifier(a'][str(['workingday', 'temp', 'hr_new', 'cnt_binary'])]['roc_auc_score'], 3) == .837) 
 
 
 

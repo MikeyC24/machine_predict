@@ -459,29 +459,67 @@ class MachinePredictModel:
 				else:
 					print('dicts are empty')
 			conn.close()
-			"""
-			sorted_columns_headers_list = []
-			sorted_columns_values_list = []
-			for k,v in dict_to_add.items():
-				sorted_columns_headers_list.append(k)
-				sorted_columns_values_list.append(v)
-			columns = ', '.join(dict_add_all.keys())
-			placeholders = ', '.join('?' * len(dict_to_add)
-			sql = 'INSERT INTO table_name ({}) VALUES ({})'.format(columns, placeholders) 
-			cur.execute(sql, values.values())
-			"""
-			"""
-			print(dict_to_add)
-			sorted_columns_headers_list = []
-			sorted_columns_values_list = []
-			for k,v in dict_to_add.items():
-				sorted_columns_headers_list.append(k)
-				sorted_columns_values_list.append(v)
-			with open('file.csv', 'w') as f:
-				writer = csv.DictWriter(f, dict_to_add.keys())
-				writer.writeheader()
-				writer.writerow(dict_to_add.values())
-			"""
+
+	# there is def a better way to do this but right now this works for 1 var
+	# need to add variables to change var and then maybe loop over for multiple
+	
+	def sort_database_results(self):
+		# create connection to db
+		con = sqlite3.connect(self.db_location_base+self.database_name)
+		cur = con.cursor()
+		df = pd.read_sql_query('SELECT * FROM %s' % (self.table_name), con)
+		metric_series = df['metric_result_combined']
+		array_list = []
+		array_list2 = []
+		for data in metric_series:
+			data1 = data.replace('[', '')
+			data1 = data1.replace(']', '')
+			data1 = data1.split(',')
+			print(data1[0])
+			print(data1[1])
+			print(type(data))
+			if data1[0] == '\'roc_auc_score\'':
+				print('found roc ')
+				if float(data1[1]) > .55:
+					print('made it down here')
+					array_list.append(data)
+		for x in array_list:
+			x = x.replace('[', '')
+			x = x.replace(']', '')
+			x = x.split(',')
+			print('x', x)
+			print('x', x[0])
+			print('x', x[1])
+			row = df.loc[df['metric_result'] == float(x[1])]
+			print('row', row)
+			array_list2.append(row)
+		return array_list2
+# http://www.shanelynn.ie/select-pandas-dataframe-rows-and-columns-using-iloc-loc-and-ix/
+
+
+"""
+sorted_columns_headers_list = []
+sorted_columns_values_list = []
+for k,v in dict_to_add.items():
+	sorted_columns_headers_list.append(k)
+	sorted_columns_values_list.append(v)
+columns = ', '.join(dict_add_all.keys())
+placeholders = ', '.join('?' * len(dict_to_add)
+sql = 'INSERT INTO table_name ({}) VALUES ({})'.format(columns, placeholders) 
+cur.execute(sql, values.values())
+"""
+"""
+print(dict_to_add)
+sorted_columns_headers_list = []
+sorted_columns_values_list = []
+for k,v in dict_to_add.items():
+	sorted_columns_headers_list.append(k)
+	sorted_columns_values_list.append(v)
+with open('file.csv', 'w') as f:
+	writer = csv.DictWriter(f, dict_to_add.keys())
+	writer.writeheader()
+	writer.writerow(dict_to_add.values())
+"""
 
 """
 what i think needs to happen next, 
