@@ -84,6 +84,7 @@ class MachinePredictModel:
 		self.table_name = kwargs.get('table_name', None)
 		self.db_location_base = kwargs.get('db_location_base', None)
 		self.write_to_db = kwargs.get('write_to_db', None)
+		self.vars_to_return_from_db = kwargs.get('vars_to_return_from_db', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -465,34 +466,41 @@ class MachinePredictModel:
 	
 	def sort_database_results(self):
 		# create connection to db
+		vars_back = self.vars_to_return_from_db
 		con = sqlite3.connect(self.db_location_base+self.database_name)
 		cur = con.cursor()
 		df = pd.read_sql_query('SELECT * FROM %s' % (self.table_name), con)
 		metric_series = df['metric_result_combined']
 		array_list = []
 		array_list2 = []
-		for data in metric_series:
-			data1 = data.replace('[', '')
-			data1 = data1.replace(']', '')
-			data1 = data1.split(',')
-			print(data1[0])
-			print(data1[1])
-			print(type(data))
-			if data1[0] == '\'roc_auc_score\'':
-				print('found roc ')
-				if float(data1[1]) > .55:
-					print('made it down here')
-					array_list.append(data)
-		for x in array_list:
-			x = x.replace('[', '')
-			x = x.replace(']', '')
-			x = x.split(',')
-			print('x', x)
-			print('x', x[0])
-			print('x', x[1])
-			row = df.loc[df['metric_result'] == float(x[1])]
-			print('row', row)
-			array_list2.append(row)
+		for var_back in vars_back:
+			print('var_back', var_back)
+			for data in metric_series:
+				data1 = data.replace('[', '')
+				data1 = data1.replace(']', '')
+				data1 = data1.split(',')
+				#print(data1[0])
+				#print(data1[1])
+				#print(type(data))
+				if data1[0] == var_back:
+					print('found roc ')
+					if float(data1[1]) > .55:
+						print('made it down here')
+						array_list.append(data)
+			for x in array_list:
+				x = x.replace('[', '')
+				x = x.replace(']', '')
+				x = x.split(',')
+				print('x', x)
+				print('x', x[0])
+				print('x', x[1])
+				row = df.loc[df['metric_result'] == float(x[1])]
+				print('row', row)
+				array_list2.append(row)
+		with open(self.db_location_base+self.database_name+'_csv', 'w') as csvfile:
+			writer = csv.writer(csvfile, delimiter=',')
+			for x in array_list2:
+				writer.writerow(x)
 		return array_list2
 # http://www.shanelynn.ie/select-pandas-dataframe-rows-and-columns-using-iloc-loc-and-ix/
 
