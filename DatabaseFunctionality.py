@@ -22,10 +22,12 @@ import calendar
 
 class DatabaseFunctionality:
 
-	def __init__(self, metric_dictionary, location_base):
-		self.metric_dictionary = metric_dictionary
+	def __init__(self, location_base, database_name):
 		self.location_base = location_base
+		self.database_name = database_name
 
+	"""
+	# this is being done in the machineprdictmodel class
 	def write_results_to_db_for_user_params(self, database_name table_name):
 		location = self.location_base+data_base_name
 		date_utc = datetime.datetime.utcnow()
@@ -40,7 +42,22 @@ class DatabaseFunctionality:
 				add
 			else:
 				print('all traing method dicts are empty')
-
+	"""
+	"""
+	# columns in table 0|human_date_added||0||0
+1|date_time_added_to_db||0||0 2|coin_name||0||0 3|globalTradeID||0||0
+4|tradeID||0||0 5|date||0||0 6|type||0||0 7|rate||0||0
+8|amount||0||0 9|total||0||0
+	"""
+	def aggregate_databases(self, table_name_array, columns_wanted_array):
+		con = sqlite3.connect(self.db_location_base+self.database_name)
+		cur = con.cursor()
+		df1 = pd.read_sql_query('SELECT * FROM %s' % (table_name_array[0]), con)
+		df2 = pd.read_sql_query('SELECT * FROM %s' % (table_name_array), con)
+		key = columns_wanted_array[0]
+		#could make all columns wanted into a series and concat that way 
+		# then reset index by ignore_index = True
+		# figure it out from here = http://pandas.pydata.org/pandas-docs/stable/generated/pandas.concat.html
 
 
 

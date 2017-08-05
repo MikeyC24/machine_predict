@@ -133,7 +133,7 @@ decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best'
 logistic_regression_array_vars = {'penalty':['l1','l2'], 'tol':[0.0001, .001, .01], 'C':[.02,1.0,2], 'fit_intercept':[True], 'intercept_scaling':[.1,1,2], 'class_weight':[None, 'balanced'], 'solver':['liblinear'], 'max_iter':[10,100,200], 'n_jobs':[1], 'random_state':[random_state_bike]}
 neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['relu', 'logistic', 'tanh', 'identity'], 'solver':['adam', 'lbfgs', 'sgd'], 'alpha':[0.0001], 'batch_size':['auto'], 'learning_rate':['constant', 'invscaling', 'adaptive'], 'learning_rate_init':[0.001], 'power_t':[0.5], 'max_iter':[50], 'shuffle':[True, False], 'tol':[0.0001], 'verbose':[False], 'warm_start':[False, True], 'momentum':[.1,0.9], 'nesterovs_momentum':[True], 'early_stopping':[True], 'validation_fraction':[0.1], 'beta_1':[0.9], 'beta_2':[0.999], 'epsilon':[1e-08], 'random_state':[random_state_bike]}
 database_name = 'machine_predict_loan_db'
-table_name = 'loan_table2'
+table_name = 'loan_table3'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'yes'
 # sample instance has all vars above in it
@@ -155,7 +155,7 @@ loan_instance = MachinePredictModel(df_bike, columns_all_bike,
 data = loan_instance.user_full_model()
 for k,v in data.items():
 	for kk, vv in v.items():
-		print(k)	
+		#print(k)	
 		print(kk)
 		print(vv)
 		print('________________')
