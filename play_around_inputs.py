@@ -68,6 +68,7 @@ columns_wanted_array_test = ['coin_name', 'total']
 
 database_instance = DatabaseFunctionality(db_location_base, db_name)
 dbs = database_instance.aggregate_databases1(table_name_array, columns_wanted_array)
+
 print('printing dbs')
 for k,v in dbs.items():
 	print('db len', len(dbs))
@@ -76,3 +77,9 @@ for k,v in dbs.items():
 	print(type(v))
 	print(v.head(5))
 	print('______________')
+btc_date_u = dbs['USDT_BTCformatted']['date_USDT_BTC'].unique
+print(btc_date_u)
+eth_date_u = dbs['USDT_ETHformatted']['date_USDT_ETH'].unique
+ltc_date_u = dbs['USDT_LTCformatted']['date_USDT_LTC'].unique
+print(eth_date_u)
+print(ltc_date_u)
