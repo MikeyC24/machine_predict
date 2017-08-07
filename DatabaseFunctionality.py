@@ -70,6 +70,65 @@ class DatabaseFunctionality:
 			df = df.loc[:, columns_wanted_array]
 			column_names = cur.description
 			coin = df['coin_name'][0]
+
+			df.columns = df.columns + '_'  + coin
+			date_col = 'date_'+coin
+			df['date'] = df[date_col]
+			total_col = 'total_' + coin
+			cols_num = ['rate', 'amount', 'total']
+			cols_num1 = []
+			for x in cols_num:
+				new_name = x+'_'+coin
+				cols_num1.append(new_name)
+			for col in cols_num1:
+				df[col] = pd.to_numeric(df[col], errors='coerce')
+			#df.index = df[date_col]
+			df['date'] = pd.to_datetime(df['date'])
+			df.index = df['date']
+			df1 = df.groupby(pd.TimeGrouper('10Min')).mean()
+			df2 = df.groupby(pd.TimeGrouper('10Min')).count()
+			total_name = 'total'+'_'+coin
+			freq_series = df2[total_name]
+			df1['trade_count_'+coin] = freq_series
+			df1['trade_count_'+coin] = pd.to_numeric(df1['trade_count_'+coin], errors='coerce')
+			df = df1
+			# https://chrisalbon.com/python/pandas_apply_operations_to_groups.html
+			database_dict[str(coin) + 'formatted'] = df
+		return database_dict
+
+	def merge_databases_for_models(self, database_dict):
+		database_names = list(database_dict.keys())
+		print(database_names)
+		print(database_names[0])
+		combined = database_dict[database_names[0]]
+		database_names.pop(0)
+		"""
+		print(database_names)
+		print('combined', combined.head(5))
+		db2 = database_dict[database_names[0]]
+		print('db2', db2.head(5))
+		combined = combined.merge(db2, how='inner', left_index=True, right_index=True)
+		print('combined2', combined.head(5))
+		"""
+		for database_name in database_names:
+			combined = combined.merge(database_dict[database_name], how='inner', left_index=True, right_index=True)
+		#combined = pd.concat(database_dict.values())
+		return combined
+
+
+
+"""
+saving in case
+	def aggregate_databases1(self, table_name_array, columns_wanted_array):
+		database_dict = {}
+		for table in table_name_array:
+			con = sqlite3.connect(self.db_location_base+self.database_name)
+			cur = con.cursor()
+			df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
+			df = df.loc[:, columns_wanted_array]
+			column_names = cur.description
+			coin = df['coin_name'][0]
+			
 			df.columns = df.columns + '_'  + coin
 			date_col = 'date_'+coin
 			total_col = 'total_' + coin
@@ -92,15 +151,4 @@ class DatabaseFunctionality:
 			# https://chrisalbon.com/python/pandas_apply_operations_to_groups.html
 			database_dict[str(coin) + 'formatted'] = df
 		return database_dict
-
-	def merge_databases_for_models(self, database_dict):
-		database_names = list(database_dict.keys())
-		combined = database_dict[database_names[0]]
-		database_names = database_names.pop(0)
-		for database_name in database_names:
-			combined = combined.merge(database_dict[database_name], how='outer')
-		return combined
-
-
-
-
+"""

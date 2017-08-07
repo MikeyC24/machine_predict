@@ -177,7 +177,7 @@ def auto_pull_data_time_interval(time_interval, length):
 
 
 
-
+# '/home/mike/Documents/coding_all/data_sets_machine_predict/3_coin_test_db'
 location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
 # 8/7/17 100 GMT
 start_date =  '1502067600'
