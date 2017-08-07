@@ -8,6 +8,8 @@ import time
 import datetime
 #from datetime import datetime
 import calendar
+import pandas as pd
+import numpy as np
 
 # 7/31/17
 # goal of this class, as of now is two fold
@@ -22,8 +24,8 @@ import calendar
 
 class DatabaseFunctionality:
 
-	def __init__(self, location_base, database_name):
-		self.location_base = location_base
+	def __init__(self, db_location_base, database_name):
+		self.db_location_base = db_location_base
 		self.database_name = database_name
 
 	"""
@@ -58,6 +60,28 @@ class DatabaseFunctionality:
 		#could make all columns wanted into a series and concat that way 
 		# then reset index by ignore_index = True
 		# figure it out from here = http://pandas.pydata.org/pandas-docs/stable/generated/pandas.concat.html
+
+	def aggregate_databases1(self, table_name_array, columns_wanted_array):
+		database_dict = {}
+		for table in table_name_array:
+			con = sqlite3.connect(self.db_location_base+self.database_name)
+			cur = con.cursor()
+			df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
+			df = df.loc[:, columns_wanted_array]
+			column_names = cur.description
+			print(column_names)
+			print(df.columns.values)
+			print(df['coin_name'][0])
+			coin = df['coin_name'][0]
+			#for col in df.columns.values:
+			df.columns = df.columns + '_'  + coin
+			print(df.columns.values)
+			database_dict[str(coin) + 'formatted'] = df
+		return database_dict
+
+			
+
+
 
 
 

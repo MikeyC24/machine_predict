@@ -1,5 +1,6 @@
 from MachinePredictModelrefractored import *
-
+from DatabaseFunctionality import *
+"""
 file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
 df_bike = pd.read_csv(file_location)
 columns_to_drop_bike = ['casual', 'registered', 'dteday']
@@ -40,7 +41,7 @@ bike_predict = MachinePredictModel(df_bike, columns_all_bike_test, random_state_
 data_wanted = bike_predict.user_full_model()
 db_data = bike_predict.sort_database_results()
 print('db_data', db_data)
-
+"""
 
 
 
@@ -55,3 +56,23 @@ for x,y in data_wanted.items():
 		print(v)
 		print('_____________________')
 """
+
+#combined databases
+# vars
+# full db for c/p '/home/mike/Documents/coding_all/data_sets_machine_predict/all_coin_history_db_big'
+db_location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
+db_name = 'all_coin_history_db_big'
+table_name_array = ['USDT_BTC_table_', 'USDT_ETH_table_', 'USDT_LTC_table_']
+columns_wanted_array = ['globalTradeID', 'date_time_added_to_db', 'coin_name', 'date', 'type', 'rate', 'amount', 'total']
+columns_wanted_array_test = ['coin_name', 'total']
+
+database_instance = DatabaseFunctionality(db_location_base, db_name)
+dbs = database_instance.aggregate_databases1(table_name_array, columns_wanted_array)
+print('printing dbs')
+for k,v in dbs.items():
+	print('db len', len(dbs))
+	print(k)
+	print(len(v))
+	print(type(v))
+	print(v.head(5))
+	print('______________')

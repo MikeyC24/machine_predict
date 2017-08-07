@@ -1,0 +1,746 @@
+_________
+var_back 'roc_auc_score'
+found roc 
+made it down here
+found roc 
+made it down here
+found roc 
+made it down here
+found roc 
+made it down here
+x ["'roc_auc_score'", ' 0.62535164330384085']
+x 'roc_auc_score'
+x  0.62535164330384085
+row                    date_added       train_type  \
+2  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type         metric metric_result  \
+2  ['workingday', 'temp', 'cnt_binary']  roc_auc_score      0.625352   
+
+                   metric_result_combined  \
+2  ['roc_auc_score', 0.62535164330384085]   
+
+                                          model_vars  
+2  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+var_back 'sensitivity'
+found roc 
+made it down here
+found roc 
+made it down here
+found roc 
+made it down here
+found roc 
+made it down here
+x ["'roc_auc_score'", ' 0.62535164330384085']
+x 'roc_auc_score'
+x  0.62535164330384085
+row                    date_added       train_type  \
+2  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type         metric metric_result  \
+2  ['workingday', 'temp', 'cnt_binary']  roc_auc_score      0.625352   
+
+                   metric_result_combined  \
+2  ['roc_auc_score', 0.62535164330384085]   
+
+                                          model_vars  
+2  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'sensitivity'", ' 0.6964864191378022']
+x 'sensitivity'
+x  0.6964864191378022
+row                    date_added       train_type  \
+4  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type       metric metric_result  \
+4  ['workingday', 'temp', 'cnt_binary']  sensitivity      0.696486   
+
+                metric_result_combined  \
+4  ['sensitivity', 0.6964864191378022]   
+
+                                          model_vars  
+4  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  
+x ["'sensitivity'", ' 0.8123598305507101']
+x 'sensitivity'
+x  0.8123598305507101
+row                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'sensitivity'", ' 0.8123598305507101']
+x 'sensitivity'
+x  0.8123598305507101
+row                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'sensitivity'", ' 0.8123598305507101']
+x 'sensitivity'
+x  0.8123598305507101
+row                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+var_back 'fallout_rate'
+found roc 
+found roc 
+found roc 
+found roc 
+x ["'roc_auc_score'", ' 0.62535164330384085']
+x 'roc_auc_score'
+x  0.62535164330384085
+row                    date_added       train_type  \
+2  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type         metric metric_result  \
+2  ['workingday', 'temp', 'cnt_binary']  roc_auc_score      0.625352   
+
+                   metric_result_combined  \
+2  ['roc_auc_score', 0.62535164330384085]   
+
+                                          model_vars  
+2  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'roc_auc_score'", ' 0.89413172250427086']
+x 'roc_auc_score'
+x  0.89413172250427086
+row                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'sensitivity'", ' 0.6964864191378022']
+x 'sensitivity'
+x  0.6964864191378022
+row                    date_added       train_type  \
+4  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type       metric metric_result  \
+4  ['workingday', 'temp', 'cnt_binary']  sensitivity      0.696486   
+
+                metric_result_combined  \
+4  ['sensitivity', 0.6964864191378022]   
+
+                                          model_vars  
+4  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  
+x ["'sensitivity'", ' 0.8123598305507101']
+x 'sensitivity'
+x  0.8123598305507101
+row                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'sensitivity'", ' 0.8123598305507101']
+x 'sensitivity'
+x  0.8123598305507101
+row                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+x ["'sensitivity'", ' 0.8123598305507101']
+x 'sensitivity'
+x  0.8123598305507101
+row                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  
+db_data [                   date_added       train_type  \
+2  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type         metric metric_result  \
+2  ['workingday', 'temp', 'cnt_binary']  roc_auc_score      0.625352   
+
+                   metric_result_combined  \
+2  ['roc_auc_score', 0.62535164330384085]   
+
+                                          model_vars  
+2  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                    date_added       train_type  \
+2  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type         metric metric_result  \
+2  ['workingday', 'temp', 'cnt_binary']  roc_auc_score      0.625352   
+
+                   metric_result_combined  \
+2  ['roc_auc_score', 0.62535164330384085]   
+
+                                          model_vars  
+2  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                    date_added       train_type  \
+4  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type       metric metric_result  \
+4  ['workingday', 'temp', 'cnt_binary']  sensitivity      0.696486   
+
+                metric_result_combined  \
+4  ['sensitivity', 0.6964864191378022]   
+
+                                          model_vars  
+4  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  ,                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                    date_added       train_type  \
+2  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type         metric metric_result  \
+2  ['workingday', 'temp', 'cnt_binary']  roc_auc_score      0.625352   
+
+                   metric_result_combined  \
+2  ['roc_auc_score', 0.62535164330384085]   
+
+                                          model_vars  
+2  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+8   2017-08-04 11:57:41.136536  LogisticRegress   
+14  2017-08-04 11:57:41.136536  LogisticRegress   
+20  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type         metric  \
+8           ['workingday', 'hr_new', 'cnt_binary']  roc_auc_score   
+14                ['temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+20  ['workingday', 'temp', 'hr_new', 'cnt_binary']  roc_auc_score   
+
+   metric_result                  metric_result_combined  \
+8       0.894132  ['roc_auc_score', 0.89413172250427086]   
+14      0.894132  ['roc_auc_score', 0.89413172250427086]   
+20      0.894132  ['roc_auc_score', 0.89413172250427086]   
+
+                                           model_vars  
+8   ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+14  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+20  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                    date_added       train_type  \
+4  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                             model_type       metric metric_result  \
+4  ['workingday', 'temp', 'cnt_binary']  sensitivity      0.696486   
+
+                metric_result_combined  \
+4  ['sensitivity', 0.6964864191378022]   
+
+                                          model_vars  
+4  ["'workingday'", " 'temp'", " 'cnt_binary'", '...  ,                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ,                     date_added       train_type  \
+10  2017-08-04 11:57:41.136536  LogisticRegress   
+16  2017-08-04 11:57:41.136536  LogisticRegress   
+22  2017-08-04 11:57:41.136536  LogisticRegress   
+
+                                        model_type       metric metric_result  \
+10          ['workingday', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+16                ['temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+22  ['workingday', 'temp', 'hr_new', 'cnt_binary']  sensitivity       0.81236   
+
+                 metric_result_combined  \
+10  ['sensitivity', 0.8123598305507101]   
+16  ['sensitivity', 0.8123598305507101]   
+22  ['sensitivity', 0.8123598305507101]   
+
+                                           model_vars  
+10  ["'workingday'", " 'hr_new'", " 'cnt_binary'",...  
+16  ["'temp'", " 'hr_new'", " 'cnt_binary'", 'Logi...  
+22  ["'workingday'", " 'temp'", " 'hr_new'", " 'cn...  ]
+mike > 
