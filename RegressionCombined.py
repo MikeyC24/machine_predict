@@ -228,8 +228,14 @@ class RegressionCombined:
 					tn = len(predictions[tn_filter])
 					fp = len(predictions[fp_filter])
 					fn = len(predictions[fn_filter])
-					true_positive_rate = tp / (tp+fn)
-					false_positive_rate = fp / (fp + tn)
+					if (tp+fn) != 0:
+						true_positive_rate = tp / (tp+fn)
+					else:
+						true_positive_rate = 'division by zero'
+					if fp+tn != 0:
+						false_positive_rate = fp / (fp + tn)
+					else:
+						false_positive_rate = 'division by zero'
 					true_positive_rate_values.append(true_positive_rate)
 					false_positive_rate_values.append(false_positive_rate)
 				dict['avg_mse'] = np.mean(mse_values)

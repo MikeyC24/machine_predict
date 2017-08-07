@@ -308,6 +308,8 @@ class MachinePredictModel:
 								print(dict_all)
 			return dict_all
 
+	# need to edit there where the results dict is check to make sure all the parameters
+	# that were wanted are in, and if they are to return all output measures
 	def return_desired_user_output_from_dict_refrac(self):
 		data_wanted = self.cycle_vars_return_desired_output_specific_model()
 		#print('data dict from return desired user ut put from dict', data_wanted)
