@@ -69,18 +69,24 @@ class DatabaseFunctionality:
 			df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 			df = df.loc[:, columns_wanted_array]
 			column_names = cur.description
-			print(column_names)
-			print(df.columns.values)
-			print(df['coin_name'][0])
 			coin = df['coin_name'][0]
-			#for col in df.columns.values:
 			df.columns = df.columns + '_'  + coin
-			print(df.columns.values)
+			date_col = 'date_'+coin
+			total_col = 'total_' + coin
+			cols_num = ['rate', 'amount', 'total']
+			cols_num1 = []
+			for x in cols_num:
+				new_name = x+'_'+coin
+				cols_num1.append(new_name)
+			for col in cols_num1:
+				df[col] = pd.to_numeric(df[col], errors='coerce')
+			#df.index = df[date_col]
+			df[date_col] = pd.to_datetime(df[date_col])
+			df.index = df[date_col]
+			df = df.groupby(pd.TimeGrouper('10Min'))
+			# https://chrisalbon.com/python/pandas_apply_operations_to_groups.html
 			database_dict[str(coin) + 'formatted'] = df
 		return database_dict
-
-			
-
 
 
 

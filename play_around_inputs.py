@@ -75,11 +75,13 @@ for k,v in dbs.items():
 	print(k)
 	print(len(v))
 	print(type(v))
-	print(v.head(5))
+	print(v.head(10))
 	print('______________')
+"""
 btc_date_u = dbs['USDT_BTCformatted']['date_USDT_BTC'].unique
 print(btc_date_u)
 eth_date_u = dbs['USDT_ETHformatted']['date_USDT_ETH'].unique
 ltc_date_u = dbs['USDT_LTCformatted']['date_USDT_LTC'].unique
 print(eth_date_u)
 print(ltc_date_u)
+"""

@@ -185,3 +185,50 @@ Name: date_USDT_ETH, Length: 50000, dtype: object>
 49999    2017-07-08 08:33:12
 Name: date_USDT_LTC, Length: 50000, dtype: object>
 mike > 
+
+<class 'pandas.core.frame.DataFrame'>
+                     globalTradeID_USDT_ETH  date_time_added_to_db_USDT_ETH  \
+date_USDT_ETH                                                                 
+2017-07-11 22:44:50               188654198                      1499969102   
+2017-07-11 22:44:50               188654196                      1499969102   
+2017-07-11 22:44:37               188654109                      1499969102   
+2017-07-11 22:44:37               188654108                      1499969102   
+2017-07-11 22:44:26               188654057                      1499969102   
+
+                    coin_name_USDT_ETH       date_USDT_ETH type_USDT_ETH  \
+date_USDT_ETH                                                              
+2017-07-11 22:44:50           USDT_ETH 2017-07-11 22:44:50          sell   
+2017-07-11 22:44:50           USDT_ETH 2017-07-11 22:44:50           buy   
+2017-07-11 22:44:37           USDT_ETH 2017-07-11 22:44:37           buy   
+2017-07-11 22:44:37           USDT_ETH 2017-07-11 22:44:37           buy   
+2017-07-11 22:44:26           USDT_ETH 2017-07-11 22:44:26          sell   
+
+                    rate_USDT_ETH amount_USDT_ETH total_USDT_ETH  
+date_USDT_ETH                                                     
+2017-07-11 22:44:50  191.05400000      1.06743000   203.93677122  
+2017-07-11 22:44:50  191.05400000      7.19479000  1374.59340866  
+2017-07-11 22:44:37  191.05400000     18.68379638  3569.61403358  
+2017-07-11 22:44:37  191.05393000      7.19479000  1374.59290502  
+2017-07-11 22:44:26  191.00000000     23.50000000  4488.50000000  
+______________
+db len 3
+USDT_LTCformatted
+50000
+<class 'pandas.core.frame.DataFrame'>
+                     globalTradeID_USDT_LTC  date_time_added_to_db_USDT_LTC  \
+date_USDT_LTC                                                                 
+2017-07-11 22:42:11               188653433                      1499966467   
+2017-07-11 22:40:35               188652943                      1499966467   
+2017-07-11 22:40:35               188652942                      1499966467   
+2017-07-11 22:40:20               188652863                      1499966467   
+2017-07-11 22:40:20               188652862                      1499966467   
+
+                    coin_name_USDT_LTC       date_USDT_LTC type_USDT_LTC  \
+date_USDT_LTC                                                              
+2017-07-11 22:42:11           USDT_LTC 2017-07-11 22:42:11          sell   
+2017-07-11 22:40:35           USDT_LTC 2017-07-11 22:40:35           buy   
+2017-07-11 22:40:35           USDT_LTC 2017-07-11 22:40:35           buy   
+2017-07-11 22:40:20           USDT_LTC 2017-07-11 22:40:20           buy   
+2017-07-11 22:40:20           USDT_LTC 2017-07-11 22:40:20           buy   
+
+                    rate_USDT_LTC amount_USDT_LTC total_USDT_LTC  
