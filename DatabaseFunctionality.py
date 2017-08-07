@@ -83,10 +83,23 @@ class DatabaseFunctionality:
 			#df.index = df[date_col]
 			df[date_col] = pd.to_datetime(df[date_col])
 			df.index = df[date_col]
-			df = df.groupby(pd.TimeGrouper('10Min'))
+			df1 = df.groupby(pd.TimeGrouper('10Min')).mean()
+			df2 = df.groupby(pd.TimeGrouper('10Min')).count()
+			total_name = 'total'+'_'+coin
+			freq_series = df2[total_name]
+			df1['trade_count_'+coin] = freq_series
+			df = df1
 			# https://chrisalbon.com/python/pandas_apply_operations_to_groups.html
 			database_dict[str(coin) + 'formatted'] = df
 		return database_dict
+
+	def merge_databases_for_models(self, database_dict):
+		database_names = list(database_dict.keys())
+		combined = database_dict[database_names[0]]
+		database_names = database_names.pop(0)
+		for database_name in database_names:
+			combined = combined.merge(database_dict[database_name], how='outer')
+		return combined
 
 
 

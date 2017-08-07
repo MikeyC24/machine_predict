@@ -179,13 +179,17 @@ def auto_pull_data_time_interval(time_interval, length):
 
 
 location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
-start_date =  '1484174782'
-end_date = '1499813092'
+# 8/7/17 100 GMT
+start_date =  '1502067600'
+# 8/7/17 1300 GMT
+end_date = '1502110800'
+database_name = '3_coin_test_db'
 
 data_class = PolniexApiData(start_date,end_date,location_base)
 #data_class.current_ticker_data_to_sql('new_class_test_db1', 'cool_table_name')
 coin_list_test = ['BTC_LTC', 'BTC_ETH']
 coin_list_cont = [ 'ETH_LSK', 'BTC_LBC', 'BTC_STEEM', 'ETH_STEEM', 'BTC_SBD', 'BTC_ETC', 'ETH_ETC', 'USDT_ETC', 'BTC_REP', 'USDT_REP', 'ETH_REP', 'BTC_ARDR', 'BTC_ZEC', 'ETH_ZEC', 'USDT_ZEC', 'XMR_ZEC', 'BTC_STRAT', 'BTC_NXC', 'BTC_PASC', 'BTC_GNT', 'ETH_GNT', 'BTC_GNO', 'ETH_GNO']
-data_class.convert_trade_history_to_sql(coin_list_cont, 'all_coin_history_db_big', '')
+top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
+data_class.convert_trade_history_to_sql(top_3_coin_list, database_name, '')
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/all_coin_history_db_big
 # all_coin_history_db_big

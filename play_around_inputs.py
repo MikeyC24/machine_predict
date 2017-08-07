@@ -64,11 +64,16 @@ db_location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
 db_name = 'all_coin_history_db_big'
 table_name_array = ['USDT_BTC_table_', 'USDT_ETH_table_', 'USDT_LTC_table_']
 columns_wanted_array = ['globalTradeID', 'date_time_added_to_db', 'coin_name', 'date', 'type', 'rate', 'amount', 'total']
+columns_wanted_array1 = ['coin_name', 'date', 'rate', 'amount', 'total']
 columns_wanted_array_test = ['coin_name', 'total']
 
 database_instance = DatabaseFunctionality(db_location_base, db_name)
-dbs = database_instance.aggregate_databases1(table_name_array, columns_wanted_array)
+dbs = database_instance.aggregate_databases1(table_name_array, columns_wanted_array1)
+combined_df = database_instance.merge_databases_for_models(dbs)
+print(type(combined_df))
+print(combined_df.head(15))
 
+"""
 print('printing dbs')
 for k,v in dbs.items():
 	print('db len', len(dbs))
@@ -77,6 +82,7 @@ for k,v in dbs.items():
 	print(type(v))
 	print(v.head(10))
 	print('______________')
+"""	
 """
 btc_date_u = dbs['USDT_BTCformatted']['date_USDT_BTC'].unique
 print(btc_date_u)
