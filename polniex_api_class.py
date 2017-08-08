@@ -168,15 +168,31 @@ class PolniexApiData:
 		conn.close()
 
 
-#data_class = PolniexApiData(start_date,end_date,location_base)
-#data_class.current_ticker_data_to_sql('new_class_test_db1', 'cool_table_name')
-def auto_pull_data_time_interval(time_interval, length):
-	pass
-	# https://stackoverflow.com/questions/15088037/python-script-to-do-something-at-the-same-time-every-day
-	# https://blogs.esri.com/esri/arcgis/2013/07/30/scheduling-a-scrip/
-	# https://automatetheboringstuff.com/chapter15/
-
-
+		# start and end are in unix
+	def cycle_over_dates_and_build_coin_db(self, start_period, end_period, time_period_interval, limit_interval_before_db_build):
+		start_period_date = datetime.datetime.fromtimestamp(int(start_period)).strftime('%Y-%m-%d %H:%M:%S')
+		end_period_date = datetime.datetime.fromtimestamp(int(end_period)).strftime('%Y-%m-%d %H:%M:%S')
+		wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)
+		array_pair_starts_ends = []
+		for x in range(len(wanted_range)):
+			array_pair = []
+			start= wanted_range[x]
+			try:
+				end= wanted_range[x+1]
+			except IndexError:
+				end = None
+			array_pair.append(start)
+			array_pair.append(end)
+			array_pair_starts_ends.append(array_pair)
+		#return array_pair_starts_ends
+		if array_pair_starts_ends[-1][1] == None:
+			# next start value
+			pick_up_value = array_pair_starts_ends[-1].pop(0)
+			array_pair_starts_ends.pop(-1)
+		else:
+			pick_up_value = array_pair_starts_ends[-1][1]
+		print(array_pair_starts_ends)
+		print(pick_up_value)	
 
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/3_coin_test_db'
 location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
@@ -205,30 +221,34 @@ top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
 # all_coin_history_db_big
 
 
-#convert start unix to something delta equation can handle
-#date_read = convert_unix_to_date(start_wke)
-#print(date_read)
-#print(type(date_read))
-#next_time_from_start = time_delta(date_read)
-#print(next_time_from_start)
-print(start_wke)
-print(end_wke)
-start_wke_human_date = datetime.datetime.fromtimestamp(int(start_wke)).strftime('%Y-%m-%d %H:%M:%S')
-print(start_wke_human_date)
-end_wke_human_date = datetime.datetime.fromtimestamp(int(end_wke)).strftime('%Y-%m-%d %H:%M:%S')
-print(end_wke_human_date)
-wanted_range = pd.date_range(start_wke_human_date, periods=72, freq='H')
-print(wanted_range)
-print(type(wanted_range))
-print(wanted_range[-1])
-wanted_range_two = pd.date_range(start_wke_human_date, end_wke_human_date, freq='3H')
-print(wanted_range_two)
+results = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 3)
+"""
+for result in results:
+	print(result)
+	print('___________')
+print(type(results))
+print(len(results))
+print(results[0])
+print(results[0][0])
+print(results[0][1])
+"""
 
+
+
+
+
+
+
+
+
+
+
+"""
 # start and end are in unix
-def cycle_over_dates_and_build_coin_db(start_period, end_period, freq, limit_interval_before_db_build):
+def cycle_over_dates_and_build_coin_db(start_period, end_period, time_period_interval, limit_interval_before_db_build):
 	start_period_date = datetime.datetime.fromtimestamp(int(start_period)).strftime('%Y-%m-%d %H:%M:%S')
 	end_period_date = datetime.datetime.fromtimestamp(int(end_period)).strftime('%Y-%m-%d %H:%M:%S')
-	wanted_range = pd.date_range(start_period_date, end_period_date, freq=freq)
+	wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)
 	array_pair_starts_ends = []
 	for x in range(len(wanted_range)):
 		array_pair = []
@@ -248,7 +268,11 @@ for result in results:
 	print(result)
 	print('___________')
 print(type(results))
-print(len(results.))
+print(len(results))
+print(results[0])
+print(results[0][0])
+print(results[0][1])
 
 def cycle_dates_to_pull_polinex_api(dates_list):
 	pass
+"""

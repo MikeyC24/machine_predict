@@ -96,7 +96,9 @@ class DatabaseFunctionality:
 			database_dict[str(coin) + 'formatted'] = df
 		return database_dict
 
-	def merge_databases_for_models(self, database_dict):
+	def merge_databases_for_models(self, database_dict, **kwargs):
+		write_to_db = kwargs.get('write_to_db', None)
+		write_to_db_tablename = kwargs.get('write_to_db_tablename', None)
 		database_names = list(database_dict.keys())
 		print(database_names)
 		print(database_names[0])
@@ -113,6 +115,9 @@ class DatabaseFunctionality:
 		for database_name in database_names:
 			combined = combined.merge(database_dict[database_name], how='inner', left_index=True, right_index=True)
 		#combined = pd.concat(database_dict.values())
+		if write_to_db == 'yes':
+			con = sqlite3.connect(self.db_location_base+self.database_name)
+			combined.to_sql(name=write_to_db_tablename,con=con, if_exists='append')
 		return combined
 
 

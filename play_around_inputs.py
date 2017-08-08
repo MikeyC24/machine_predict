@@ -83,9 +83,12 @@ columns_wanted_array = ['globalTradeID', 'date_time_added_to_db', 'coin_name', '
 columns_wanted_array1 = ['coin_name', 'date', 'rate', 'amount', 'total']
 columns_wanted_array_test = ['coin_name', 'total']
 time_interval = '10Min'
+write_to_db = 'yes'
+write_to_db_tablename = 'aggregated_formatted_table'
 database_instance = DatabaseFunctionality(db_location_base, db_name)
 dbs = database_instance.aggregate_databases1(table_name_array, columns_wanted_array1, time_interval)
-combined_df = database_instance.merge_databases_for_models(dbs)
+combined_df = database_instance.merge_databases_for_models(dbs,write_to_db=write_to_db,
+											write_to_db_tablename=write_to_db_tablename)
 print('dbs before combined')
 for values in dbs.values():
 	print(values.head(5))
