@@ -226,15 +226,29 @@ print(wanted_range_two)
 
 # start and end are in unix
 def cycle_over_dates_and_build_coin_db(start_period, end_period, freq, limit_interval_before_db_build):
-	start_period = datetime.datetime.fromtimestamp(int(start_period)).strftime('%Y-%m-%d %H:%M:%S')
-	end_perod = datetime.datetime.fromtimestamp(int(end_period)).strftime('%Y-%m-%d %H:%M:%S')
-	wanted_range = pd.date_range(start_period, end_period freq=freq)
+	start_period_date = datetime.datetime.fromtimestamp(int(start_period)).strftime('%Y-%m-%d %H:%M:%S')
+	end_period_date = datetime.datetime.fromtimestamp(int(end_period)).strftime('%Y-%m-%d %H:%M:%S')
+	wanted_range = pd.date_range(start_period_date, end_period_date, freq=freq)
 	array_pair_starts_ends = []
 	for x in range(len(wanted_range)):
-		array_pair
+		array_pair = []
 		start= wanted_range[x]
-		end= wanted_range[x+1]
+		try:
+			end= wanted_range[x+1]
+		except IndexError:
+			end = 'no more values'
 		array_pair.append(start)
 		array_pair.append(end)
+		print('array_pair', array_pair)
 		array_pair_starts_ends.append(array_pair)
-		return array_pair_starts_ends
+	return array_pair_starts_ends
+
+results = cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 3)
+for result in results:
+	print(result)
+	print('___________')
+print(type(results))
+print(len(results.))
+
+def cycle_dates_to_pull_polinex_api(dates_list):
+	pass
