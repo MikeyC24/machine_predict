@@ -85,6 +85,7 @@ class MachinePredictModel:
 		self.db_location_base = kwargs.get('db_location_base', None)
 		self.write_to_db = kwargs.get('write_to_db', None)
 		self.vars_to_return_from_db = kwargs.get('vars_to_return_from_db', None)
+		self.drop_nan_rows = kwargs.get('drop_nan_rows', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -95,6 +96,9 @@ class MachinePredictModel:
 		# **kawrgs vars below
 		# initiate the data class
 		model_dataframe = ArrangeData(self.dataframe)
+		# drop nan values if wanted
+		#if self.drop_nan_rows is not None:
+		#	model_dataframe.drop_nan_values()
 		#print(time_interval_check, date_unix)
 		# check if date_unix = none
 		# if not none creates timedate
@@ -129,6 +133,8 @@ class MachinePredictModel:
 			model_dataframe.set_binary_from_dict(self.target_change_bin_dict)
 		if self.set_multi_class is not None:
 			model_dataframe.set_multi_class_array(self.set_multi_class)
+		if self.drop_nan_rows == 'yes':
+			model_dataframe.drop_nan_values()
 		model_dataframe.overall_data_display(8)
 		return model_dataframe
 		# everything above is setting up data, more still needs to be added

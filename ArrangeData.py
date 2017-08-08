@@ -79,6 +79,11 @@ class ArrangeData:
 		df[new_column_name] = pd.to_datetime(df[column_name])
 		return df
 
+	def drop_nan_values(self):
+		df = self.dataframe
+		df = df.dropna(inplace=True)
+		return df
+
 	# convert unix date to human readable, also make columns for y,m,d,h,m,s
 	# array vars column_date, sep_into_cols]
 	# this takes in an array, column name of date is first, then 1 to 

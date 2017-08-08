@@ -184,12 +184,32 @@ start_date =  '1502067600'
 # 8/7/17 1300 GMT
 end_date = '1502110800'
 database_name = '3_coin_test_db'
+# start date weekend
+# saturday 8/5/17 at 1200am GMT
+start_wke = '1501891200'
+#end weekend
+# monday 8/7/17 1am GMT
+end_wke = '1502067600'
+time_interval_delta_measure = 'h'
+time_interval_delta_amount = 3
+
 
 data_class = PolniexApiData(start_date,end_date,location_base)
 #data_class.current_ticker_data_to_sql('new_class_test_db1', 'cool_table_name')
 coin_list_test = ['BTC_LTC', 'BTC_ETH']
 coin_list_cont = [ 'ETH_LSK', 'BTC_LBC', 'BTC_STEEM', 'ETH_STEEM', 'BTC_SBD', 'BTC_ETC', 'ETH_ETC', 'USDT_ETC', 'BTC_REP', 'USDT_REP', 'ETH_REP', 'BTC_ARDR', 'BTC_ZEC', 'ETH_ZEC', 'USDT_ZEC', 'XMR_ZEC', 'BTC_STRAT', 'BTC_NXC', 'BTC_PASC', 'BTC_GNT', 'ETH_GNT', 'BTC_GNO', 'ETH_GNO']
 top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
-data_class.convert_trade_history_to_sql(top_3_coin_list, database_name, '')
+#data_class.convert_trade_history_to_sql(top_3_coin_list, database_name, '')
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/all_coin_history_db_big
 # all_coin_history_db_big
+
+
+#convert start unix to something delta equation can handle
+date_read = convert_unix_to_date(start_wke)
+print(date_read)
+print(type(date_read))
+#next_time_from_start = time_delta(date_read)
+#print(next_time_from_start)
+print(start_wke)
+human_date = datetime.datetime.fromtimestamp(int(start_wke)).strftime('%Y-%m-%d %H:%M:%S')
+print(human_date)

@@ -61,7 +61,7 @@ class DatabaseFunctionality:
 		# then reset index by ignore_index = True
 		# figure it out from here = http://pandas.pydata.org/pandas-docs/stable/generated/pandas.concat.html
 
-	def aggregate_databases1(self, table_name_array, columns_wanted_array):
+	def aggregate_databases1(self, table_name_array, columns_wanted_array, time_interval):
 		database_dict = {}
 		for table in table_name_array:
 			con = sqlite3.connect(self.db_location_base+self.database_name)
@@ -85,8 +85,8 @@ class DatabaseFunctionality:
 			#df.index = df[date_col]
 			df['date'] = pd.to_datetime(df['date'])
 			df.index = df['date']
-			df1 = df.groupby(pd.TimeGrouper('10Min')).mean()
-			df2 = df.groupby(pd.TimeGrouper('10Min')).count()
+			df1 = df.groupby(pd.TimeGrouper(time_interval)).mean() 
+			df2 = df.groupby(pd.TimeGrouper(time_interval)).count()
 			total_name = 'total'+'_'+coin
 			freq_series = df2[total_name]
 			df1['trade_count_'+coin] = freq_series

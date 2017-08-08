@@ -74,15 +74,17 @@ combined_df = database_instance.merge_databases_for_models(dbs)
 print(type(combined_df))
 print(combined_df)
 """
+
+
 db_location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
 db_name = '3_coin_test_db'
 table_name_array = ['USDT_BTC_table_', 'USDT_ETH_table_', 'USDT_LTC_table_']
 columns_wanted_array = ['globalTradeID', 'date_time_added_to_db', 'coin_name', 'date', 'type', 'rate', 'amount', 'total']
 columns_wanted_array1 = ['coin_name', 'date', 'rate', 'amount', 'total']
 columns_wanted_array_test = ['coin_name', 'total']
-
+time_interval = '10Min'
 database_instance = DatabaseFunctionality(db_location_base, db_name)
-dbs = database_instance.aggregate_databases1(table_name_array, columns_wanted_array1)
+dbs = database_instance.aggregate_databases1(table_name_array, columns_wanted_array1, time_interval)
 combined_df = database_instance.merge_databases_for_models(dbs)
 print('dbs before combined')
 for values in dbs.values():
@@ -92,6 +94,7 @@ for values in dbs.values():
 #file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
 #df = pd.read_csv(file_location)
 df = combined_df
+drop_nan_rows = 'yes'
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH']
 # took date out of colums_all
 columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
@@ -130,7 +133,7 @@ db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 # sample instance has all vars above in it
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
-					training_percent, kfold_number, target, 
+					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
 					cols_to_drop=columns_to_drop, set_multi_class=set_multi_class, 
 					target_change_bin_dict=create_target_dict, kfold_dict=kfold_dict,
 					time_period_returns_dict=time_period_returns_dict,
@@ -164,6 +167,4 @@ so unix dates line up
 2. push new data to database class to mold and then append to master
 db that regressions are running on
 3. set the binary reults of yes or no to account for a future date
-4. also need a way to addres nan values which is waht happened when i change
-time interval to 5 mins
 """
