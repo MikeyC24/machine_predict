@@ -8,6 +8,7 @@ import time
 import datetime
 #from datetime import datetime
 import calendar
+import pandas as pd
 
 command_list = ['returnTicker', 'return24hVolume', 'returnTradeHistory&currencyPair=']
 coin_list = ['BTC_BCN', 'BTC_BELA', 'BTC_BLK', 'BTC_BTCD', 'BTC_BTM', 'BTC_BTS', 'BTC_BURST', 'BTC_CLAM', 'BTC_DASH', 'BTC_DGB', 'BTC_DOGE', 'BTC_EMC2', 'BTC_FLDC', 'BTC_FLO', 'BTC_GAME', 'BTC_GRC', 'BTC_HUC', 'BTC_LTC', 'BTC_MAID', 'BTC_OMNI', 'BTC_NAUT', 'BTC_NAV', 'BTC_NEOS', 'BTC_NMC', 'BTC_NOTE', 'BTC_NXT', 'BTC_PINK', 'BTC_POT', 'BTC_PPC', 'BTC_RIC', 'BTC_SJCX', 'BTC_STR', 'BTC_SYS', 'BTC_VIA', 'BTC_XVC', 'BTC_VRC', 'BTC_VTC', 'BTC_XBC', 'BTC_XCP', 'BTC_XEM', 'BTC_XMR', 'BTC_XPM', 'BTC_XRP', 'USDT_BTC', 'USDT_DASH', 'USDT_LTC', 'USDT_NXT', 'USDT_STR', 'USDT_XMR', 'USDT_XRP', 'XMR_BCN', 'XMR_BLK', 'XMR_BTCD', 'XMR_DASH', 'XMR_LTC', 'XMR_MAID', 'XMR_NXT', 'BTC_ETH', 'USDT_ETH', 'BTC_SC', 'BTC_BCY', 'BTC_EXP', 'BTC_FCT', 'BTC_RADS', 'BTC_AMP', 'BTC_DCR', 'BTC_LSK', 'ETH_LSK', 'BTC_LBC', 'BTC_STEEM', 'ETH_STEEM', 'BTC_SBD', 'BTC_ETC', 'ETH_ETC', 'USDT_ETC', 'BTC_REP', 'USDT_REP', 'ETH_REP', 'BTC_ARDR', 'BTC_ZEC', 'ETH_ZEC', 'USDT_ZEC', 'XMR_ZEC', 'BTC_STRAT', 'BTC_NXC', 'BTC_PASC', 'BTC_GNT', 'ETH_GNT', 'BTC_GNO', 'ETH_GNO']
@@ -205,11 +206,35 @@ top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
 
 
 #convert start unix to something delta equation can handle
-date_read = convert_unix_to_date(start_wke)
-print(date_read)
-print(type(date_read))
+#date_read = convert_unix_to_date(start_wke)
+#print(date_read)
+#print(type(date_read))
 #next_time_from_start = time_delta(date_read)
 #print(next_time_from_start)
 print(start_wke)
-human_date = datetime.datetime.fromtimestamp(int(start_wke)).strftime('%Y-%m-%d %H:%M:%S')
-print(human_date)
+print(end_wke)
+start_wke_human_date = datetime.datetime.fromtimestamp(int(start_wke)).strftime('%Y-%m-%d %H:%M:%S')
+print(start_wke_human_date)
+end_wke_human_date = datetime.datetime.fromtimestamp(int(end_wke)).strftime('%Y-%m-%d %H:%M:%S')
+print(end_wke_human_date)
+wanted_range = pd.date_range(start_wke_human_date, periods=72, freq='H')
+print(wanted_range)
+print(type(wanted_range))
+print(wanted_range[-1])
+wanted_range_two = pd.date_range(start_wke_human_date, end_wke_human_date, freq='3H')
+print(wanted_range_two)
+
+# start and end are in unix
+def cycle_over_dates_and_build_coin_db(start_period, end_period, freq, limit_interval_before_db_build):
+	start_period = datetime.datetime.fromtimestamp(int(start_period)).strftime('%Y-%m-%d %H:%M:%S')
+	end_perod = datetime.datetime.fromtimestamp(int(end_period)).strftime('%Y-%m-%d %H:%M:%S')
+	wanted_range = pd.date_range(start_period, end_period freq=freq)
+	array_pair_starts_ends = []
+	for x in range(len(wanted_range)):
+		array_pair
+		start= wanted_range[x]
+		end= wanted_range[x+1]
+		array_pair.append(start)
+		array_pair.append(end)
+		array_pair_starts_ends.append(array_pair)
+		return array_pair_starts_ends
