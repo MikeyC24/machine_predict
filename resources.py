@@ -1,3 +1,6 @@
+1. algos in python
+2. iterate thru different classifiers
+3. good resourse on trading with ML
 """
 1. algos in python 
 https://github.com/TheAlgorithms/Python
@@ -124,5 +127,8 @@ for ds_cnt, ds in enumerate(datasets):
 plt.tight_layout()
 plt.show()
 
-
+3. https://medium.com/@alexrachnog/neural-networks-for-algorithmic-trading-part-one-simple-time-series-forecasting-f992daa1045a
+https://medium.com/@alexrachnog
+https://www.cs.princeton.edu/sites/default/files/uploads/saahil_madge.pdf 
+https://www.analyticsvidhya.com/blog/2016/02/time-series-forecasting-codes-python/
 """
