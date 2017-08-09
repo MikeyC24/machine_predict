@@ -10,6 +10,7 @@ import datetime
 import calendar
 import pandas as pd
 import numpy as np
+from DatabaseFunctionality import *
 
 command_list = ['returnTicker', 'return24hVolume', 'returnTradeHistory&currencyPair=']
 coin_list = ['BTC_BCN', 'BTC_BELA', 'BTC_BLK', 'BTC_BTCD', 'BTC_BTM', 'BTC_BTS', 'BTC_BURST', 'BTC_CLAM', 'BTC_DASH', 'BTC_DGB', 'BTC_DOGE', 'BTC_EMC2', 'BTC_FLDC', 'BTC_FLO', 'BTC_GAME', 'BTC_GRC', 'BTC_HUC', 'BTC_LTC', 'BTC_MAID', 'BTC_OMNI', 'BTC_NAUT', 'BTC_NAV', 'BTC_NEOS', 'BTC_NMC', 'BTC_NOTE', 'BTC_NXT', 'BTC_PINK', 'BTC_POT', 'BTC_PPC', 'BTC_RIC', 'BTC_SJCX', 'BTC_STR', 'BTC_SYS', 'BTC_VIA', 'BTC_XVC', 'BTC_VRC', 'BTC_VTC', 'BTC_XBC', 'BTC_XCP', 'BTC_XEM', 'BTC_XMR', 'BTC_XPM', 'BTC_XRP', 'USDT_BTC', 'USDT_DASH', 'USDT_LTC', 'USDT_NXT', 'USDT_STR', 'USDT_XMR', 'USDT_XRP', 'XMR_BCN', 'XMR_BLK', 'XMR_BTCD', 'XMR_DASH', 'XMR_LTC', 'XMR_MAID', 'XMR_NXT', 'BTC_ETH', 'USDT_ETH', 'BTC_SC', 'BTC_BCY', 'BTC_EXP', 'BTC_FCT', 'BTC_RADS', 'BTC_AMP', 'BTC_DCR', 'BTC_LSK', 'ETH_LSK', 'BTC_LBC', 'BTC_STEEM', 'ETH_STEEM', 'BTC_SBD', 'BTC_ETC', 'ETH_ETC', 'USDT_ETC', 'BTC_REP', 'USDT_REP', 'ETH_REP', 'BTC_ARDR', 'BTC_ZEC', 'ETH_ZEC', 'USDT_ZEC', 'XMR_ZEC', 'BTC_STRAT', 'BTC_NXC', 'BTC_PASC', 'BTC_GNT', 'ETH_GNT', 'BTC_GNO', 'ETH_GNO']
@@ -168,14 +169,15 @@ class PolniexApiData:
 				conn.commit()
 		conn.close()
 
-	def convert_trade_history_to_sql_start_end_vars(self, start_date, end_date, coin_list_array, db_name, coin_name_end):
+	def convert_trade_history_to_sql_start_end_vars(self, start_date, end_date, coin_list_array, 
+												db_name, coin_name_end):
 		conn=sqlite3.connect(location_base+ db_name)
 		cur = conn.cursor()
 		for coin in coin_list_array:
 			table_name = coin+'_table_'+coin_name_end
 			print(table_name)
-			cur.execute('''CREATE TABLE IF NOT EXISTS 
-				%s 
+			cur.execute(''' DROP TABLE IF EXISTS %s''' % (table_name))
+			cur.execute('''CREATE TABLE %s 
 				(human_date_added, date_time_added_to_db, coin_name, globalTradeID,
 				tradeID, date, type, rate, amount, 
 				total)''' % (table_name)) 
@@ -217,7 +219,9 @@ class PolniexApiData:
 		# start and end are in unix
 	def cycle_over_dates_and_build_coin_db(self, start_period_cycle, end_period_cycle, 
 									time_period_interval, limit_interval_before_db_build,
-									coin_list_array, db_name, coin_name_end):
+									coin_list_array, db_name, coin_name_end, db_location_base, 
+									database_name, table_name_array, cols_wanted_array, time_interval,
+									write_to_db, write_to_db_tablename):
 		start_period_date = datetime.datetime.fromtimestamp(int(start_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
 		end_period_date = datetime.datetime.fromtimestamp(int(end_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
 		wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)
@@ -225,6 +229,7 @@ class PolniexApiData:
 		#while len(array_pair_starts_ends) < limit_interval_before_db_build:
 			#array_pair_starts_ends = []
 		split_arrays = np.array_split(wanted_range, limit_interval_before_db_build)
+		combined_dfs = None
 		for array in split_arrays:
 			for x in range(len(array)):
 				print('x', x)
@@ -249,13 +254,25 @@ class PolniexApiData:
 					#list_last_value_date = list(str(last_value_date))
 					#clean_list = str([ x for x in list_last_value_date if x.isdigit() ])
 			for x in range(len(array_pair_starts_ends)):
-				start = array_pair_starts_ends[x]
-				end = array_pair_starts_ends[x +1]
-				self.convert_trade_history_to_sql_start_end_vars()
-			print(array_pair_starts_ends)
-			array_pair_starts_ends = []
-				
-		return array_pair_starts_ends, last_value_date, last_value_unix, split_arrays
+				start_date = array_pair_starts_ends[x][0]
+				end_date = array_pair_starts_ends[x][1]
+				#print('start', start)
+				#print('end', end)
+				start_unix = str(int(time.mktime(start_date.timetuple())))
+				end_unix = str(int(time.mktime(end_date.timetuple())))
+				print('start_unix', start_unix)
+				print('end_unix', end_unix)
+
+				self.convert_trade_history_to_sql_start_end_vars(start_unix, end_unix,coin_list_array,
+															db_name, coin_name_end)
+				database_instance = DatabaseFunctionality(db_location_base, database_name)
+				dbs = database_instance.aggregate_databases1(table_name_array, cols_wanted_array, 
+															time_interval)
+				combined_dfs = database_instance.merge_databases_for_models(dbs, write_to_db=write_to_db,
+											write_to_db_tablename=write_to_db_tablename)
+			#print(array_pair_starts_ends)
+			array_pair_starts_ends = []	
+		return array_pair_starts_ends, last_value_date, last_value_unix, combined_dfs
 
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/3_coin_test_db'
 location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
@@ -284,16 +301,16 @@ top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
 # all_coin_history_db_big
 
 
-results = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 3)
-print('array', results[0])
-print('array len', len(results[0]))
-print('last', results[1])
-print('last unix', results[2])
+#results = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 3)
+#print('array', results[0])
+#print('array len', len(results[0]))
+#print('last', results[1])
+#print('last unix', results[2])
 #print(results[3])
 #for x in range(len(results[3])):
 #	print(results[3][x])
-for array in results[3]:
-	print(array)
+#for array in results[3]:
+#	print(array)
 """
 for result in results:
 	print(result)
