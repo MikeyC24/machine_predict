@@ -93,13 +93,16 @@ combined_df = database_instance.merge_databases_for_models(dbs,write_to_db=write
 print('dbs before combined')
 for values in dbs.values():
 	print(values.head(5))
+"""
 
-
-#file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/pol_data_combined_db'
 #df = pd.read_csv(file_location)
-df = combined_df
+con = sqlite3.connect(file_location)
+table = 'poln_data_combined_final_table'
+df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 drop_nan_rows = 'yes'
-columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH']
+columns_to_drop = None
+#columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH']
 # took date out of colums_all
 columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 'trade_count_USDT_BTC',  'rate_USDT_ETH', 'rate_USDT_LTC', 'amount_USDT_LTC',
@@ -132,7 +135,7 @@ decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best'
 logistic_regression_array_vars = {'penalty':['l1','l2'], 'tol':[0.0001, .001, .01], 'C':[.02,1.0,2], 'fit_intercept':[True], 'intercept_scaling':[.1,1,2], 'class_weight':[None, 'balanced'], 'solver':['liblinear'], 'max_iter':[10,100,200], 'n_jobs':[1], 'random_state':[random_state]}
 neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['relu', 'logistic', 'tanh', 'identity'], 'solver':['adam', 'lbfgs', 'sgd'], 'alpha':[0.0001], 'batch_size':['auto'], 'learning_rate':['constant', 'invscaling', 'adaptive'], 'learning_rate_init':[0.001], 'power_t':[0.5], 'max_iter':[50], 'shuffle':[True, False], 'tol':[0.0001], 'verbose':[False], 'warm_start':[False, True], 'momentum':[.1,0.9], 'nesterovs_momentum':[True], 'early_stopping':[True], 'validation_fraction':[0.1], 'beta_1':[0.9], 'beta_2':[0.999], 'epsilon':[1e-08], 'random_state':[random_state]}
 database_name = 'machine_predict_test_db'
-table_name = 'bike_table1'
+table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 # sample instance has all vars above in it
@@ -163,18 +166,13 @@ for k,v in results.items():
 		print(kk)
 		print(vv)
 		print('_______________________________')
-"""
+
 """
 needs to be done next
-1. automate pull from apit to get data on consistent bassis and 
-so unix dates line up
-2. push new data to database class to mold and then append to master
-db that regressions are running on
 3. set the binary reults of yes or no to account for a future date
 """
-
-# working on polinex and dtabase agregrating, this is before massive refractoring
-
+"""
+# this is for polinex and atabse class before refractoring 
 # polniex vars
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/3_coin_test_db'
 location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
@@ -203,12 +201,12 @@ columns_wanted_array_test = ['coin_name', 'total']
 time_interval10 = '10Min'
 write_to_db = 'yes'
 write_to_db_tablename = 'poln_data_combined_final_table'
-"""
-start_period_cycle, end_period_cycle, 
-time_period_interval, limit_interval_before_db_build,
-coin_list_array, db_name, coin_name_end, db_location_base, 
-database_name, table_name_array, cols_wanted_array, time_interval
-"""
+
+#start_period_cycle, end_period_cycle, 
+#time_period_interval, limit_interval_before_db_build,
+#coin_list_array, db_name, coin_name_end, db_location_base, 
+#database_name, table_name_array, cols_wanted_array, time_interval
+
 
 
 data_class = PolniexApiData(start_date,end_date,location_base)
@@ -226,3 +224,4 @@ print('______________________________________')
 print('result[2]', type(result[2]), result[2])
 print('______________________________________')
 print('result[3]', type(result[3]), result[3])
+"""
