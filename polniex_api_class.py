@@ -169,11 +169,13 @@ class PolniexApiData:
 
 
 		# start and end are in unix
-	def cycle_over_dates_and_build_coin_db(self, start_period, end_period, time_period_interval, limit_interval_before_db_build):
-		start_period_date = datetime.datetime.fromtimestamp(int(start_period)).strftime('%Y-%m-%d %H:%M:%S')
-		end_period_date = datetime.datetime.fromtimestamp(int(end_period)).strftime('%Y-%m-%d %H:%M:%S')
+	def cycle_over_dates_and_build_coin_db(self, start_period_cycle, end_period_cycle, time_period_interval, limit_interval_before_db_build):
+		start_period_date = datetime.datetime.fromtimestamp(int(start_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
+		end_period_date = datetime.datetime.fromtimestamp(int(end_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
 		wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)
 		array_pair_starts_ends = []
+		#while len(array_pair_starts_ends) < limit_interval_before_db_build:
+		#array_pair_starts_ends = []
 		for x in range(len(wanted_range)):
 			array_pair = []
 			start= wanted_range[x]
@@ -191,8 +193,9 @@ class PolniexApiData:
 			array_pair_starts_ends.pop(-1)
 		else:
 			pick_up_value = array_pair_starts_ends[-1][1]
-		print(array_pair_starts_ends)
-		print(pick_up_value)	
+		#print(array_pair_starts_ends)
+		#print(pick_up_value)	
+		return array_pair_starts_ends, pick_up_value
 
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/3_coin_test_db'
 location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
@@ -222,6 +225,8 @@ top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
 
 
 results = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 3)
+print('aray', results[0])
+print('picp up', results[1])
 """
 for result in results:
 	print(result)
