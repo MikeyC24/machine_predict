@@ -94,7 +94,7 @@ print('dbs before combined')
 for values in dbs.values():
 	print(values.head(5))
 """
-
+"""
 file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/pol_data_combined_db'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
@@ -166,12 +166,12 @@ for k,v in results.items():
 		print(kk)
 		print(vv)
 		print('_______________________________')
-
+"""
 """
 needs to be done next
 3. set the binary reults of yes or no to account for a future date
 """
-"""
+
 # this is for polinex and atabse class before refractoring 
 # polniex vars
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/3_coin_test_db'
@@ -180,19 +180,19 @@ location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
 start_date =  '1502067600'
 # 8/7/17 1300 GMT
 end_date = '1502110800'
-database_name = 'pol_db_class_2gether'
+#database_name = 'pol_db_class_2gether_two'
 # start date weekend
 # saturday 8/5/17 at 1200am GMT
-start_wke = '1501891200'
+start_wke = '1502236800'
 #end weekend
 # monday 8/7/17 1am GMT
-end_wke = '1502067600'
+end_wke = '1502251200'
 time_interval_delta_measure = 'h'
 time_interval_delta_amount = 3
 top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
 coin_name_end = ''
 ## datbase clas vars
-db_name = 'pol_data_combined_db'
+db_name = 'pol_data_combined_db_two'
 location_base1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
 table_name_array = ['USDT_BTC_table_', 'USDT_ETH_table_', 'USDT_LTC_table_']
 columns_wanted_array = ['globalTradeID', 'date_time_added_to_db', 'coin_name', 'date', 'type', 'rate', 'amount', 'total']
@@ -200,7 +200,7 @@ columns_wanted_array1 = ['coin_name', 'date', 'rate', 'amount', 'total']
 columns_wanted_array_test = ['coin_name', 'total']
 time_interval10 = '10Min'
 write_to_db = 'yes'
-write_to_db_tablename = 'poln_data_combined_final_table'
+write_to_db_tablename = 'poln_data_combined_final_table_three'
 
 #start_period_cycle, end_period_cycle, 
 #time_period_interval, limit_interval_before_db_build,
@@ -224,4 +224,3 @@ print('______________________________________')
 print('result[2]', type(result[2]), result[2])
 print('______________________________________')
 print('result[3]', type(result[3]), result[3])
-"""
