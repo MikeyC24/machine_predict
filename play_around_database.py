@@ -12,7 +12,7 @@ end_date = '1502110800'
 start_wke = '1502236800'
 #end weekend
 # monday 8/7/17 1am GMT
-end_wke = '1502265600'
+end_wke = '1502280000'
 time_interval_delta_measure = 'h'
 time_interval_delta_amount = 3
 top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
@@ -36,12 +36,14 @@ write_to_db_tablename = 'poln_data_combined_final_table_three'
 
 
 data_class = DatabaseFull(location_base)
-result = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 4,
+print('___________________________________')
+result = data_class.cycle_over_dates_and_build_coin_db1(start_wke, end_wke, 'H', 6,
 					top_3_coin_list, db_name, coin_name_end,
 					db_name, table_name_array, columns_wanted_array1, time_interval10,
 					write_to_db, write_to_db_tablename)
-database_dict = data_class.aggregate_databases1(db_name, table_name_array, columns_wanted_array1,
-	time_interval10)
+#database_dict = data_class.aggregate_databases1(db_name, table_name_array, columns_wanted_array1,
+#	time_interval10)
+"""
 print('______________________________________')
 print('end')
 print('result[0]', type(result[0]), result[0])
@@ -52,7 +54,7 @@ print('result[2]', type(result[2]), result[2])
 print('______________________________________')
 print('result[3]', type(result[3]), result[3])
 print('_______________________________________')
-
+"""
 """
 for k,v in database_dict.items():
 	print('k', k)
