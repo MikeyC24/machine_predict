@@ -173,6 +173,8 @@ for k,v in results.items():
 """
 needs to be done next
 3. set the binary reults of yes or no to account for a future date
+4. add trend lines, support, resistance levels, https://stackoverflow.com/questions/8587047/support-resistance-algorithm-technical-analysis
+5. get mins and maxes from time periods in combind dfs
 """
 """
 # this is for polinex and atabse class before refractoring 
