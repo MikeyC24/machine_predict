@@ -178,71 +178,8 @@ class DatabaseFull:
 			combined.to_sql(name=write_to_db_tablename,con=con, if_exists='append')
 		return combined
 
-	def cycle_over_dates_and_build_coin_db(self, start_period_cycle, end_period_cycle, 
-									time_period_interval, limit_interval_before_db_build,
-									coin_list_array, db_name, coin_name_end, 
-									database_name, table_name_array, cols_wanted_array, time_interval,
-									write_to_db, write_to_db_tablename):
-		start_period_date = datetime.datetime.fromtimestamp(int(start_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
-		end_period_date = datetime.datetime.fromtimestamp(int(end_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
-		wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)
-		print('wanted range', wanted_range, print(len(wanted_range)))
-		array_pair_starts_ends = []
-		split_arrays = np.array_split(wanted_range, limit_interval_before_db_build)
-		combined_dfs = None
-		for array in split_arrays:
-			for x in range(len(array)):
-				print('x from arrays', x)
-				print('array', array)
-				array_pair = []
-				start= array[x]
-				try:
-					end= array[x+1]
-				except IndexError:
-					end = None
-				array_pair.append(start)
-				array_pair.append(end)
-				array_pair_starts_ends.append(array_pair)
-				#return array_pair_starts_ends
-				if array_pair_starts_ends[-1][1] == None:
-					# next start value
-					last_value_date = array_pair_starts_ends[-1].pop(0)
-					last_value_unix = time.mktime(last_value_date.timetuple())
-					array_pair_starts_ends.pop(-1)
-					print('last date and unix',last_value_date, last_value_unix)
-				else:
-					last_value_date = array_pair_starts_ends[-1][1]
-					last_value_unix = time.mktime(last_value_date.timetuple())
-					print('last date and unix',last_value_date, last_value_unix)
-					#list_last_value_date = list(str(last_value_date))
-					#clean_list = str([ x for x in list_last_value_date if x.isdigit() ])
 
-			for x in range(len(array_pair_starts_ends)):
-				print('array pair start end for cyclingthru start end dates', array_pair_starts_ends)
-				start_date = array_pair_starts_ends[x][0]
-				end_date = array_pair_starts_ends[x][1]
-				#print('start', start)
-				#print('end', end)
-				print('x from unix start end', x)
-				start_unix = str(int(time.mktime(start_date.timetuple())))
-				end_unix = str(int(time.mktime(end_date.timetuple())))
-				print('start_unix', start_unix, start_date)
-				print('end_unix', end_unix, end_date)
-		#print('array_pair_starts_end', array_pair_starts_ends)
-
-
-				self.convert_trade_history_to_sql_start_end_vars(start_unix, end_unix,coin_list_array,
-															db_name, coin_name_end)
-				dbs = self.aggregate_databases1(db_name, table_name_array, cols_wanted_array, 
-															time_interval)
-				combined_dfs = self.merge_databases_for_models(db_name, dbs, write_to_db=write_to_db,
-											write_to_db_tablename=write_to_db_tablename)
-			#print(array_pair_starts_ends)
-			array_pair_starts_ends = []	
-		return array_pair_starts_ends, last_value_date, last_value_unix, combined_dfs
-
-
-def cycle_over_dates_and_build_coin_db1(self, start_period_cycle, end_period_cycle, time_period_interval, limit_interval_before_db_build, coin_list_array, db_name, coin_name_end, database_name, table_name_array, cols_wanted_array, time_interval,write_to_db, write_to_db_tablename):
+def cycle_over_dates_and_build_coin_db(self, start_period_cycle, end_period_cycle, time_period_interval, limit_interval_before_db_build, coin_list_array, db_name, coin_name_end, database_name, table_name_array, cols_wanted_array, time_interval,write_to_db, write_to_db_tablename):
 		start_period_date = datetime.datetime.fromtimestamp(int(start_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
 		end_period_date = datetime.datetime.fromtimestamp(int(end_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
 		wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)

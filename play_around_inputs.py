@@ -94,15 +94,15 @@ print('dbs before combined')
 for values in dbs.values():
 	print(values.head(5))
 """
-"""
-file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/pol_data_combined_db'
+
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/pol_data_combined_db_two'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
-table = 'poln_data_combined_final_table'
+table = 'poln_data_combined_final_table_three'
 df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 drop_nan_rows = 'yes'
-columns_to_drop = None
-#columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH']
+#columns_to_drop = None
+columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH']
 # took date out of colums_all
 columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 'trade_count_USDT_BTC',  'rate_USDT_ETH', 'rate_USDT_LTC', 'amount_USDT_LTC',
@@ -138,6 +138,8 @@ database_name = 'machine_predict_test_db'
 table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
+#rolling_averages_dict = None
+rolling_averages_dict = {'rate_USDT_LTC':[5,10], 'rate_USDT_BTC':[5,10]}
 # sample instance has all vars above in it
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -154,7 +156,8 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					 cycle_vars_user_check=cycle_vars_user_check, 
 					 minimum_feature_count_for_var_cycle=minimum_feature_count_for_var_cycle,
 					 database_name=database_name, table_name=table_name, db_location_base=db_location_base,
-					 write_to_db=write_to_db, normalize_columns_array=normalize_columns_array)
+					 write_to_db=write_to_db, normalize_columns_array=normalize_columns_array,
+					 rolling_averages_dict=rolling_averages_dict)
 results = sample_instance.user_full_model()
 print('made to end')
 #print(results)
@@ -166,12 +169,12 @@ for k,v in results.items():
 		print(kk)
 		print(vv)
 		print('_______________________________')
-"""
+
 """
 needs to be done next
 3. set the binary reults of yes or no to account for a future date
 """
-
+"""
 # this is for polinex and atabse class before refractoring 
 # polniex vars
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/3_coin_test_db'
@@ -224,3 +227,4 @@ print('______________________________________')
 print('result[2]', type(result[2]), result[2])
 print('______________________________________')
 print('result[3]', type(result[3]), result[3])
+"""

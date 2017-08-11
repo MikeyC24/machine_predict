@@ -132,6 +132,19 @@ class ArrangeData:
 		df['MA' + str(periods)] = y.rolling(window =periods).mean()
 		return df
 
+	def rolling_average_dict(self, rolling_average_dict):
+		df = self.dataframe
+		columns = rolling_average_dict.keys()
+		for column in columns:
+			for x in range(len(rolling_average_dict[column])):
+				print('x', x)
+				print('period',rolling_average_dict[column][x])
+				period = rolling_average_dict[column][x]
+				x = df[column]
+				y = df['shifted'] = x.shift(-1)
+				df['MA_' + str(period) + '_' + str(column)] = y.rolling(window =period).mean()
+		return df
+
 	# returns a new column with the rolling std for the column
 	# given and period/ frequency given
 	def rolling_std(self, column_name, periods):

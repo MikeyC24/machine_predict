@@ -86,6 +86,7 @@ class MachinePredictModel:
 		self.write_to_db = kwargs.get('write_to_db', None)
 		self.vars_to_return_from_db = kwargs.get('vars_to_return_from_db', None)
 		self.drop_nan_rows = kwargs.get('drop_nan_rows', None)
+		self.rolling_averages_dict = kwargs.get('rolling_averages_dict', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -117,6 +118,8 @@ class MachinePredictModel:
 			model_dataframe.resample_date(self.target, 'day_highs_avg', 'D', 'mean')
 		# normalize the given columns, with a new name which is always orginal 
 		# column name + normalized
+		if self.rolling_averages_dict is not None:
+			model_dataframe.rolling_average_dict(self.rolling_averages_dict)
 		if self.normalize_columns_array is not None:
 			model_dataframe.normalize_new_column(self.normalize_columns_array)
 		# takes in a dict, always has the same keys, column_name_old, column_name_new,
