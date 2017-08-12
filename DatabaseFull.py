@@ -199,6 +199,7 @@ class DatabaseFull:
 			wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)
 			print('wanted range', wanted_range, print(len(wanted_range)))
 			array_pair_starts_ends = []
+			error_array_dates = []
 			for x in range(len(wanted_range)):
 				array_pair = array_pair = []
 				start= wanted_range[x]
@@ -221,17 +222,40 @@ class DatabaseFull:
 				print(pairs)
 				print('_______________________')
 				for x in range(len(pairs)):
-					start_date = pairs[x][0]
-					end_date = pairs[x][1]
-					start_unix = str(int(time.mktime(start_date.timetuple())))
-					end_unix = str(int(time.mktime(end_date.timetuple())))
-					print('start',start_date, start_unix)
-					print('end', end_date, end_unix)
-					self.convert_trade_history_to_sql_start_end_vars(start_unix, end_unix,coin_list_array,
-																db_name, coin_name_end)
-					dbs = self.aggregate_databases1(db_name, table_name_array, cols_wanted_array, 
-																time_interval)
-					combined_dfs = self.merge_databases_for_models(db_name, dbs, write_to_db=write_to_db,
-												write_to_db_tablename=write_to_db_tablename)
-			return array_pair_starts_ends, last_value_date, last_value_unix, combined_dfs
+					try:
+						start_date = pairs[x][0]
+						end_date = pairs[x][1]
+						start_unix = str(int(time.mktime(start_date.timetuple())))
+						end_unix = str(int(time.mktime(end_date.timetuple())))
+						print('start',start_date, start_unix)
+						print('end', end_date, end_unix)
+						self.convert_trade_history_to_sql_start_end_vars(start_unix, end_unix,coin_list_array,
+																	db_name, coin_name_end)
+						dbs = self.aggregate_databases1(db_name, table_name_array, cols_wanted_array, 
+																	time_interval)
+						combined_dfs = self.merge_databases_for_models(db_name, dbs, write_to_db=write_to_db,
+													write_to_db_tablename=write_to_db_tablename)
+					except IndexError:
+						error_array_dates.append(pairs[x])
+						print('found error')
+			return error_array_dates, last_value_date, last_value_unix, combined_dfs
+
+	# combine two dataframes by common date, have option to write to sql
+	# if that table alrdy exists write to sql fails
+	def append_dataframes(self, database_name, table_array_in_order, **kwargs):
+		self.write_new_db_to_sql = kwargs.get('write_new_db_to_sql', None)
+		self.new_sql_table_name = kwargs.get('new_sql_table_name', None)
+		self.combine_date = kwargs.get('combine_date', None)
+		con = sqlite3.connect(self.db_location_base+database_name)
+		df = pd.read_sql_query('SELECT * FROM %s' % (table_array_in_order[0]), con)
+		df2 = pd.read_sql_query('SELECT * FROM %s' % (table_array_in_order[1]), con)
+		cols = df.columns.values
+		if self.combine_date is not None:
+			df = df.loc[:combine_date]
+			df2 = df2.loc[combine_date:]
+			df = df.append(df2)
+		df = df.append(df2)
+		if self.write_new_db_to_sql == 'yes':
+			df.to_sql(name=self.new_sql_table_name,con=con, if_exists='fails')
+		return df
 

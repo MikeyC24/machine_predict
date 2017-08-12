@@ -103,6 +103,8 @@ df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 drop_nan_rows = 'yes'
 #columns_to_drop = None
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH']
+# columns all before any editing 
+columns_all_init = ['date']
 # took date out of colums_all
 columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 'trade_count_USDT_BTC',  'rate_USDT_ETH', 'rate_USDT_LTC', 'amount_USDT_LTC',
@@ -174,7 +176,6 @@ for k,v in results.items():
 needs to be done next
 3. set the binary reults of yes or no to account for a future date
 4. add trend lines, support, resistance levels, https://stackoverflow.com/questions/8587047/support-resistance-algorithm-technical-analysis
-5. get mins and maxes from time periods in combind dfs
 """
 """
 # this is for polinex and atabse class before refractoring 
