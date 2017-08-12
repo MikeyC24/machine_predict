@@ -60,12 +60,14 @@ print('___________________________________')
 combine_array = ['BTC_LTC_ETH_July_2017', 'BTC_LTC_ETH_July_21_2017_august_10_17']
 combine_date = None
 write_new_db_to_sql= 'yes'
-new_sql_table_name = 'July_combined_top_3_coin_two'
-new_combined_table = data_class.append_dataframes(db_name, combine_array,
+new_sql_table_name = 'three_coin_multi_combine_nine'
+combine_array_dict = [{'BTC_LTC_ETH_July_2017':None}, {'BTC_LTC_ETH_July_21_2017_august_10_17':None}, {'BTC_LTC_ETH_July_31_2017_august_10_17':None},{'BTC_LTC_ETH_August_2_17_august_10_17':None}]
+new_combined_table = data_class.append_dataframes_dict(db_name, combine_array_dict,
 		write_new_db_to_sql=write_new_db_to_sql,new_sql_table_name=new_sql_table_name)
 print('______________________________')
 print('made to end')
 print(new_combined_table)
+
 
 """
 # this was for building mins and maxes

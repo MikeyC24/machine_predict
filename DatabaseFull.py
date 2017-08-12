@@ -238,7 +238,7 @@ class DatabaseFull:
 					except IndexError:
 						error_array_dates.append(pairs[x])
 						print('found error')
-			return error_array_dates, last_value_date, last_value_unix, combined_dfs
+			return error_array_dates, end_date, end_unix, combined_dfs
 
 	# combine two dataframes by common date, have option to write to sql
 	# if that table alrdy exists write to sql fails
@@ -255,7 +255,42 @@ class DatabaseFull:
 			df2 = df2.loc[combine_date:]
 			df = df.append(df2)
 		df = df.append(df2)
+		df.reset_index(df['date'], inplace=True)
+		#df.index = df['date']
 		if self.write_new_db_to_sql == 'yes':
-			df.to_sql(name=self.new_sql_table_name,con=con, if_exists='fails')
+			df.to_sql(name=self.new_sql_table_name,con=con, if_exists='fail')
 		return df
 
+	#table_array_in_order, each value should be a dict with key as table_name
+	# and value as key, have option for key to = None
+	def append_dataframes_dict(self, database_name, table_array_in_order, **kwargs):
+		self.write_new_db_to_sql = kwargs.get('write_new_db_to_sql', None)
+		self.new_sql_table_name = kwargs.get('new_sql_table_name', None)
+		self.combine_date = kwargs.get('combine_date', None)
+		con = sqlite3.connect(self.db_location_base+database_name)
+		for key in table_array_in_order[0].keys():
+			first_db_name = key
+		print(first_db_name)
+		df = pd.read_sql_query('SELECT * FROM %s' % (first_db_name), con)
+		for x in range(len(table_array_in_order)):
+			try:
+				for key, value in table_array_in_order[x+1].items():
+					name = key
+					date = value
+					print(x, name, value)
+			except:
+				print('skipped over know error, is working')
+				if date is None:
+					df2 = pd.read_sql_query('SELECT * FROM %s' % (name), con)
+					df = pd.concat([df,df2], axis=1, ignore_index=True)
+					#df.reset_index(inplace=True)
+				else:
+					df2 = pd.read_sql_query('SELECT * FROM %s' % (name), con)
+					df = df.loc[:date]
+					df2 = df.loc[date:]
+					df = df.append(d2)
+		#df.reset_index(df['date'])
+		if self.write_new_db_to_sql == 'yes':
+			df.to_sql(name=self.new_sql_table_name,con=con, if_exists='fail')
+		return df
+		
