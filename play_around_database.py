@@ -8,39 +8,68 @@ start_date =  '1502067600'
 end_date = '1502110800'
 #database_name = 'pol_db_class_2gether_two'
 # start date weekend
-# saturday 8/5/17 at 1200am GMT
-start_wke = '1502236800'
+# July first
+start_wke = '1500595200'
 #end weekend
-# monday 8/7/17 1am GMT
-end_wke = '1502280000'
+# August 1st
+end_wke = '1502323200'
 time_interval_delta_measure = 'h'
 time_interval_delta_amount = 3
 top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
+# 2nd teir list USDT_XRP= ripple, Dash= USDT_DASH, Monero = USDT_XMR
+list_two_coins = 'USDT_XRP', 'USDT_DASH', 'USDT_XMR'
 coin_name_end = ''
 ## datbase clas vars
-db_name = 'pol_data_combined_db_two'
+db_name = 'coin_months_data'
 location_base1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
 table_name_array = ['USDT_BTC_table_', 'USDT_ETH_table_', 'USDT_LTC_table_']
 columns_wanted_array = ['globalTradeID', 'date_time_added_to_db', 'coin_name', 'date', 'type', 'rate', 'amount', 'total']
 columns_wanted_array1 = ['coin_name', 'date', 'rate', 'amount', 'total']
-columns_wanted_array_test = ['coin_name', 'total']
 time_interval10 = '10Min'
 write_to_db = 'yes'
-write_to_db_tablename = 'poln_data_combined_final_table_three'
+write_to_db_tablename = 'BTC_LTC_ETH_July_21_2017_august_10_17'
+# here is where this db starts again
+#start 2017-07-20 20:00:00 1500595200
+#end 2017-07-20 21:00:00 1500598800
+# error is from start 2017-07-20 09:00:00 1500555600 to same spot
+# before new start date
+# need to add some error exceptions
+# underf for x in pais add a try and except, if error append error range to
+# a array that is written to csv then go to next pair
+# also need try except for pinging polinex, checking for bad connections
+# bad urls, coins and or dates not in range, again append errors, write to csv
+# and start next portion, for this for now, should also make it so
+# all three coins are captured
 
 #start_period_cycle, end_period_cycle, 
 #time_period_interval, limit_interval_before_db_build,
 #coin_list_array, db_name, coin_name_end, db_location_base, 
 #database_name, table_name_array, cols_wanted_array, time_interval
 
-
+# 2017-07-20 12:00:00
 
 data_class = DatabaseFull(location_base)
 print('___________________________________')
-result = data_class.cycle_over_dates_and_build_coin_db1(start_wke, end_wke, 'H', 6,
+result = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 6,
 					top_3_coin_list, db_name, coin_name_end,
 					db_name, table_name_array, columns_wanted_array1, time_interval10,
 					write_to_db, write_to_db_tablename)
+
+
+"""
+# this was for building mins and maxes
+db_name_mm = 'test_min_max'
+start_unix_min = '1502463600'
+end_unix_min = '1502470800'
+data_class.convert_trade_history_to_sql_start_end_vars(start_unix_min, end_unix_min, top_3_coin_list, db_name_mm, coin_name_end)
+database_dict_min = data_class.aggregate_databases1(db_name_mm, table_name_array, columns_wanted_array1, time_interval10)
+combined_dfs = data_class.merge_databases_for_models(db_name_mm, database_dict_min, write_to_db='yes', write_to_db_tablename='min_max_tables1')
+for k,v in combined_dfs.items():
+	print(k)
+	print(v)
+	print('______________')
+"""
+
 #database_dict = data_class.aggregate_databases1(db_name, table_name_array, columns_wanted_array1,
 #	time_interval10)
 """

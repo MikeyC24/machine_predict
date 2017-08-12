@@ -128,7 +128,8 @@ class DatabaseFull:
 				conn.commit()
 		conn.close()
 
-	def aggregate_databases1(self, database_name, table_name_array, columns_wanted_array, time_interval):
+	def aggregate_databases1(self, database_name, table_name_array, 
+							columns_wanted_array, time_interval):
 		database_dict = {}
 		for table in table_name_array:
 			con = sqlite3.connect(self.db_location_base+database_name)
@@ -136,8 +137,11 @@ class DatabaseFull:
 			df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 			df = df.loc[:, columns_wanted_array]
 			column_names = cur.description
+			# start 2017-07-20 09:00:00 1500555600
+			#end 2017-07-20 10:00:00 1500559200
+			# above start and end period thru a IndexError: index out of bounds
+			# when searching for coin=df['coin_name']
 			coin = df['coin_name'][0]
-
 			df.columns = df.columns + '_'  + coin
 			date_col = 'date_'+coin
 			df['date'] = df[date_col]
@@ -154,10 +158,20 @@ class DatabaseFull:
 			df.index = df['date']
 			df1 = df.groupby(pd.TimeGrouper(time_interval)).mean() 
 			df2 = df.groupby(pd.TimeGrouper(time_interval)).count()
+			df3 = df.groupby(pd.TimeGrouper(time_interval)).min()
+			df4 = df.groupby(pd.TimeGrouper(time_interval)).max()
 			total_name = 'total'+'_'+coin
 			freq_series = df2[total_name]
 			df1['trade_count_'+coin] = freq_series
 			df1['trade_count_'+coin] = pd.to_numeric(df1['trade_count_'+coin], errors='coerce')
+			min_name = 'rate'+'_'+coin
+			freq_series = df3[min_name]
+			df1['min_rate_'+coin] = freq_series
+			df1['min_rate_'+coin] = pd.to_numeric(df1['min_rate_'+coin], errors='coerce')
+			max_name = 'rate'+'_'+coin
+			freq_series = df4[max_name]
+			df1['max_rate_'+coin] = freq_series
+			df1['max_rate_'+coin] = pd.to_numeric(df1['max_rate_'+coin], errors='coerce')
 			df = df1
 			# https://chrisalbon.com/python/pandas_apply_operations_to_groups.html
 			database_dict[str(coin) + 'formatted'] = df
@@ -179,45 +193,45 @@ class DatabaseFull:
 		return combined
 
 
-def cycle_over_dates_and_build_coin_db(self, start_period_cycle, end_period_cycle, time_period_interval, limit_interval_before_db_build, coin_list_array, db_name, coin_name_end, database_name, table_name_array, cols_wanted_array, time_interval,write_to_db, write_to_db_tablename):
-		start_period_date = datetime.datetime.fromtimestamp(int(start_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
-		end_period_date = datetime.datetime.fromtimestamp(int(end_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
-		wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)
-		print('wanted range', wanted_range, print(len(wanted_range)))
-		array_pair_starts_ends = []
-		for x in range(len(wanted_range)):
-			array_pair = array_pair = []
-			start= wanted_range[x]
-			try:
-				end= wanted_range[x+1]
-			except IndexError:
-				end = None
-			array_pair.append(start)
-			array_pair.append(end)
-			array_pair_starts_ends.append(array_pair)
-		print('array_pair_starts_ends', array_pair_starts_ends)
-		if array_pair_starts_ends[-1][1] == None:
-			array_pair_starts_ends.pop(-1)
-		print('array_pair_starts_ends2', array_pair_starts_ends)
-		split_pairs_in_interval = np.array_split(array_pair_starts_ends, limit_interval_before_db_build)
-		print('_______________')
-		print('split pairs in interval', split_pairs_in_interval)
-		for pairs in split_pairs_in_interval:
-			print('pairs')
-			print(pairs)
-			print('_______________________')
-			for x in range(len(pairs)):
-				start_date = pairs[x][0]
-				end_date = pairs[x][1]
-				start_unix = str(int(time.mktime(start_date.timetuple())))
-				end_unix = str(int(time.mktime(end_date.timetuple())))
-				print('start',start_date, start_unix)
-				print('end', end_date, end_unix)
-				self.convert_trade_history_to_sql_start_end_vars(start_unix, end_unix,coin_list_array,
-															db_name, coin_name_end)
-				dbs = self.aggregate_databases1(db_name, table_name_array, cols_wanted_array, 
-															time_interval)
-				combined_dfs = self.merge_databases_for_models(db_name, dbs, write_to_db=write_to_db,
-											write_to_db_tablename=write_to_db_tablename)
-		return array_pair_starts_ends, last_value_date, last_value_unix, combined_dfs
+	def cycle_over_dates_and_build_coin_db(self, start_period_cycle, end_period_cycle, time_period_interval, limit_interval_before_db_build, coin_list_array, db_name, coin_name_end, database_name, table_name_array, cols_wanted_array, time_interval,write_to_db, write_to_db_tablename):
+			start_period_date = datetime.datetime.fromtimestamp(int(start_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
+			end_period_date = datetime.datetime.fromtimestamp(int(end_period_cycle)).strftime('%Y-%m-%d %H:%M:%S')
+			wanted_range = pd.date_range(start_period_date, end_period_date, freq=time_period_interval)
+			print('wanted range', wanted_range, print(len(wanted_range)))
+			array_pair_starts_ends = []
+			for x in range(len(wanted_range)):
+				array_pair = array_pair = []
+				start= wanted_range[x]
+				try:
+					end= wanted_range[x+1]
+				except IndexError:
+					end = None
+				array_pair.append(start)
+				array_pair.append(end)
+				array_pair_starts_ends.append(array_pair)
+			print('array_pair_starts_ends', array_pair_starts_ends)
+			if array_pair_starts_ends[-1][1] == None:
+				array_pair_starts_ends.pop(-1)
+			print('array_pair_starts_ends2', array_pair_starts_ends)
+			split_pairs_in_interval = np.array_split(array_pair_starts_ends, limit_interval_before_db_build)
+			print('_______________')
+			print('split pairs in interval', split_pairs_in_interval)
+			for pairs in split_pairs_in_interval:
+				print('pairs')
+				print(pairs)
+				print('_______________________')
+				for x in range(len(pairs)):
+					start_date = pairs[x][0]
+					end_date = pairs[x][1]
+					start_unix = str(int(time.mktime(start_date.timetuple())))
+					end_unix = str(int(time.mktime(end_date.timetuple())))
+					print('start',start_date, start_unix)
+					print('end', end_date, end_unix)
+					self.convert_trade_history_to_sql_start_end_vars(start_unix, end_unix,coin_list_array,
+																db_name, coin_name_end)
+					dbs = self.aggregate_databases1(db_name, table_name_array, cols_wanted_array, 
+																time_interval)
+					combined_dfs = self.merge_databases_for_models(db_name, dbs, write_to_db=write_to_db,
+												write_to_db_tablename=write_to_db_tablename)
+			return array_pair_starts_ends, last_value_date, last_value_unix, combined_dfs
 
