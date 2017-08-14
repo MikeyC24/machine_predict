@@ -119,7 +119,11 @@ normalize_columns_array = None
 time_period_returns_dict = {'column_name_old':['rate_USDT_ETH'], 'column_name_new':['rate_USDT_ETH_change'], 'freq':[1]}
 create_target_dict = {'column_name_old':['rate_USDT_ETH_change'], 'column_name_new':['rate_USDT_ETH_change_binary'], 'value':[.005]}
 target = 'rate_USDT_ETH_change_binary'
-format_human_date = 'date'
+array_for_format_non_unix_date = ['date','%Y-%m-%d %H:%M:%S', 'UTC' ]
+format_human_date = ['date', '%Y-%m-%d %H:%M:%S', 'UTC'] 
+#format_human_date = None
+convert_date_to_cats_for_class = ['date', 'US/Eastern']
+#convert_date_to_cats_for_class = None
 set_multi_class = None
 random_state = 1
 training_percent = .75
@@ -151,6 +155,7 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					cols_to_drop=columns_to_drop, set_multi_class=set_multi_class, 
 					target_change_bin_dict=create_target_dict, kfold_dict=kfold_dict,
 					format_human_date = format_human_date,
+					convert_date_to_cats_for_class=convert_date_to_cats_for_class,
 					time_period_returns_dict=time_period_returns_dict,
 					param_dict_logistic=logistic_regression_params, 
 					param_dict_decision_tree=decision_tree_params, 
@@ -164,13 +169,17 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					database_name=database_name, table_name=table_name, db_location_base=db_location_base,
 					write_to_db=write_to_db, normalize_columns_array=normalize_columns_array,
 					rolling_averages_dict=rolling_averages_dict)
-"""
+
 # looking at data
 result = sample_instance._set_up_data_for_prob_predict()
 print(type(result))
 print(result.dataframe.isnull().count())
+print(result.dataframe.columns.values)
 print(result.dataframe.dtypes)
 print('_______________')
+result.overall_data_display(10)
+
+#print(result.dataframe['date'])
 """
 # need to convert date into category types and then drop date
 model = sample_instance.user_full_model()
@@ -181,7 +190,7 @@ for k,v in model.items():
 		print(kk)
 		print(vv)
 		print('_______________________________')
-
+"""
 """
 results = sample_instance.user_full_model()
 print('made to end')

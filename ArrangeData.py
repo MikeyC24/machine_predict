@@ -315,10 +315,31 @@ class ArrangeData:
 		df.index=df['Datetime']
 		return df
 
-	def format_non_unix_date(self, date_column):
+	# array var consist of in this order
+	# 1. date 2. format 3. timezone
+	# array needs to have 3 vars, but format and timezone can be None
+	def format_non_unix_date(self, array_vars):
 		df = self.dataframe
-		df[date_column] = pd.to_datetime(df[date_column])
+		date_column = array_vars[0]
+		format = array_vars[1]
+		timezone = array_vars[2]
+		df[date_column] = pd.to_datetime(df[date_column], format=format)
+		if timezone is not None:
+			df[date_column] = df[date_column].apply(lambda x: x.tz_localize(timezone))
 		return df 
+
+	# array needs to contain at these positions
+	# 0 = date column
+	# 1 = timezone
+	def convert_date_to_cats_for_class(self, array_vars):
+		df = self.dataframe
+		date_column = array_vars[0]
+		timezone =array_vars[1]
+		#df[date_column] = df[date_column].apply(lambda x : x.tz_localize('UTC').tz_convert(timezone))
+		df[date_column] = df[date_column].apply(lambda x : x.tz_convert(timezone)) 
+		df[('days_of_week_'+timezone).replace('/', '_')]  = df[date_column].dt.weekday_name
+		df['hour'] = df[date_column].apply(lambda x: x.hour)
+		return df
 
 	# return a dataframe with new columns based on time intervals
 	# old column is the sample you want to use

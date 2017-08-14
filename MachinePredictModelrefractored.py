@@ -57,6 +57,7 @@ class MachinePredictModel:
 		self.target_col_name = target_col_name
 		self.date_unix  = kwargs.get('date_unix', None)
 		self.format_human_date = kwargs.get('format_human_date', None)
+		self.convert_date_to_cats_for_class = kwargs.get('convert_date_to_cats_for_class', None)
 		self.time_interval_check = kwargs.get('time_interval_check', None)
 		self.normalize_columns_array = kwargs.get('normalize_columns_array', None)
 		self.time_period_returns_dict = kwargs.get('time_period_returns_dict', None)
@@ -115,6 +116,8 @@ class MachinePredictModel:
 			model_dataframe.convert_unix_to_human_date(self.convert_unix_to_human_date)	
 		# this will eventually take in a dictionary  but first
 		# the arrange data resample_date needs to be refactored for version .2 change	
+		if self.convert_date_to_cats_for_class is not None:
+			model_dataframe.convert_date_to_cats_for_class(self.convert_date_to_cats_for_class)
 		if self.time_interval_check == 1:
 			model_dataframe.resample_date(self.target, 'month_highs_avg', 'M', 'mean')
 			model_dataframe.resample_date(self.target, 'week_highs_avg', 'W', 'mean')
