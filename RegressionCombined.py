@@ -33,6 +33,7 @@ class RegressionCombined:
 		self.X_test = X_test
 		self.y_train = y_train
 		self.y_test = y_test
+		self.score_model = score_model = kwargs.get('score_model', None)
 		# this is to determine what test on run and on what traing data 
 		self.user_input_for_model_output = kwargs.get('user_input_for_model_output', None)
 		self.param_dict_logistic = kwargs.get('param_dict_logistic', None)
@@ -82,12 +83,18 @@ class RegressionCombined:
 		# overall accuracy
 		ACC = (tp+tn) / (tp+fp+fn+tn)
 		y = y_target
+		freq = self.score_model['freq'][0]
+		shift_back = self.score_model['shift']
+		value_mark = self.score_model['value_mark']
 		dict['roc_auc_score'] = roc_auc_score(y, predictions)
 		dict['mse'] = mean_squared_error(y, predictions)
 		dict['mae'] = mean_absolute_error(y, predictions)
 		dict['r2_score'] = r2_score(y, predictions)
 		dict['variance'] = np.var(predictions)
 		dict['ACC'] = ACC
+		dict['was_shifted'] = shift_back
+		dict['freq_per_for_binary'] = freq
+		dict['value_used_for_binary'] = value_mark
 		return(dict)
 
 	

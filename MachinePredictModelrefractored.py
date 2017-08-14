@@ -172,7 +172,7 @@ class MachinePredictModel:
 		# in fact the above method may become only class method
 		# actually lets do that
 
-
+	# think this is old and not being used
 	# can prob make this kwargs class variables
 	def predict_prob_model_full(self):
 		# vars
@@ -182,6 +182,7 @@ class MachinePredictModel:
 		predictions_results = predictions_instance.regression_probs_model(param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network)
 		return predictions_results
 
+	# think this is old and not being used
 	def predict_prob_model_full_fit_parameters(self):
 		data = self._set_up_data_for_models_test(self.columns_all) 
 		predictions_instance = predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'])
@@ -270,7 +271,7 @@ class MachinePredictModel:
 			if len(x) > 1:
 				#print(x)
 				data = self._set_up_data_for_models_test(x)
-				predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output,param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array)
+				predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output,param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array,score_model=self.create_target_in_one)
 				output = predictions_instance.classification_unifying_model()
 				dict_score_combos[str(x)] = output
 		return dict_score_combos
@@ -284,7 +285,7 @@ class MachinePredictModel:
 	def user_output_model(self):
 		data = self._set_up_data_for_models_test_non_cycle(self.columns_all) 
 		# start prediction instace 
-		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output,param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array)
+		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output,param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array, score_model=self.create_target_in_one)
 		output = predictions_instance.classification_unifying_model()
 		return output
 

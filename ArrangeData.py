@@ -422,14 +422,16 @@ class ArrangeData:
 	def time_period_returns_dict_and_set_binary(self, dict_vars):
 		df = self.dataframe
 		target = dict_vars['target']
-		freq = dict_vars['freq']
+		freq = dict_vars['freq'][0]
 		shift_back = dict_vars['shift']
 		value_mark = dict_vars['value_mark']
 		target_new = dict_vars['target_new']
+		print(target_new)
 		df['percent_change'] = df[target].apply(lambda x: x.pct_change(freq))
 		if shift_back == 'yes':
 			df['percent_change'] = df['percent_change'].shift(periods=-freq)
-		df[target_new] =  df['percent_change'].apply(lambda x: np.where(x) >= value_mark, 1, 0)
+		df[target_new] =  df['percent_change'].apply(lambda x: 1 if x >= value_mark else 0)
+		df = df.drop(['percent_change'], axis=1, inplace=True)
 		return df
 
 	def time_period_returns_dict_with_shift(self, dict_vars):

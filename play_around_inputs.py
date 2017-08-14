@@ -106,7 +106,7 @@ drop_nan_rows = 'yes'
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
 'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change', 'date']
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
-'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change', 
+'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 
 'date', 'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC']
 # columns all before any editing 
 columns_all_init = ['date']
@@ -114,7 +114,7 @@ columns_all_init = ['date']
 columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 'trade_count_USDT_BTC', 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'rate_USDT_ETH', 
 'rate_USDT_LTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'trade_count_USDT_LTC', 
-'max_rate_USDT_LTC', 'max_rate_USDT_LTC', 'rate_USDT_ETH_change_binary']
+'max_rate_USDT_LTC', 'max_rate_USDT_LTC', 'rate_USDT_ETH_binary']
 #columns_all_test = ['workingday','temp', 'cnt_binary', 'hr_new']
 #normalize_columns_array = ['rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 #'trade_count_USDT_BTC', 'rate_USDT_LTC', 'amount_USDT_LTC',
@@ -126,7 +126,7 @@ normalize_columns_array = None
 time_period_returns_dict = None
 create_target_dict = None
 #target = 'rate_USDT_ETH_change_binary'
-create_target_in_one = {'target':'rate_USDT_ETH', 'freq':72, 'shift':'yes', 'value_mark':0, 'target_new':'rate_USDT_ETH_binary'}
+create_target_in_one = {'target':['rate_USDT_ETH'], 'freq':[72], 'shift':'yes', 'value_mark':0, 'target_new':'rate_USDT_ETH_binary'}
 target = create_target_in_one['target_new']
 array_for_format_non_unix_date = ['date','%Y-%m-%d %H:%M:%S', 'UTC']
 format_human_date = ['date', '%Y-%m-%d %H:%M:%S', 'UTC'] 
@@ -187,7 +187,7 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					write_to_db=write_to_db, normalize_columns_array=normalize_columns_array,
 					rolling_averages_dict=rolling_averages_dict)
 
-
+"""
 # looking at data
 result = sample_instance._set_up_data_for_prob_predict()
 print(type(result))
@@ -203,7 +203,7 @@ print(is_numeric_dtype(df['part_of_day_US_Eastern']))
 print(df['part_of_day_US_Eastern'].dtype.kind)
 print(df['part_of_day_US_Eastern'].unique())
 print(df['days_of_week_US_Eastern'].unique())
-print(df[df['rate_USDT_ETH_change_binary']==1].count())
+print(df[df['rate_USDT_ETH_binary']==1].count())
 
 """
 model = sample_instance.user_full_model()
@@ -214,7 +214,7 @@ for k,v in model.items():
 		print(kk)
 		print(vv)
 		print('_______________________________')
-"""
+
 """
 results = sample_instance.user_full_model()
 print('made to end')
