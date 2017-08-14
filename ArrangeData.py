@@ -138,8 +138,8 @@ class ArrangeData:
 		columns = rolling_average_dict.keys()
 		for column in columns:
 			for x in range(len(rolling_average_dict[column])):
-				print('x', x)
-				print('period',rolling_average_dict[column][x])
+				#print('x', x)
+				#print('period',rolling_average_dict[column][x])
 				period = rolling_average_dict[column][x]
 				x = df[column]
 				#y = df['shifted'] = x.shift(-1)
@@ -299,11 +299,6 @@ class ArrangeData:
 		for column_name in columns_array:
 			df[column_name] = pd.Categorical(df[column_name])
 			df[column_name] = df[column_name].cat.codes
-			#df[column_name] = df[column_name].astype('category')
-			#df[column_name] = df[column_name].apply(lambda x: x.cat.codes)
-			#df[column_name] = pd.get_dummies(df[column_name])
-			#print('dummy var', dummy_var)
-			#df = pd.concat([df, dummy_var], join='inner')
 		return df 
 
 		
@@ -318,6 +313,16 @@ class ArrangeData:
 			max_value = df[feature_name].max()
 			min_value = df[feature_name].min()
 			df[str(feature_name)+'_normalized'] = (df[feature_name] - min_value) / (max_value - min_value)
+		return df
+
+	def normalize_numerical_columns(self, target):
+		df = self.dataframe
+		columns_all = df.columns.values
+		for column in columns_all:
+			if (is_numeric_dtype(df[column])) == True & (column != target):
+				max_value = df[column].max()
+				min_value = df[column].min()
+				df[column] = (df[column] - min_value) / (max_value - min_value)
 		return df
 
 	# returns date, need to put in date column, to date time and 
@@ -412,6 +417,30 @@ class ArrangeData:
 			prices = df[dict_vars['column_name_old'][x]]
 			#print(type(prices))
 			df[dict_vars['column_name_new'][x]] = prices.pct_change(dict_vars['freq'][x])
+		return df
+
+	def time_period_returns_dict_and_set_binary(self, dict_vars):
+		df = self.dataframe
+		target = dict_vars['target']
+		freq = dict_vars['freq']
+		shift_back = dict_vars['shift']
+		value_mark = dict_vars['value_mark']
+		target_new = dict_vars['target_new']
+		df['percent_change'] = df[target].apply(lambda x: x.pct_change(freq))
+		if shift_back == 'yes':
+			df['percent_change'] = df['percent_change'].shift(periods=-freq)
+		df[target_new] =  df['percent_change'].apply(lambda x: np.where(x) >= value_mark, 1, 0)
+		return df
+
+	def time_period_returns_dict_with_shift(self, dict_vars):
+		df = self.dataframe
+		new_name = dict_vars['column_name_new']
+		old_name  = dict_vars['column_name_old']
+		freq = dict_vars['freq'][0]
+		shift_back = dict_vars['shift']
+		df[new_name] = df[old_name].apply(lambda x: x.pct_change(freq))
+		if shift_back == 'yes':
+			df[new_name] = df[new_name].shift(periods=-freq)
 		return df
 
 

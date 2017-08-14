@@ -70,6 +70,8 @@ class MachinePredictModel:
 		self.columns_to_convert_to_dummy = kwargs.get('columns_to_convert_to_dummy', None)
 		self.convert_unix_to_human_date = kwargs.get('convert_unix_to_human_date', None)
 		self.convert_all_to_numeric = kwargs.get('convert_all_to_numeric', None)
+		self.normalize_numerical_columns = kwargs.get('normalize_numerical_columns', None)
+		self.create_target_in_one = kwargs.get('create_target_in_one', None)
 		self.kfold_dict = kwargs.get('kfold_dict', None)
 		self.param_dict_logistic = kwargs.get('param_dict_logistic', None)
 		self.param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
@@ -132,8 +134,10 @@ class MachinePredictModel:
 			model_dataframe.normalize_new_column(self.normalize_columns_array)
 		# takes in a dict, always has the same keys, column_name_old, column_name_new,
 		# freq and returns new columns based on name of given time period return
+		if self.create_target_in_one is not None:
+			model_dataframe.time_period_returns_dict_and_set_binary(self.create_target_in_one)
 		if self.time_period_returns_dict is not None:
-			model_dataframe.time_period_returns_dict(self.time_period_returns_dict)
+			model_dataframe.time_period_returns_dict_with_shift(self.time_period_returns_dict)
 		#if self.cols_to_drop is not None:
 		#	if self.cols_to_drop[0] in model_dataframe.return_col_values():
 			# this is now working however this is the only equation below that
@@ -151,11 +155,14 @@ class MachinePredictModel:
 				model_dataframe.drop_columns_return_self(self.cols_to_drop)
 		if self.drop_nan_rows == 'yes':
 			model_dataframe.drop_nan_values()
+		if self.normalize_numerical_columns == 'yes':
+			model_dataframe.normalize_numerical_columns(self.target)
 		if self.columns_to_convert_to_dummy is not None:
 			model_dataframe.dummy_variables_from_array(self.columns_to_convert_to_dummy)
 		if self.convert_all_to_numeric == 'yes':
 			model_dataframe.convert_to_num()
 		self.columns_all = model_dataframe.dataframe.columns.values
+		print('dataframe from _set_up_data_for_prob_predict')
 		model_dataframe.overall_data_display(8)
 		return model_dataframe
 		# everything above is setting up data, more still needs to be added
@@ -206,8 +213,6 @@ class MachinePredictModel:
 	# var cycle
 	# # take in df of cleaned model, return features, target, train and test data in dict
 	def _set_up_data_for_models_test_non_cycle(self, columns_all):
-		print('cols in setting up data',self.columns_all)
-		print('not self columns all', columns_all)
 		model_dataframe = self._set_up_data_for_prob_predict()
 		print('model_dataframe after first call of set up data', type(model_dataframe))
 		print(model_dataframe.dataframe.columns.values)
