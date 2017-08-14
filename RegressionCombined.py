@@ -208,11 +208,20 @@ class RegressionCombined:
 				scores = cross_validate(x, self.features, self.target, cv=kfold, scoring=scoring)
 				#scores = cross_val_score(x, self.features, self.target, cv=kfold)
 				scores['kfold_type'] =kfold_type
-				dict_results_simple[str(x)[:15]] = scores
+				#dict_results_simple[str(x)[:15]] = scores
 				dict_scores = {}
-				for x in scores:
-					scores_val = cross_val_score(x, self.features, self.target, cv=kfold, scoing=x)
-					dict_scores[x]= [scores_val]
+				for score_type in scoring:
+					score_val = cross_val_score(x, self.features, self.target, cv=kfold, scoring=score_type)
+					dict_scores[str(score_type)] = [score_val.mean(), score_val.std(), score_val.mean()+(score_val.std()*2), score_val.mean()-(score_val.std()*2)]
+				dict_scores['kfold_type'] = kfold_type
+				freq = self.score_model['freq'][0]
+				shift_back = self.score_model['shift']
+				value_mark = self.score_model['value_mark']
+				dict_scores['was_shifted'] = shift_back
+				dict_scores['freq_per_for_binary'] = freq
+				dict_scores['value_used_for_binary'] = value_mark
+				dict_scores['vars'] = str(self.X_train.columns.values)
+				dict_results_simple[str(x)[:15]] = dict_scores
 				#return dict_results_simple
 		elif train_method == 'train':
 			for x in instance_array_classes:

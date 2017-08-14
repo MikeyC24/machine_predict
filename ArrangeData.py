@@ -373,7 +373,7 @@ class ArrangeData:
 		df.loc[mask4, ('part_of_day_' + timezone).replace('/', '_')] = 'afternoon'
 		df.loc[mask5, ('part_of_day_' + timezone).replace('/', '_')] = 'evening'
 		df.loc[mask6, ('part_of_day_' + timezone).replace('/', '_')] = 'night'
-		df = df.drop(['hour'], axis=1, inplace=True) if return_hour == True else df
+		df = df.drop(['hour'], axis=1, inplace=True) if return_hour == False else df
 		return df
 
 	# return a dataframe with  columns based on time intervals
