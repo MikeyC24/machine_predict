@@ -237,7 +237,10 @@ class DatabaseFull:
 													write_to_db_tablename=write_to_db_tablename)
 					except IndexError:
 						error_array_dates.append(pairs[x])
-						print('found error')
+						print('found IndexError')
+					except Exception:
+						error_array_dates.append(pairs[x])
+						print('found_unkown_error')
 			return error_array_dates, end_date, end_unix, combined_dfs
 
 	# combine two dataframes by common date, have option to write to sql
@@ -293,4 +296,9 @@ class DatabaseFull:
 		if self.write_new_db_to_sql == 'yes':
 			df.to_sql(name=self.new_sql_table_name,con=con, if_exists='fail')
 		return df
+		
+	def append_dataframes_dict_loop:
+		pass
+		# maybe pass two df equation into here
+		# just keep looping unil all combined
 		

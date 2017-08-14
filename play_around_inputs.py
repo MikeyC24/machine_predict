@@ -95,20 +95,22 @@ for values in dbs.values():
 	print(values.head(5))
 """
 
-file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/pol_data_combined_db_two'
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
-table = 'poln_data_combined_final_table_three'
+table = 'second_coin_list_two'
 df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 drop_nan_rows = 'yes'
 #columns_to_drop = None
-columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH']
+columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
+'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change']
 # columns all before any editing 
 columns_all_init = ['date']
 # took date out of colums_all
 columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
-'trade_count_USDT_BTC',  'rate_USDT_ETH', 'rate_USDT_LTC', 'amount_USDT_LTC',
-'total_USDT_LTC', 'trade_count_USDT_LTC', 'rate_USDT_ETH_change_binary']
+'trade_count_USDT_BTC', 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'rate_USDT_ETH', 
+'rate_USDT_LTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'trade_count_USDT_LTC', 
+'max_rate_USDT_LTC', 'max_rate_USDT_LTC', 'rate_USDT_ETH_change_binary']
 #columns_all_test = ['workingday','temp', 'cnt_binary', 'hr_new']
 #normalize_columns_array = ['rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 #'trade_count_USDT_BTC', 'rate_USDT_LTC', 'amount_USDT_LTC',
@@ -117,6 +119,7 @@ normalize_columns_array = None
 time_period_returns_dict = {'column_name_old':['rate_USDT_ETH'], 'column_name_new':['rate_USDT_ETH_change'], 'freq':[1]}
 create_target_dict = {'column_name_old':['rate_USDT_ETH_change'], 'column_name_new':['rate_USDT_ETH_change_binary'], 'value':[.005]}
 target = 'rate_USDT_ETH_change_binary'
+format_human_date = 'date'
 set_multi_class = None
 random_state = 1
 training_percent = .75
@@ -147,19 +150,39 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
 					cols_to_drop=columns_to_drop, set_multi_class=set_multi_class, 
 					target_change_bin_dict=create_target_dict, kfold_dict=kfold_dict,
+					format_human_date = format_human_date,
 					time_period_returns_dict=time_period_returns_dict,
-					 param_dict_logistic=logistic_regression_params, 
-					 param_dict_decision_tree=decision_tree_params, 
-					 param_dict_neural_network=nnl_params, 
-					 param_dict_logistic_array=logistic_regression_array_vars, 
-					 param_dict_decision_tree_array=decision_tree_array_vars, 
-					 param_dict_neural_network_array=neural_net_array_vars, 
-					 user_input_for_model_output=user_optmize_input, 
-					 cycle_vars_user_check=cycle_vars_user_check, 
-					 minimum_feature_count_for_var_cycle=minimum_feature_count_for_var_cycle,
-					 database_name=database_name, table_name=table_name, db_location_base=db_location_base,
-					 write_to_db=write_to_db, normalize_columns_array=normalize_columns_array,
-					 rolling_averages_dict=rolling_averages_dict)
+					param_dict_logistic=logistic_regression_params, 
+					param_dict_decision_tree=decision_tree_params, 
+					param_dict_neural_network=nnl_params, 
+					param_dict_logistic_array=logistic_regression_array_vars, 
+					param_dict_decision_tree_array=decision_tree_array_vars, 
+					param_dict_neural_network_array=neural_net_array_vars, 
+					user_input_for_model_output=user_optmize_input, 
+					cycle_vars_user_check=cycle_vars_user_check, 
+					minimum_feature_count_for_var_cycle=minimum_feature_count_for_var_cycle,
+					database_name=database_name, table_name=table_name, db_location_base=db_location_base,
+					write_to_db=write_to_db, normalize_columns_array=normalize_columns_array,
+					rolling_averages_dict=rolling_averages_dict)
+"""
+# looking at data
+result = sample_instance._set_up_data_for_prob_predict()
+print(type(result))
+print(result.dataframe.isnull().count())
+print(result.dataframe.dtypes)
+print('_______________')
+"""
+# need to convert date into category types and then drop date
+model = sample_instance.user_full_model()
+for k,v in model.items():
+	#print(k)
+	for kk, vv in v.items():
+		print(k)
+		print(kk)
+		print(vv)
+		print('_______________________________')
+
+"""
 results = sample_instance.user_full_model()
 print('made to end')
 #print(results)
@@ -171,7 +194,15 @@ for k,v in results.items():
 		print(kk)
 		print(vv)
 		print('_______________________________')
-
+"""
+# checking out data
+"""
+print(df.shape)
+print(df.isnull().count())
+df.dropna(inplace=True)
+print(df.shape)
+print(df.isnull().count())
+"""
 """
 needs to be done next
 3. set the binary reults of yes or no to account for a future date

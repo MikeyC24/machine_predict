@@ -143,6 +143,7 @@ class ArrangeData:
 				x = df[column]
 				y = df['shifted'] = x.shift(-1)
 				df['MA_' + str(period) + '_' + str(column)] = y.rolling(window =period).mean()
+				#df.drop('shifted')
 		return df
 
 	# returns a new column with the rolling std for the column
@@ -313,6 +314,11 @@ class ArrangeData:
 		df['Datetime'] = pd.to_datetime(x, unit='s')
 		df.index=df['Datetime']
 		return df
+
+	def format_non_unix_date(self, date_column):
+		df = self.dataframe
+		df[date_column] = pd.to_datetime(df[date_column])
+		return df 
 
 	# return a dataframe with new columns based on time intervals
 	# old column is the sample you want to use

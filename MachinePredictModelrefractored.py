@@ -55,7 +55,8 @@ class MachinePredictModel:
 		self.training_percent = training_percent
 		self.kfold_number = kfold_number
 		self.target_col_name = target_col_name
-		self.date_unix = date_unix = kwargs.get('date_unix', None)
+		self.date_unix  = kwargs.get('date_unix', None)
+		self.format_human_date = kwargs.get('format_human_date', None)
 		self.time_interval_check = kwargs.get('time_interval_check', None)
 		self.normalize_columns_array = kwargs.get('normalize_columns_array', None)
 		self.time_period_returns_dict = kwargs.get('time_period_returns_dict', None)
@@ -105,6 +106,8 @@ class MachinePredictModel:
 		# if not none creates timedate
 		if self.date_unix is not None:
 			model_dataframe.format_unix_date(self.date_unix)
+		if self.format_human_date is not None:
+			model_dataframe.format_non_unix_date(self.format_human_date)
 		# this takes in an array, column name of date is first, then 1 to 
 		# make new rows of the units separted by y,m,d,h,m,s,ms
 		# array must have 2 variables 
@@ -126,18 +129,24 @@ class MachinePredictModel:
 		# freq and returns new columns based on name of given time period return
 		if self.time_period_returns_dict is not None:
 			model_dataframe.time_period_returns_dict(self.time_period_returns_dict)
-		if self.cols_to_drop is not None:
-			if self.cols_to_drop[0] in model_dataframe.return_col_values():
+		#if self.cols_to_drop is not None:
+		#	if self.cols_to_drop[0] in model_dataframe.return_col_values():
 			# this is now working however this is the only equation below that
 			# returns the class instance itself instead of a dataframe
-				model_dataframe.drop_columns_return_self(self.cols_to_drop)
+				#model_dataframe.drop_columns_return_self(self.cols_to_drop)
 		if self.target_change_bin_dict is not None:
 			#model_dataframe.set_binary(self.col_to_make_target, self.target_col_name, self.target_amount)
 			model_dataframe.set_binary_from_dict(self.target_change_bin_dict)
 		if self.set_multi_class is not None:
 			model_dataframe.set_multi_class_array(self.set_multi_class)
+		if self.cols_to_drop is not None:
+			if self.cols_to_drop[0] in model_dataframe.return_col_values():
+			# this is now working however this is the only equation below that
+			# returns the class instance itself instead of a dataframe
+				model_dataframe.drop_columns_return_self(self.cols_to_drop)
 		if self.drop_nan_rows == 'yes':
 			model_dataframe.drop_nan_values()
+		self.columns_all = model_dataframe.dataframe.columns.values
 		model_dataframe.overall_data_display(8)
 		return model_dataframe
 		# everything above is setting up data, more still needs to be added
@@ -166,10 +175,37 @@ class MachinePredictModel:
 
 	# # take in df of cleaned model, return features, target, train and test data in dict
 	def _set_up_data_for_models_test(self, columns_all):
+		print('cols in setting up data',self.columns_all)
+		print('not self columns all', columns_all)
 		model_dataframe = self._set_up_data_for_prob_predict()
+		print('model_dataframe after first call of set up data', type(model_dataframe))
+		print(model_dataframe.dataframe.columns.values)
 		data_model_dict = {}
 		model_dataframe.shuffle_rows()
 		x_y_vars = model_dataframe.set_features_and_target1(columns_all, self.target_col_name)
+		data_model_dict['features'] = x_y_vars[0]
+		data_model_dict['target'] = x_y_vars[1]
+		# set up training and testing data
+		vars_for_train_test = model_dataframe.create_train_and_test_data_x_y_mixer(self.training_percent, data_model_dict['features'],data_model_dict['target'])
+		data_model_dict['X_train'] = vars_for_train_test[0]
+		data_model_dict['y_train'] = vars_for_train_test[1]
+		data_model_dict['X_test'] = vars_for_train_test[2]
+		data_model_dict['y_test'] = vars_for_train_test[3]
+		return data_model_dict
+
+	# made a new one for non cycle vars, above needs to be fixed for
+	# var cycle
+	# # take in df of cleaned model, return features, target, train and test data in dict
+	def _set_up_data_for_models_test_non_cycle(self, columns_all):
+		print('cols in setting up data',self.columns_all)
+		print('not self columns all', columns_all)
+		model_dataframe = self._set_up_data_for_prob_predict()
+		print('model_dataframe after first call of set up data', type(model_dataframe))
+		print(model_dataframe.dataframe.columns.values)
+		self.columns_all = model_dataframe.dataframe.columns.values
+		data_model_dict = {}
+		model_dataframe.shuffle_rows()
+		x_y_vars = model_dataframe.set_features_and_target1(self.columns_all, self.target_col_name)
 		data_model_dict['features'] = x_y_vars[0]
 		data_model_dict['target'] = x_y_vars[1]
 		# set up training and testing data
@@ -232,7 +268,7 @@ class MachinePredictModel:
 	# should be easy to implment as the return_desired_user_output_from_dict method
 	# should work find on this and would just need some if statements
 	def user_output_model(self):
-		data = self._set_up_data_for_models_test(self.columns_all) 
+		data = self._set_up_data_for_models_test_non_cycle(self.columns_all) 
 		# start prediction instace 
 		predictions_instance = RegressionCombined(data['features'], data['target'], self.kfold_dict, data['X_train'], data['X_test'], data['y_train'], data['y_test'],param_dict_logistic=self.param_dict_logistic, param_dict_decision_tree=self.param_dict_decision_tree, param_dict_neural_network=self.param_dict_neural_network, user_input_for_model_output=self.user_input_for_model_output,param_dict_logistic_array=self.param_dict_logistic_array, param_dict_decision_tree_array=self.param_dict_decision_tree_array, param_dict_neural_network_array=self.param_dict_neural_network_array)
 		output = predictions_instance.classification_unifying_model()

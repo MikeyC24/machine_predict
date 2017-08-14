@@ -9,15 +9,15 @@ end_date = '1502110800'
 #database_name = 'pol_db_class_2gether_two'
 # start date weekend
 # July first
-start_wke = '1501704000'
+start_wke = '1498867200'
 #end weekend
-# August 1st
-end_wke = '1502539200'
+# August 11
+end_wke = '1502409600'
 time_interval_delta_measure = 'h'
 time_interval_delta_amount = 3
 top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
 # 2nd teir list USDT_XRP= ripple, Dash= USDT_DASH, Monero = USDT_XMR
-list_two_coins = 'USDT_XRP', 'USDT_DASH', 'USDT_XMR'
+list_two_coins = ['USDT_XRP', 'USDT_DASH', 'USDT_XMR']
 coin_name_end = ''
 ## datbase clas vars
 db_name = 'coin_months_data'
@@ -27,7 +27,7 @@ columns_wanted_array = ['globalTradeID', 'date_time_added_to_db', 'coin_name', '
 columns_wanted_array1 = ['coin_name', 'date', 'rate', 'amount', 'total']
 time_interval10 = '10Min'
 write_to_db = 'yes'
-write_to_db_tablename = 'BTC_LTC_ETH_August_2_17_august_10_17'
+write_to_db_tablename = 'second_coin_list_two'
 # here is where this db starts again
 #start 2017-07-20 20:00:00 1500595200
 #end 2017-07-20 21:00:00 1500598800
@@ -49,14 +49,18 @@ write_to_db_tablename = 'BTC_LTC_ETH_August_2_17_august_10_17'
 # this is working for getting new data
 data_class = DatabaseFull(location_base)
 print('___________________________________')
-#result = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 6,
-#					top_3_coin_list, db_name, coin_name_end,
-#					db_name, table_name_array, columns_wanted_array1, time_interval10,
-#					write_to_db, write_to_db_tablename)
+result = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 6,
+					top_3_coin_list, db_name, coin_name_end,
+					db_name, table_name_array, columns_wanted_array1, time_interval10,
+					write_to_db, write_to_db_tablename)
+for data in result:
+	print('______________')
+	print(data)
 # info for appending databases
 # table name 1 = BTC_LTC_ETH_July_2017
 # 2 = BTC_LTC_ETH_July_21_2017_august_10_17
 
+"""
 combine_array = ['BTC_LTC_ETH_July_2017', 'BTC_LTC_ETH_July_21_2017_august_10_17']
 combine_date = None
 write_new_db_to_sql= 'yes'
@@ -67,7 +71,7 @@ new_combined_table = data_class.append_dataframes_dict(db_name, combine_array_di
 print('______________________________')
 print('made to end')
 print(new_combined_table)
-
+"""
 
 """
 # this was for building mins and maxes
