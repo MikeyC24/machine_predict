@@ -141,8 +141,8 @@ class ArrangeData:
 				print('period',rolling_average_dict[column][x])
 				period = rolling_average_dict[column][x]
 				x = df[column]
-				y = df['shifted'] = x.shift(-1)
-				df['MA_' + str(period) + '_' + str(column)] = y.rolling(window =period).mean()
+				#y = df['shifted'] = x.shift(-1)
+				df['MA_' + str(period) + '_' + str(column)] = x.shift(-1).rolling(window =period).mean()
 				#df.drop('shifted')
 		return df
 
@@ -329,19 +329,33 @@ class ArrangeData:
 		return df 
 
 	# array needs to contain at these positions
-	# 0 = date column
-	# 1 = timezone
+	# 0 = date column, 1 = timezone, return_hour =can be true or false
 	def convert_date_to_cats_for_class(self, array_vars):
 		df = self.dataframe
 		date_column = array_vars[0]
 		timezone =array_vars[1]
+		return_hour = array_vars[2]
 		#df[date_column] = df[date_column].apply(lambda x : x.tz_localize('UTC').tz_convert(timezone))
 		df[date_column] = df[date_column].apply(lambda x : x.tz_convert(timezone)) 
 		df[('days_of_week_'+timezone).replace('/', '_')]  = df[date_column].dt.weekday_name
 		df['hour'] = df[date_column].apply(lambda x: x.hour)
+		#df['part_of_day'] = 0
+		mask = df['hour'] < 4
+		mask2 = (df['hour'] >= 4) & (df['hour'] < 8 )
+		mask3 = (df['hour'] >= 8) & (df['hour'] < 12)
+		mask4 = (df['hour'] >= 12) & (df['hour'] < 16)
+		mask5 = (df['hour'] >= 16) & (df['hour'] < 20)
+		mask6 = df['hour'] >= 20
+		df.loc[mask, ('part_of_day' + timezone).replace('/', '_')] = 'middle_of_night'
+		df.loc[mask2, ('part_of_day' + timezone).replace('/', '_')] = 'early_morning'
+		df.loc[mask3, ('part_of_day' + timezone).replace('/', '_')] = 'morning'
+		df.loc[mask4, ('part_of_day' + timezone).replace('/', '_')] = 'afternoon'
+		df.loc[mask5, ('part_of_day' + timezone).replace('/', '_')] = 'evening'
+		df.loc[mask6, ('part_of_day' + timezone).replace('/', '_')] = 'night'
+		df = df.drop(['hour'], axis=1, inplace=True) if return_hour == True else df
 		return df
 
-	# return a dataframe with new columns based on time intervals
+	# return a dataframe with  columns based on time intervals
 	# old column is the sample you want to use
 	# new column is the new name, frew is one letter, m,d,w,
 	# how can be mean or sum or similar 

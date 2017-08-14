@@ -122,7 +122,7 @@ target = 'rate_USDT_ETH_change_binary'
 array_for_format_non_unix_date = ['date','%Y-%m-%d %H:%M:%S', 'UTC' ]
 format_human_date = ['date', '%Y-%m-%d %H:%M:%S', 'UTC'] 
 #format_human_date = None
-convert_date_to_cats_for_class = ['date', 'US/Eastern']
+convert_date_to_cats_for_class = ['date', 'US/Eastern', True]
 #convert_date_to_cats_for_class = None
 set_multi_class = None
 random_state = 1
@@ -177,7 +177,9 @@ print(result.dataframe.isnull().count())
 print(result.dataframe.columns.values)
 print(result.dataframe.dtypes)
 print('_______________')
-result.overall_data_display(10)
+df =result.dataframe
+print(df['rate_USDT_BTC'].shape[0])
+#result.overall_data_display(10)
 
 #print(result.dataframe['date'])
 """
