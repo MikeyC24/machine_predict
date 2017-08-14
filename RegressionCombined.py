@@ -18,9 +18,9 @@ from sklearn.linear_model import LogisticRegression, LinearRegression
 #from sklearn.cross_validation import cross_val_predict, KFold, StratifiedKFold
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import ParameterGrid, GridSearchCV
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import *
+from sklearn.model_selection import ParameterGrid, GridSearchCV, KFold
+from sklearn.model_selection import cross_val_score, cross_validate, StratifiedKFold
+#from sklearn.model_selection import *
 
 # notes need to add a roc area curve for kfold
 
@@ -140,7 +140,12 @@ class RegressionCombined:
 		train_method = self.user_input_for_model_output[2]
 		print(train_method)
 		model_list = self.user_input_for_model_output[3]
-		kfold = KFold()
+		if self.kfold_dict['stratified'] == 'no':
+			kfold = KFold(n_splits=self.kfold_dict['n_splits'],random_state=self.kfold_dict['random_state'],shuffle=self.kfold_dict['shuffle'])
+			kfold_type = 'KFold'
+		else:
+			kfold = StratifiedKFold(n_splits=self.kfold_dict['n_splits'],random_state=self.kfold_dict['random_state'],shuffle=self.kfold_dict['shuffle'])
+			kfold_type = 'StratifiedKFold'
 		#kfold = KFold(self.features.shape[0], n_folds=self.kfold_dict['n_splits'],random_state=self.kfold_dict['random_state'],shuffle=self.kfold_dict['shuffle'])
 		# look into if these if else stamtents can be turned into one line
 		if self.param_dict_logistic is None:
@@ -199,10 +204,15 @@ class RegressionCombined:
 				results = self._get_error_scores_with_tpr_fpr(self.target, predictions)
 				#dict_results_simple[str(x)[:15]] = results
 				scoring= ['accuracy', 'average_precision', 'f1', 'neg_log_loss', 
-				'recall_score', 'precision_score', 'roc_auc_score']
+				'recall', 'precision', 'roc_auc']
 				scores = cross_validate(x, self.features, self.target, cv=kfold, scoring=scoring)
 				#scores = cross_val_score(x, self.features, self.target, cv=kfold)
+				scores['kfold_type'] =kfold_type
 				dict_results_simple[str(x)[:15]] = scores
+				dict_scores = {}
+				for x in scores:
+					scores_val = cross_val_score(x, self.features, self.target, cv=kfold, scoing=x)
+					dict_scores[x]= [scores_val]
 				#return dict_results_simple
 		elif train_method == 'train':
 			for x in instance_array_classes:
