@@ -8,7 +8,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.metrics import r2_score, accuracy_score, roc_auc_score
 from sklearn.metrics import roc_curve, auc,log_loss, precision_score
-from sklearn.cross_validation import KFold
+#from sklearn.cross_validation import KFold
 import matplotlib.pyplot as plt
 import operator
 from sklearn import preprocessing

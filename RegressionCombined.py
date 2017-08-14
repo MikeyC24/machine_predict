@@ -3,9 +3,10 @@ import numpy as np
 import datetime
 import time
 from itertools import cycle
+from sklearn.metrics import *
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.metrics import r2_score, accuracy_score, roc_auc_score
-from sklearn.metrics import roc_curve, auc,log_loss, precision_score
+from sklearn.metrics import roc_curve, auc,log_loss, precision_score, confusion_matrix
 import matplotlib.pyplot as plt
 import operator
 # read this of above http://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range
@@ -14,10 +15,12 @@ from scipy import interp
 import math
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.cross_validation import cross_val_predict, KFold, StratifiedKFold
+#from sklearn.cross_validation import cross_val_predict, KFold, StratifiedKFold
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import ParameterGrid, GridSearchCV
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import *
 
 # notes need to add a roc area curve for kfold
 
@@ -137,7 +140,8 @@ class RegressionCombined:
 		train_method = self.user_input_for_model_output[2]
 		print(train_method)
 		model_list = self.user_input_for_model_output[3]
-		kfold = KFold(self.features.shape[0], n_folds=self.kfold_dict['n_splits'],random_state=self.kfold_dict['random_state'],shuffle=self.kfold_dict['shuffle'])
+		kfold = KFold()
+		#kfold = KFold(self.features.shape[0], n_folds=self.kfold_dict['n_splits'],random_state=self.kfold_dict['random_state'],shuffle=self.kfold_dict['shuffle'])
 		# look into if these if else stamtents can be turned into one line
 		if self.param_dict_logistic is None:
 			print('used default params for logistic regression')
@@ -193,7 +197,12 @@ class RegressionCombined:
 				instance = x.fit(self.features, self.target)
 				predictions = x.predict(self.features)
 				results = self._get_error_scores_with_tpr_fpr(self.target, predictions)
-				dict_results_simple[str(x)[:15]] = results
+				#dict_results_simple[str(x)[:15]] = results
+				scoring= ['accuracy', 'average_precision', 'f1', 'neg_log_loss', 
+				'recall_score', 'precision_score', 'roc_auc_score']
+				scores = cross_validate(x, self.features, self.target, cv=kfold, scoring=scoring)
+				#scores = cross_val_score(x, self.features, self.target, cv=kfold)
+				dict_results_simple[str(x)[:15]] = scores
 				#return dict_results_simple
 		elif train_method == 'train':
 			for x in instance_array_classes:
@@ -218,7 +227,8 @@ class RegressionCombined:
 					X_train, X_test = self.features.iloc[train_index], self.features.iloc[test_index]
 					y_train, y_test = self.target.iloc[train_index], self.target.iloc[test_index]
 					instance = x.fit(self.features, self.target)
-					predictions = x.predict(X_test)
+					predictions = instance.predict(X_test)
+					#cnf_maxtrix = confusion_matrix(y_test, predictions)
 					mse = mean_squared_error(y_test, predictions)
 					variance = np.var(predictions)
 					mae = mean_absolute_error(y_test, predictions)
@@ -252,7 +262,16 @@ class RegressionCombined:
 				dict['ave_var'] = np.mean(variance_values)
 				dict['tpr'] = np.mean(true_positive_rate)
 				dict['fpr'] = np.mean(false_positive_rate)
+				freq = self.score_model['freq'][0]
+				shift_back = self.score_model['shift']
+				value_mark = self.score_model['value_mark']
+				dict['was_shifted'] = shift_back
+				dict['freq_per_for_binary'] = freq
+				dict['value_used_for_binary'] = value_mark
+				cnf_maxtrix = confusion_matrix(y_test, predictions)
+				dict['confusion_matrix'] = cnf_maxtrix
 				#dict_results_kfold[instance_array_names[y]] = dict
+				# http://scikit-learn.org/stable/modules/model_evaluation.html
 				dict_results_kfold[str(x)[:15]] = dict
 		else:
 			print('none of those data training methods are supported')
@@ -274,6 +293,7 @@ class RegressionCombined:
 		#print(self.param_dict_logistic_array)
 		#print(self.param_dict_decision_tree_array)
 		#print(self.param_dict_neural_network_array)
+		# check this for scores on http://scikit-learn.org/stable/auto_examples/model_selection/plot_multi_metric_evaluation.html#sphx-glr-auto-examples-model-selection-plot-multi-metric-evaluation-py
 		if 'LogisticRegress' in model_list:
 			print('doing log regress')
 			clf = GridSearchCV(reg, self.param_dict_logistic_array)
