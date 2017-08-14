@@ -153,7 +153,7 @@ db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
 rolling_averages_dict = {'rate_USDT_LTC':[6,24], 'rate_USDT_BTC':[6,24]}
-# sample instance has all vars above in it
+# sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
 					cols_to_drop=columns_to_drop, set_multi_class=set_multi_class, 
