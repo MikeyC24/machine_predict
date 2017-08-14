@@ -67,7 +67,9 @@ class MachinePredictModel:
 		#self.col_to_make_target = kwargs.get('col_to_make_target', None)
 		self.target_amount = kwargs.get('target_amount', None)
 		self.set_multi_class = kwargs.get('set_multi_class', None)
+		self.columns_to_convert_to_dummy = kwargs.get('columns_to_convert_to_dummy', None)
 		self.convert_unix_to_human_date = kwargs.get('convert_unix_to_human_date', None)
+		self.convert_all_to_numeric = kwargs.get('convert_all_to_numeric', None)
 		self.kfold_dict = kwargs.get('kfold_dict', None)
 		self.param_dict_logistic = kwargs.get('param_dict_logistic', None)
 		self.param_dict_decision_tree = kwargs.get('param_dict_decision_tree', None)
@@ -149,6 +151,10 @@ class MachinePredictModel:
 				model_dataframe.drop_columns_return_self(self.cols_to_drop)
 		if self.drop_nan_rows == 'yes':
 			model_dataframe.drop_nan_values()
+		if self.columns_to_convert_to_dummy is not None:
+			model_dataframe.dummy_variables_from_array(self.columns_to_convert_to_dummy)
+		if self.convert_all_to_numeric == 'yes':
+			model_dataframe.convert_to_num()
 		self.columns_all = model_dataframe.dataframe.columns.values
 		model_dataframe.overall_data_display(8)
 		return model_dataframe

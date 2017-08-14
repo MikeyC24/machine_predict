@@ -1,4 +1,5 @@
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 import numpy as np
 import datetime
 import time
@@ -290,7 +291,22 @@ class ArrangeData:
 			return df
 		else: 
 			return dummy_var
-	
+
+	def dummy_variables_from_array(self, columns_array):
+		df = self.dataframe
+		print('made it to dummary vars', columns_array)
+		prefix = 'dummy_var_'
+		for column_name in columns_array:
+			df[column_name] = pd.Categorical(df[column_name])
+			df[column_name] = df[column_name].cat.codes
+			#df[column_name] = df[column_name].astype('category')
+			#df[column_name] = df[column_name].apply(lambda x: x.cat.codes)
+			#df[column_name] = pd.get_dummies(df[column_name])
+			#print('dummy var', dummy_var)
+			#df = pd.concat([df, dummy_var], join='inner')
+		return df 
+
+		
 	# normalize numerical data columns
 	# good for mahcine learning and/or
 	# different data sets have very large ranges
@@ -346,12 +362,12 @@ class ArrangeData:
 		mask4 = (df['hour'] >= 12) & (df['hour'] < 16)
 		mask5 = (df['hour'] >= 16) & (df['hour'] < 20)
 		mask6 = df['hour'] >= 20
-		df.loc[mask, ('part_of_day' + timezone).replace('/', '_')] = 'middle_of_night'
-		df.loc[mask2, ('part_of_day' + timezone).replace('/', '_')] = 'early_morning'
-		df.loc[mask3, ('part_of_day' + timezone).replace('/', '_')] = 'morning'
-		df.loc[mask4, ('part_of_day' + timezone).replace('/', '_')] = 'afternoon'
-		df.loc[mask5, ('part_of_day' + timezone).replace('/', '_')] = 'evening'
-		df.loc[mask6, ('part_of_day' + timezone).replace('/', '_')] = 'night'
+		df.loc[mask, ('part_of_day_' + timezone).replace('/', '_')] = 'middle_of_night'
+		df.loc[mask2, ('part_of_day_' + timezone).replace('/', '_')] = 'early_morning'
+		df.loc[mask3, ('part_of_day_' + timezone).replace('/', '_')] = 'morning'
+		df.loc[mask4, ('part_of_day_' + timezone).replace('/', '_')] = 'afternoon'
+		df.loc[mask5, ('part_of_day_' + timezone).replace('/', '_')] = 'evening'
+		df.loc[mask6, ('part_of_day_' + timezone).replace('/', '_')] = 'night'
 		df = df.drop(['hour'], axis=1, inplace=True) if return_hour == True else df
 		return df
 
@@ -423,10 +439,14 @@ class ArrangeData:
 			self.dataframe.drop([x], axis = 1, inplace=True)
 		return self
 
-	def convert_to_num(self, columns):
-		pass
-		# get ride of all non num with regex .str.rstrip('%').
-		#convert to num astype('float')
+	def convert_to_num(self):
+		df = self.dataframe
+		for column in df.columns.values:
+			if is_numeric_dtype(df[column]) == False:
+				df[column] = pd.to_numeric(df[column])
+		return df
+
+
 
 	# makes a new column with 1s when ma1 is higher than ma2
 	# also can be looked at when ma1 passes ma2 

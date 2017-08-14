@@ -1,6 +1,7 @@
 from MachinePredictModelrefractored import *
 from DatabaseFunctionality import *
 from polniex_api_class import *
+from pandas.api.types import is_numeric_dtype
 """
 file_location = '/home/mike/Documents/coding_all/machine_predict/hour.csv'
 df_bike = pd.read_csv(file_location)
@@ -103,7 +104,7 @@ df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 drop_nan_rows = 'yes'
 #columns_to_drop = None
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
-'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change']
+'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change', 'date']
 # columns all before any editing 
 columns_all_init = ['date']
 # took date out of colums_all
@@ -116,13 +117,16 @@ columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC',
 #'trade_count_USDT_BTC', 'rate_USDT_LTC', 'amount_USDT_LTC',
 #'total_USDT_LTC', 'trade_count_USDT_LTC',] 
 normalize_columns_array = None
-time_period_returns_dict = {'column_name_old':['rate_USDT_ETH'], 'column_name_new':['rate_USDT_ETH_change'], 'freq':[1]}
+time_period_returns_dict = {'column_name_old':['rate_USDT_ETH'], 'column_name_new':['rate_USDT_ETH_change'], 'freq':[6]}
 create_target_dict = {'column_name_old':['rate_USDT_ETH_change'], 'column_name_new':['rate_USDT_ETH_change_binary'], 'value':[.005]}
 target = 'rate_USDT_ETH_change_binary'
 array_for_format_non_unix_date = ['date','%Y-%m-%d %H:%M:%S', 'UTC' ]
 format_human_date = ['date', '%Y-%m-%d %H:%M:%S', 'UTC'] 
 #format_human_date = None
 convert_date_to_cats_for_class = ['date', 'US/Eastern', True]
+convert_all_to_numeric = 'no'
+columns_to_convert_to_dummy = ['days_of_week_US_Eastern', 'part_of_day_US_Eastern']
+#columns_to_convert_to_dummy = None
 #convert_date_to_cats_for_class = None
 set_multi_class = None
 random_state = 1
@@ -139,7 +143,7 @@ model_score_dict_nnl = {'MLPClassifier(a':{'roc_auc_score':[.03,1], 'precision':
 model_score_dict_log = {'LogisticRegress':{'roc_auc_score':[.55,1], 'precision':[.4,1], 'significant_level':.05, 'sensitivity':[.8,1], 'fallout_rate':[0,.4]}}
 model_score_dict_tree = {'DecisionTreeCla':{'roc_auc_score':[.055,1], 'precision':[.06,1], 'significant_level':.05, 'sensitivity':[.06,1], 'fallout_rate':[0,.5]}}
 model_score_dict_log_tree = {'DecisionTreeCla':{'roc_auc_score':[.55,1], 'precision':[.6,1], 'significant_level':.05, 'sensitivity':[.5,1], 'fallout_rate':[0,.4]},'LogisticRegress':{'roc_auc_score':[.55,1], 'precision':[.6,1], 'significant_level':.05, 'sensitivity':[.6,1], 'fallout_rate':[0,.3]}}
-user_optmize_input = ['class', 'constant', 'train', model_score_dict_all]
+user_optmize_input = ['class', 'optimize', 'train', model_score_dict_all]
 decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced'], 'random_state':[random_state]}
 logistic_regression_array_vars = {'penalty':['l1','l2'], 'tol':[0.0001, .001, .01], 'C':[.02,1.0,2], 'fit_intercept':[True], 'intercept_scaling':[.1,1,2], 'class_weight':[None, 'balanced'], 'solver':['liblinear'], 'max_iter':[10,100,200], 'n_jobs':[1], 'random_state':[random_state]}
 neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['relu', 'logistic', 'tanh', 'identity'], 'solver':['adam', 'lbfgs', 'sgd'], 'alpha':[0.0001], 'batch_size':['auto'], 'learning_rate':['constant', 'invscaling', 'adaptive'], 'learning_rate_init':[0.001], 'power_t':[0.5], 'max_iter':[50], 'shuffle':[True, False], 'tol':[0.0001], 'verbose':[False], 'warm_start':[False, True], 'momentum':[.1,0.9], 'nesterovs_momentum':[True], 'early_stopping':[True], 'validation_fraction':[0.1], 'beta_1':[0.9], 'beta_2':[0.999], 'epsilon':[1e-08], 'random_state':[random_state]}
@@ -148,7 +152,7 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = {'rate_USDT_LTC':[5,10], 'rate_USDT_BTC':[5,10]}
+rolling_averages_dict = {'rate_USDT_LTC':[6,24], 'rate_USDT_BTC':[6,24]}
 # sample instance has all vars above in it
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -156,6 +160,8 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					target_change_bin_dict=create_target_dict, kfold_dict=kfold_dict,
 					format_human_date = format_human_date,
 					convert_date_to_cats_for_class=convert_date_to_cats_for_class,
+					convert_all_to_numeric=convert_all_to_numeric,
+					columns_to_convert_to_dummy=columns_to_convert_to_dummy,
 					time_period_returns_dict=time_period_returns_dict,
 					param_dict_logistic=logistic_regression_params, 
 					param_dict_decision_tree=decision_tree_params, 
@@ -170,6 +176,7 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					write_to_db=write_to_db, normalize_columns_array=normalize_columns_array,
 					rolling_averages_dict=rolling_averages_dict)
 
+"""
 # looking at data
 result = sample_instance._set_up_data_for_prob_predict()
 print(type(result))
@@ -179,11 +186,15 @@ print(result.dataframe.dtypes)
 print('_______________')
 df =result.dataframe
 print(df['rate_USDT_BTC'].shape[0])
-#result.overall_data_display(10)
-
-#print(result.dataframe['date'])
+#print(df['part_of_day_US_Eastern'].isnumeric())
+print(is_numeric_dtype(df['rate_USDT_BTC']))
+print(is_numeric_dtype(df['part_of_day_US_Eastern']))
+print(df['part_of_day_US_Eastern'].dtype.kind)
+print(df['part_of_day_US_Eastern'].unique())
+print(df['days_of_week_US_Eastern'].unique())
+print(df[df['rate_USDT_ETH_change_binary']==1].count())
 """
-# need to convert date into category types and then drop date
+
 model = sample_instance.user_full_model()
 for k,v in model.items():
 	#print(k)
@@ -192,7 +203,7 @@ for k,v in model.items():
 		print(kk)
 		print(vv)
 		print('_______________________________')
-"""
+
 """
 results = sample_instance.user_full_model()
 print('made to end')

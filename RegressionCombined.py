@@ -194,6 +194,7 @@ class RegressionCombined:
 				instance = x.fit(self.X_train, self.y_train)
 				predictions = x.predict(self.X_test)
 				results = self._get_error_scores_with_tpr_fpr(self.y_test, predictions)
+				results['vars'] = str(self.X_train.columns.values)
 				dict_results_train_set[str(x)[:15]] = results
 				#dict_results_train_set[str(x)[:15]] = results
 		elif train_method == 'kfold':
