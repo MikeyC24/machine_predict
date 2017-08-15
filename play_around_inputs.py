@@ -106,15 +106,15 @@ drop_nan_rows = 'yes'
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
 'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change', 'date']
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
-'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 
-'date', 'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC']
+'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'date',
+ 'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC']
 # columns all before any editing 
 columns_all_init = ['date']
 # took date out of colums_all
 columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 'trade_count_USDT_BTC', 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'rate_USDT_ETH', 
 'rate_USDT_LTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'trade_count_USDT_LTC', 
-'max_rate_USDT_LTC', 'max_rate_USDT_LTC', 'rate_USDT_ETH_binary']
+'max_rate_USDT_LTC', 'max_rate_USDT_LTC', 'rate_USDT_ETH_binary', 'date']
 #columns_all_test = ['workingday','temp', 'cnt_binary', 'hr_new']
 #normalize_columns_array = ['rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 #'trade_count_USDT_BTC', 'rate_USDT_LTC', 'amount_USDT_LTC',
@@ -137,6 +137,8 @@ columns_to_convert_to_dummy = ['days_of_week_US_Eastern', 'part_of_day_US_Easter
 #columns_to_convert_to_dummy = None
 #convert_date_to_cats_for_class = None
 normalize_numerical_columns = 'no'
+#cat_rows_for_time_delta = ['date', 6, True]
+cat_rows_for_time_delta = None
 set_multi_class = None
 random_state = 1
 training_percent = .75
@@ -144,7 +146,7 @@ kfold_number = 10
 cycle_vars_user_check = 'no'
 minimum_feature_count_for_var_cycle = 4
 logistic_regression_params = {'penalty':'l2', 'dual':False, 'tol':0.0001, 'C':1.0, 'fit_intercept':True, 'intercept_scaling':1, 'class_weight':'balanced', 'random_state':random_state, 'solver':'liblinear', 'max_iter':100, 'multi_class':'ovr', 'verbose':0, 'warm_start':False, 'n_jobs':1}
-decision_tree_params = {'criterion':'gini', 'splitter':'best', 'max_depth':None, 'min_samples_split':4, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':None, 'random_state':random_state, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
+decision_tree_params = {'criterion':'entropy', 'splitter':'best', 'max_depth':10, 'min_samples_split':8, 'min_samples_leaf':1, 'min_weight_fraction_leaf':0.0, 'max_features':'auto', 'random_state':random_state, 'max_leaf_nodes':None, 'min_impurity_split':1e-07, 'class_weight':'balanced', 'presort':False}
 nnl_params = {'hidden_layer_sizes':(10, ), 'activation':'relu', 'solver':'adam', 'alpha':0.0001, 'batch_size':'auto', 'learning_rate':'constant', 'learning_rate_init':0.001, 'power_t':0.5, 'max_iter':200, 'shuffle':True, 'tol':0.0001, 'verbose':False, 'warm_start':False, 'momentum':0.9, 'nesterovs_momentum':True, 'early_stopping':False, 'validation_fraction':0.1, 'beta_1':0.9, 'beta_2':0.999, 'epsilon':1e-08, 'random_state':random_state}
 kfold_dict = {'n_splits':10, 'random_state':random_state, 'shuffle':False, 'stratified':'yes'}
 model_score_dict_all = {'LogisticRegress':{'roc_auc_score':[.03,1], 'precision':[.06,1], 'significant_level':.05, 'sensitivity':[.85,1], 'fallout_rate':[0,.3]}, 'DecisionTreeCla':{'roc_auc_score':[.03,1], 'precision':[.06,1], 'significant_level':.05, 'sensitivity':[.06,1], 'fallout_rate':[0,.5]}, 'MLPClassifier(a':{'roc_auc_score':[.03,1], 'precision':[.06,1], 'significant_level':.05, 'sensitivity':[.06,1], 'fallout_rate':[0,.5]}}
@@ -153,7 +155,7 @@ model_score_dict_log = {'LogisticRegress':{'roc_auc_score':[.55,1], 'precision':
 model_score_dict_tree = {'DecisionTreeCla':{'roc_auc_score':[.055,1], 'precision':[.06,1], 'significant_level':.05, 'sensitivity':[.06,1], 'fallout_rate':[0,.5]}}
 model_score_dict_log_tree = {'DecisionTreeCla':{'roc_auc_score':[.55,1], 'precision':[.6,1], 'significant_level':.05, 'sensitivity':[.5,1], 'fallout_rate':[0,.4]},'LogisticRegress':{'roc_auc_score':[.55,1], 'precision':[.6,1], 'significant_level':.05, 'sensitivity':[.6,1], 'fallout_rate':[0,.3]}}
 user_optmize_input = ['class', 'constant', 'simple', model_score_dict_all]
-decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':[None, 'balanced'], 'random_state':[random_state]}
+decision_tree_array_vars = { 'criterion':['gini', 'entropy'], 'splitter':['best', 'random'], 'max_features': [None, 'auto', 'sqrt', 'log2'], 'max_depth':[2,10], 'min_samples_split':[3,50,100], 'min_samples_leaf':[1,3,5], 'class_weight':['balanced'], 'random_state':[random_state]}
 logistic_regression_array_vars = {'penalty':['l1','l2'], 'tol':[0.0001, .001, .01], 'C':[.02,1.0,2], 'fit_intercept':[True], 'intercept_scaling':[.1,1,2], 'class_weight':[None, 'balanced'], 'solver':['liblinear'], 'max_iter':[10,100,200], 'n_jobs':[1], 'random_state':[random_state]}
 neural_net_array_vars = {'hidden_layer_sizes':[(100, ),(50, )], 'activation':['relu', 'logistic', 'tanh', 'identity'], 'solver':['adam', 'lbfgs', 'sgd'], 'alpha':[0.0001], 'batch_size':['auto'], 'learning_rate':['constant', 'invscaling', 'adaptive'], 'learning_rate_init':[0.001], 'power_t':[0.5], 'max_iter':[50], 'shuffle':[True, False], 'tol':[0.0001], 'verbose':[False], 'warm_start':[False, True], 'momentum':[.1,0.9], 'nesterovs_momentum':[True], 'early_stopping':[True], 'validation_fraction':[0.1], 'beta_1':[0.9], 'beta_2':[0.999], 'epsilon':[1e-08], 'random_state':[random_state]}
 database_name = 'machine_predict_test_db'
@@ -161,7 +163,7 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = {'rate_USDT_LTC':[6,24,48,144,288], 'rate_USDT_BTC':[6,24,48,144,288]}
+rolling_averages_dict = {'rate_USDT_LTC':[6,24,48,144], 'rate_USDT_BTC':[6,24,48,144]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -174,6 +176,7 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					time_period_returns_dict=time_period_returns_dict,
 					normalize_numerical_columns=normalize_numerical_columns,
 					create_target_in_one=create_target_in_one,
+					cat_rows_for_time_delta=cat_rows_for_time_delta,
 					param_dict_logistic=logistic_regression_params, 
 					param_dict_decision_tree=decision_tree_params, 
 					param_dict_neural_network=nnl_params, 
@@ -190,7 +193,18 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 """
 # looking at data
 result = sample_instance._set_up_data_for_prob_predict()
-print(type(result))
+df = result.dataframe
+print(df)
+print(df['delta'].dtype)
+"""
+"""
+x = df['date']
+y = df['rate_USDT_BTC']
+plt.plot(x,y)
+plt.show()
+"""
+
+"""
 print(result.dataframe.isnull().count())
 print(result.dataframe.columns.values)
 print(result.dataframe.dtypes)
@@ -204,8 +218,8 @@ print(df['part_of_day_US_Eastern'].dtype.kind)
 print(df['part_of_day_US_Eastern'].unique())
 print(df['days_of_week_US_Eastern'].unique())
 print(df[df['rate_USDT_ETH_binary']==1].count())
-
 """
+
 model = sample_instance.user_full_model()
 
 for k,v in model.items():
@@ -220,9 +234,6 @@ for k,v in model.items():
 			print(k3)
 			print(v3)
 			print('_____________')
-		#plt.figure()
-		#plot_confusion_matrix(vv['confusion_matrix'])
-		#plt.show()
 
 """
 results = sample_instance.user_full_model()

@@ -349,6 +349,31 @@ class ArrangeData:
 			df[date_column] = df[date_column].apply(lambda x: x.tz_localize(timezone))
 		return df 
 
+	# 0 is date column 1 is shift periods, 
+	def cat_rows_for_time_delta(self, vars_array):
+		df = self.dataframe
+		date_column = vars_array[0]
+		shift_amount = vars_array[1]
+		drop = vars_array[2]
+		#df['value'] = (df[date_column]-df[date_column].shift(shift_amount)).fillna(0)
+		df['delta'] = df[date_column].apply(lambda x: (x - df[date_column][0]).days)
+		#df['delta'] = df[date_column].apply(lambda x: x / np.timedelta64(1, 'D')).astype('int64')
+		#df['diff'] = df['delta'].apply(lambda x: x.days)
+		mask = df['delta'] <=1 
+		mask2 = (df['delta'] > 1) & (df['delta'] < 2 )
+		mask3 = (df['delta'] >= 2) & (df['delta'] < 3)
+		mask4 = (df['delta'] >= 3) & (df['delta'] < 7)
+		mask5 = (df['delta'] >= 7) & (df['delta'] < 14)
+		mask6 = df['delta'] >= 14
+		df.loc[mask, 'delta'] = 1
+		df.loc[mask2, 'delta'] = 2
+		df.loc[mask3, 'delta'] = 3
+		df.loc[mask4, 'delta'] = 4
+		df.loc[mask5, 'delta'] = 5
+		df.loc[mask6, 'delta'] = 6
+		df = df.drop(['hour'], axis=1, inplace=True) if drop == 'True' else df
+		return df
+
 	# array needs to contain at these positions
 	# 0 = date column, 1 = timezone, return_hour =can be true or false
 	def convert_date_to_cats_for_class(self, array_vars):

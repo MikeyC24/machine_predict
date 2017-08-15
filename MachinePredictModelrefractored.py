@@ -93,6 +93,7 @@ class MachinePredictModel:
 		self.vars_to_return_from_db = kwargs.get('vars_to_return_from_db', None)
 		self.drop_nan_rows = kwargs.get('drop_nan_rows', None)
 		self.rolling_averages_dict = kwargs.get('rolling_averages_dict', None)
+		self.cat_rows_for_time_delta = kwargs.get('cat_rows_for_time_delta', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -138,6 +139,8 @@ class MachinePredictModel:
 			model_dataframe.time_period_returns_dict_and_set_binary(self.create_target_in_one)
 		if self.time_period_returns_dict is not None:
 			model_dataframe.time_period_returns_dict_with_shift(self.time_period_returns_dict)
+		if self.cat_rows_for_time_delta is not None:
+			model_dataframe.cat_rows_for_time_delta(self.cat_rows_for_time_delta)
 		#if self.cols_to_drop is not None:
 		#	if self.cols_to_drop[0] in model_dataframe.return_col_values():
 			# this is now working however this is the only equation below that
