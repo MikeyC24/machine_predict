@@ -9,10 +9,10 @@ end_date = '1502110800'
 #database_name = 'pol_db_class_2gether_two'
 # start date weekend
 # July first
-start_wke = '1498867200'
+start_wke = '1496275200'
 #end weekend
 # August 11
-end_wke = '1502409600'
+end_wke = '1498867200'
 time_interval_delta_measure = 'h'
 time_interval_delta_amount = 3
 top_3_coin_list = ['USDT_ETH', 'USDT_BTC', 'USDT_LTC']
@@ -27,7 +27,7 @@ columns_wanted_array = ['globalTradeID', 'date_time_added_to_db', 'coin_name', '
 columns_wanted_array1 = ['coin_name', 'date', 'rate', 'amount', 'total']
 time_interval10 = '10Min'
 write_to_db = 'yes'
-write_to_db_tablename = 'second_coin_list_two'
+write_to_db_tablename = '3_coin_list_june'
 # here is where this db starts again
 #start 2017-07-20 20:00:00 1500595200
 #end 2017-07-20 21:00:00 1500598800

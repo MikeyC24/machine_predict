@@ -297,7 +297,7 @@ class DatabaseFull:
 			df.to_sql(name=self.new_sql_table_name,con=con, if_exists='fail')
 		return df
 		
-	def append_dataframes_dict_loop:
+	def append_dataframes_dict_loop(self):
 		pass
 		# maybe pass two df equation into here
 		# just keep looping unil all combined

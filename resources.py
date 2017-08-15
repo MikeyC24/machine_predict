@@ -1,6 +1,7 @@
 1. algos in python
 2. iterate thru different classifiers
 3. good resourse on trading with ML
+4. normalizeing data for nual network
 """
 1. algos in python 
 https://github.com/TheAlgorithms/Python
@@ -131,4 +132,6 @@ plt.show()
 https://medium.com/@alexrachnog
 https://www.cs.princeton.edu/sites/default/files/uploads/saahil_madge.pdf 
 https://www.analyticsvidhya.com/blog/2016/02/time-series-forecasting-codes-python/
+
+4. https://visualstudiomagazine.com/articles/2013/07/01/neural-network-data-normalization-and-encoding.aspx
 """

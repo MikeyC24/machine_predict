@@ -11,10 +11,30 @@
 from MachinePredictModelrefractored import *
 from DatabaseFunctionality import *
 from keras.models import Sequential
-from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+from utils import *
+
+import pandas as pd
+import matplotlib.pylab as plt
+
+from keras.layers.core import Dense, Dropout, Activation, Flatten
+from keras.layers.recurrent import LSTM, GRU
+from keras.layers import Convolution1D, MaxPooling1D, AtrousConvolution1D, RepeatVector
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, CSVLogger
+from keras.layers.wrappers import Bidirectional
+from keras import regularizers
+from keras.layers.normalization import BatchNormalization
+from keras.layers.advanced_activations import *
+from keras.optimizers import RMSprop, Adam, SGD, Nadam
+from keras.initializers import *
+
+import seaborn as sns
+sns.despine()
+
+
 
 file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
 #df = pd.read_csv(file_location)
@@ -26,7 +46,10 @@ drop_nan_rows = 'yes'
 #columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
 #'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change', 'date']
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH',
- 'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'date']
+ 'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'date',
+ 'trade_count_USDT_LTC', 'max_rate_USDT_LTC','rate_USDT_BTC',
+ 'trade_count_USDT_BTC', 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'rate_USDT_LTC',
+ 'min_rate_USDT_LTC', ]
 # columns all before any editing 
 columns_all_init = ['date']
 # took date out of colums_all
@@ -40,7 +63,7 @@ columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC',
 #'total_USDT_LTC', 'trade_count_USDT_LTC',] 
 normalize_columns_array = None
 # these two became None because it was combined into one method and var
-#time_period_returns_dict = {'column_name_old':['rate_USDT_ETH'], 'column_name_new':['rate_USDT_ETH_change'], 'freq':[72], 'shift':'yes'}
+#time_period_returns_dict = {'column_name_old':['rate_USDT_ETH'], 'column_name_new':['rate_USDT_ETH_change'], 'freq':[1], 'shift':'no'}
 #create_target_dict = {'column_name_old':['rate_USDT_ETH_change'], 'column_name_new':['rate_USDT_ETH_change_binary'], 'value':[0]}
 time_period_returns_dict = None
 create_target_dict = None
@@ -82,7 +105,7 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = {'rate_USDT_LTC':[6,24,48,144], 'rate_USDT_BTC':[6,24,48,144], 'rate_USDT_ETH':[6,24,48,144]}
+rolling_averages_dict = { 'rate_USDT_ETH':[6,24]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -111,65 +134,180 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 
 result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
-#print(df.head(10))
-np.random.seed(random_state)
-#dataset = result.dataframe.values
-#print(type(dataset))
-#print(dataset)
-# normalize data
-df = df['rate_USDT_ETH'].tolist()
-df = df.astype('float32')
+print(df.columns.values)
 
-scaler = MinMaxScaler(feature_range=(0,1))
-df = scaler.fit_transform(df)
-print(df)
+#just with ETH vars
+#['rate_USDT_ETH' 'trade_count_USDT_ETH' 'min_rate_USDT_ETH'
+# 'max_rate_USDT_ETH' 'MA_6_rate_USDT_ETH' 'MA_24_rate_USDT_ETH']
 
-# ssetting up trainging dataset, veering off from program for now
+# adjusted change is based on 1 time period aka 10 minutes
+rate_USDT_ETH = df.ix[:,'rate_USDT_ETH'].tolist()
+trade_count_USDT_ETH = df.ix[:,'trade_count_USDT_ETH'].tolist()
+min_rate_USDT_ETH = df.ix[:,'min_rate_USDT_ETH'].tolist()
+max_rate_USDT_ETH = df.ix[:,'max_rate_USDT_ETH'].tolist()
+MA_6_rate_USDT_ETH = df.ix[:,'MA_6_rate_USDT_ETH'].tolist()
+MA_24_rate_USDT_ETH = df.ix[:,'MA_24_rate_USDT_ETH'].tolist()
+print(len(rate_USDT_ETH))
+print(type(rate_USDT_ETH))
 
-# split into train and test sets
-train_size = int(len(df) * 0.67)
-test_size = len(df) - train_size
-train, test = df[0:train_size,:], df[train_size:len(df),:]
-print(len(train), len(test))
+# vars
+WINDOW = 30
+EMB_SIZE = 6
+STEP = 1
+FORECAST = 1 
 
-# setting up lookback function to take data and predict next time period
-# in this case 1
-def create_dataset_for_lookback(dataset, lookback=1):
-	dataX, dataY = [], []
-	for i in range(len(dataset)-lookback-1):
-		a = dataset[i:(i+lookback), 0]
-		dataX.append(a)
-		dataY.append(dataset[i + lookback, 0])
-	return np.array(dataX), np.array(dataY)
+X, Y = [], []
+for i in range(0, df.shape[0], STEP): 
+	try:
+		rate = rate_USDT_ETH[i:i+WINDOW]
+		count = trade_count_USDT_ETH[i:i+WINDOW]
+		minr = min_rate_USDT_ETH[i:i+WINDOW]
+		maxr = max_rate_USDT_ETH[i:i+WINDOW]
+		MA6 = MA_6_rate_USDT_ETH[i:i+WINDOW]
+		MA24 = MA_24_rate_USDT_ETH[i:i+WINDOW]
 
-lookback=1
-trainX, trainY = create_dataset_for_lookback(train)
-testX, testY = create_dataset_for_lookback(test)
-#print(trainX)
-#print('_____________')
-#print(trainY)
-#reshape arrays so it is [samples, time steps, features]
-trainX = np.reshape(trainX, (trainX.shape[0],1, trainX.shape[1]))
-testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
-print(testX)
+		rate = (np.array(rate) - np.mean(rate)) / np.std(rate)
+		count = (np.array(count) - np.mean(count)) / np.std(count)
+		minr = (np.array(minr) - np.mean(minr)) / np.std(minr)
+		maxr = (np.array(maxr) - np.mean(maxr)) / np.std(maxr)
+		MA6  = (np.array(MA6) - np.mean(MA6 )) / np.std(MA6)
+		MA24  = (np.array(MA24) - np.mean(MA24)) / np.std(MA24)
 
-#create and fit the LTSM network
+		x_i = rate_USDT_ETH[i:i+WINDOW]
+		y_i = rate_USDT_ETH[i+WINDOW+FORECAST]  
+		print('x_i', x_i)
+
+		last_close = x_i[-1]
+		next_close = y_i
+		print('last close', last_close)
+		print('next close', next_close)
+		if last_close < next_close:
+			y_i = [1, 0]
+		else:
+			y_i = [0, 1] 
+		print('rate1', rate)
+		print(y_i)
+		x_i = np.column_stack((rate, count, minr, maxr, MA6, MA24))
+		print('after stack', x_i)
+	except Exception as e:
+		print('hit break')
+		break
+
+	X.append(x_i)
+	Y.append(y_i)
+
+print(X)
+print(Y)
+print(len(X))
+print(len(Y))
+
+def shuffle_in_unison(a, b):
+    # courtsey http://stackoverflow.com/users/190280/josh-bleecher-snyder
+    assert len(a) == len(b)
+    shuffled_a = np.empty(a.shape, dtype=a.dtype)
+    shuffled_b = np.empty(b.shape, dtype=b.dtype)
+    permutation = np.random.permutation(len(a))
+    for old_index, new_index in enumerate(permutation):
+        shuffled_a[new_index] = a[old_index]
+        shuffled_b[new_index] = b[old_index]
+    return shuffled_a, shuffled_b
+ 
+ 
+def create_Xt_Yt(X, y, percentage=0.9):
+    p = int(len(X) * percentage)
+    X_train = X[0:p]
+    Y_train = y[0:p]
+     
+    X_train, Y_train = shuffle_in_unison(X_train, Y_train)
+ 
+    X_test = X[p:]
+    Y_test = y[p:]
+
+    return X_train, X_test, Y_train, Y_test
+
+percentage = .8
+X, Y = np.array(X), np.array(Y)
+X_train, X_test, Y_train, Y_test = create_Xt_Yt(X, Y, percentage=percentage)
+
+X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
+X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
+
 model = Sequential()
-model.add(LSTM(4, input_shape=(1, lookback)))
-model.add(Dense(1))
-model.compile(loss='mean_squared_error', optimizer='adam')
-model.fit(trainX, trainY, epochs=1, batch_size=1, verbose=2)
-# make predictions
-trainPredict = model.predict(trainX)
-testPredict =model.predict(testX)
-# invert predictions - why?
-print('trainPredict', trainPredict.shape)
-trainPredict = scaler.inverse_transform(trainPredict)
-trainY = scaler.inverse_transform(trainY)
-testPredict = scaler.inverse_transform(testPredict)
-testY = scaler.inverse_transform(testY)
-# calculate rmes
-trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:,0]))
-print('Train Score: % .2f RMSE' % trainScore)
-testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:,0]))
-print('Train Score: % .2f RMSE' % testScore)
+model.add(Convolution1D(input_shape = (WINDOW, EMB_SIZE),
+                        nb_filter=16,
+                        filter_length=4,
+                        border_mode='same'))
+model.add(BatchNormalization())
+model.add(LeakyReLU())
+model.add(Dropout(0.5))
+
+model.add(Convolution1D(nb_filter=8,
+                        filter_length=4,
+                        border_mode='same'))
+model.add(BatchNormalization())
+model.add(LeakyReLU())
+model.add(Dropout(0.5))
+
+model.add(Flatten())
+
+model.add(Dense(64))
+model.add(BatchNormalization())
+model.add(LeakyReLU())
+
+
+model.add(Dense(2))
+model.add(Activation('softmax'))
+
+opt = Nadam(lr=0.002)
+
+reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+
+
+model.compile(optimizer=opt, 
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+history = model.fit(X_train, Y_train, 
+          nb_epoch = 100, 
+          batch_size = 128, 
+          verbose=1, 
+          validation_data=(X_test, Y_test),
+          callbacks=[reduce_lr, checkpointer],
+          shuffle=True)
+
+model.load_weights("lolkek.hdf5")
+pred = model.predict(np.array(X_test))
+
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
+
+print(C / C.astype(np.float).sum(axis=1))
+
+# Classification
+# [[ 0.75510204  0.24489796]
+#  [ 0.46938776  0.53061224]]
+
+
+# for i in range(len(pred)):
+#     print Y_test[i], pred[i]
+
+
+plt.figure()
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='best')
+plt.show()
+
+plt.figure()
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='best')
+plt.show()
