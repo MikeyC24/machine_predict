@@ -10,7 +10,8 @@
 
 from MachinePredictModelrefractored import *
 from DatabaseFunctionality import *
-
+from keras.models import Sequential
+from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
@@ -19,8 +20,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.pylab as plt
 """
-from keras.models import Sequential
-from keras.layers import LSTM
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.recurrent import LSTM, GRU
 from keras.layers import Convolution1D, MaxPooling1D, AtrousConvolution1D, RepeatVector
@@ -136,7 +135,6 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print(df.columns.values)
-feature_wanted = 'rate_USDT_ETH'
 
 #just with ETH vars
 #['rate_USDT_ETH' 'trade_count_USDT_ETH' 'min_rate_USDT_ETH'
@@ -149,212 +147,56 @@ min_rate_USDT_ETH = df.ix[:,'min_rate_USDT_ETH'].tolist()
 max_rate_USDT_ETH = df.ix[:,'max_rate_USDT_ETH'].tolist()
 MA_6_rate_USDT_ETH = df.ix[:,'MA_6_rate_USDT_ETH'].tolist()
 MA_24_rate_USDT_ETH = df.ix[:,'MA_24_rate_USDT_ETH'].tolist()
-
-
-feature_vars_dict = {}
-for column in df.columns.values:
-	feature = df.ix[:,column].tolist()
-	feature_vars_dict[str(column)] = feature
-for k,v, in feature_vars_dict.items():
-	print(k)
-	print(type(k))
-	name = str(k)
-	print(name)
-	#print(v)
-	print('______________')
-print(len(feature_vars_dict))
+print(len(rate_USDT_ETH))
+print(type(rate_USDT_ETH))
 
 # vars
 WINDOW = 30
-EMB_SIZE = len(feature_vars_dict)
+EMB_SIZE = 6
 STEP = 1
 FORECAST = 1 
 
 X, Y = [], []
-for feature, feature_data in feature_vars_dict.items():
-	for i in range(0, len(v), STEP): 
-		try:
-			# normalize feature
-			print('feature', feature)
-			f = feature_data[i:i+WINDOW]
-			name = str(feature) + '_normalized'
-			name = (np.array(f) - np.mean(f)) / np.std(f)
+for i in range(0, df.shape[0], STEP): 
+	try:
+		rate = rate_USDT_ETH[i:i+WINDOW]
+		count = trade_count_USDT_ETH[i:i+WINDOW]
+		minr = min_rate_USDT_ETH[i:i+WINDOW]
+		maxr = max_rate_USDT_ETH[i:i+WINDOW]
+		MA6 = MA_6_rate_USDT_ETH[i:i+WINDOW]
+		MA24 = MA_24_rate_USDT_ETH[i:i+WINDOW]
 
-			# set binary target
-			feature_wanted_data = feature_vars_dict.get(feature_wanted)
-			x_i = feature_wanted_data[i:i+WINDOW]
-			y_i = feature_wanted_data[i+WINDOW+FORECAST]
-			last_close = x_i[-1]
-			next_close = y_i
-			if last_close < next_close:
-				y_i = [1, 0]
-			else:
-				y_i = [0, 1]   
+		rate = (np.array(rate) - np.mean(rate)) / np.std(rate)
+		count = (np.array(count) - np.mean(count)) / np.std(count)
+		minr = (np.array(minr) - np.mean(minr)) / np.std(minr)
+		maxr = (np.array(maxr) - np.mean(maxr)) / np.std(maxr)
+		MA6  = (np.array(MA6) - np.mean(MA6 )) / np.std(MA6)
+		MA24  = (np.array(MA24) - np.mean(MA24)) / np.std(MA24)
 
-			# append x_i values
-			x_i = np.column_stack(name)
+		x_i = rate_USDT_ETH[i:i+WINDOW]
+		y_i = rate_USDT_ETH[i+WINDOW+FORECAST]  
+		print('x_i', x_i)
 
-		except Exception as e:
-			print('hit break')
-			break
+		last_close = x_i[-1]
+		next_close = y_i
+		print('last close', last_close)
+		print('next close', next_close)
+		if last_close < next_close:
+			y_i = [1, 0]
+		else:
+			y_i = [0, 1] 
+		print('rate1', rate)
+		print(y_i)
+		x_i = np.column_stack((rate, count, minr, maxr, MA6, MA24))
+		print('after stack', x_i)
+	except Exception as e:
+		print('hit break')
+		break
 
-		X.append(x_i)
-		Y.append(y_i)
-	
-"""
-			rate = rate_USDT_ETH[i:i+WINDOW]
-			count = trade_count_USDT_ETH[i:i+WINDOW]
-			minr = min_rate_USDT_ETH[i:i+WINDOW]
-			maxr = max_rate_USDT_ETH[i:i+WINDOW]
-			MA6 = MA_6_rate_USDT_ETH[i:i+WINDOW]
-			MA24 = MA_24_rate_USDT_ETH[i:i+WINDOW]
-
-			rate = (np.array(rate) - np.mean(rate)) / np.std(rate)
-			count = (np.array(count) - np.mean(count)) / np.std(count)
-			minr = (np.array(minr) - np.mean(minr)) / np.std(minr)
-			maxr = (np.array(maxr) - np.mean(maxr)) / np.std(maxr)
-			MA6  = (np.array(MA6) - np.mean(MA6 )) / np.std(MA6)
-			MA24  = (np.array(MA24) - np.mean(MA24)) / np.std(MA24)
-
-			x_i = rate_USDT_ETH[i:i+WINDOW]
-			y_i = rate_USDT_ETH[i+WINDOW+FORECAST]  
-			print('x_i', x_i)
-
-			last_close = x_i[-1]
-			next_close = y_i
-			print('last close', last_close)
-			print('next close', next_close)
-			if last_close < next_close:
-				y_i = [1, 0]
-			else:
-				y_i = [0, 1] 
-			print('rate1', rate)
-			print(y_i)
-			x_i = np.column_stack((rate, count, minr, maxr, MA6, MA24))
-			print('after stack', x_i)
-		except Exception as e:
-			print('hit break')
-			break
-
-		X.append(x_i)
-		Y.append(y_i)
-"""
+	X.append(x_i)
+	Y.append(y_i)
 
 print(X)
 print(Y)
 print(len(X))
 print(len(Y))
-
-"""
-def shuffle_in_unison(a, b):
-    # courtsey http://stackoverflow.com/users/190280/josh-bleecher-snyder
-    assert len(a) == len(b)
-    shuffled_a = np.empty(a.shape, dtype=a.dtype)
-    shuffled_b = np.empty(b.shape, dtype=b.dtype)
-    permutation = np.random.permutation(len(a))
-    for old_index, new_index in enumerate(permutation):
-        shuffled_a[new_index] = a[old_index]
-        shuffled_b[new_index] = b[old_index]
-    return shuffled_a, shuffled_b
- 
- 
-def create_Xt_Yt(X, y, percentage=0.9):
-    p = int(len(X) * percentage)
-    X_train = X[0:p]
-    Y_train = y[0:p]
-     
-    X_train, Y_train = shuffle_in_unison(X_train, Y_train)
- 
-    X_test = X[p:]
-    Y_test = y[p:]
-
-    return X_train, X_test, Y_train, Y_test
-
-percentage = .8
-X, Y = np.array(X), np.array(Y)
-X_train, X_test, Y_train, Y_test = create_Xt_Yt(X, Y, percentage=percentage)
-
-X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
-X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
-
-model = Sequential()
-model.add(Convolution1D(input_shape = (WINDOW, EMB_SIZE),
-                        nb_filter=16,
-                        filter_length=4,
-                        border_mode='same'))
-model.add(BatchNormalization())
-model.add(LeakyReLU())
-model.add(Dropout(0.5))
-
-model.add(Convolution1D(nb_filter=8,
-                        filter_length=4,
-                        border_mode='same'))
-model.add(BatchNormalization())
-model.add(LeakyReLU())
-model.add(Dropout(0.5))
-
-model.add(Flatten())
-
-model.add(Dense(64))
-model.add(BatchNormalization())
-model.add(LeakyReLU())
-
-
-model.add(Dense(2))
-model.add(Activation('softmax'))
-
-opt = Nadam(lr=0.002)
-
-reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
-checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
-
-
-model.compile(optimizer=opt, 
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
-
-history = model.fit(X_train, Y_train, 
-          nb_epoch = 100, 
-          batch_size = 128, 
-          verbose=1, 
-          validation_data=(X_test, Y_test),
-          callbacks=[reduce_lr, checkpointer],
-          shuffle=True)
-
-model.load_weights("lolkek.hdf5")
-pred = model.predict(np.array(X_test))
-
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
-C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
-
-print(C / C.astype(np.float).sum(axis=1))
-
-# Classification
-# [[ 0.75510204  0.24489796]
-#  [ 0.46938776  0.53061224]]
-
-
-# for i in range(len(pred)):
-#     print Y_test[i], pred[i]
-
-
-plt.figure()
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='best')
-plt.show()
-
-plt.figure()
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='best')
-plt.show()
-
-"""
