@@ -10,8 +10,8 @@
 
 from MachinePredictModelrefractored import *
 from DatabaseFunctionality import *
-from keras.models import Sequential
-from keras.layers import LSTM
+#from keras.models import Sequential
+#from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
@@ -155,7 +155,6 @@ WINDOW = 30
 EMB_SIZE = 6
 STEP = 1
 FORECAST = 1 
-
 X, Y = [], []
 for i in range(0, df.shape[0], STEP): 
 	try:
@@ -175,28 +174,36 @@ for i in range(0, df.shape[0], STEP):
 
 		x_i = rate_USDT_ETH[i:i+WINDOW]
 		y_i = rate_USDT_ETH[i+WINDOW+FORECAST]  
-		print('x_i', x_i)
+		#print('x_i', x_i)
 
 		last_close = x_i[-1]
 		next_close = y_i
-		print('last close', last_close)
-		print('next close', next_close)
+		#print('last close', last_close)
+		#print('next close', next_close)
 		if last_close < next_close:
 			y_i = [1, 0]
 		else:
 			y_i = [0, 1] 
-		print('rate1', rate)
-		print(y_i)
+		#print('rate1', rate)
+		#print(y_i)
+		print('rate', rate)
+		print('count', count)
+		print('minr', minr)
+		print('maxr', maxr)
+		print('ma6', MA6)
+		print('ma24', MA24)
 		x_i = np.column_stack((rate, count, minr, maxr, MA6, MA24))
-		print('after stack', x_i)
+		print('i', i)
+		print('x_i', x_i)
+		#print('after stack', x_i)
 	except Exception as e:
-		print('hit break')
+		#print('hit break')
 		break
 
 	X.append(x_i)
 	Y.append(y_i)
 
-print(X)
-print(Y)
-print(len(X))
-print(len(Y))
+#print(X)
+#print(Y)
+#print(len(X))
+#print(len(Y))

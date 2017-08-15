@@ -169,38 +169,43 @@ WINDOW = 30
 EMB_SIZE = len(feature_vars_dict)
 STEP = 1
 FORECAST = 1 
-
+features_array = []
+normalized_features_dict = {}
 X, Y = [], []
-for feature, feature_data in feature_vars_dict.items():
-	for i in range(0, len(v), STEP): 
-		try:
+#for feature, feature_data in feature_vars_dict.items():
+for i in range(0, len(v), STEP): 
+	try:
+		for feature, feature_data in feature_vars_dict.items():
 			# normalize feature
+			features_array1 = []
 			print('feature', feature)
 			f = feature_data[i:i+WINDOW]
 			name = str(feature) + '_normalized'
 			name = (np.array(f) - np.mean(f)) / np.std(f)
+			#normalized_features_dict[str(name)] = name
+			features_array1.append(name)
 
-			# set binary target
-			feature_wanted_data = feature_vars_dict.get(feature_wanted)
-			x_i = feature_wanted_data[i:i+WINDOW]
-			y_i = feature_wanted_data[i+WINDOW+FORECAST]
-			last_close = x_i[-1]
-			next_close = y_i
-			if last_close < next_close:
-				y_i = [1, 0]
-			else:
-				y_i = [0, 1]   
+		# set binary target
+		feature_wanted_data = feature_vars_dict.get(feature_wanted)
+		x_i = feature_wanted_data[i:i+WINDOW]
+		y_i = feature_wanted_data[i+WINDOW+FORECAST]
+		last_close = x_i[-1]
+		next_close = y_i
+		if last_close < next_close:
+			y_i = [1, 0]
+		else:
+			y_i = [0, 1]   
 
-			# append x_i values
-			x_i = np.column_stack(name)
+		# append x_i values
+		x_i = np.column_stack(features_array1)
 
-		except Exception as e:
-			print('hit break')
-			break
+	except Exception as e:
+		print('hit break')
+		break
 
-		X.append(x_i)
-		Y.append(y_i)
-	
+	X.append(x_i)
+	Y.append(y_i)
+
 """
 			rate = rate_USDT_ETH[i:i+WINDOW]
 			count = trade_count_USDT_ETH[i:i+WINDOW]
