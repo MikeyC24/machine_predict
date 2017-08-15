@@ -371,7 +371,7 @@ class ArrangeData:
 		df.loc[mask4, 'delta'] = 4
 		df.loc[mask5, 'delta'] = 5
 		df.loc[mask6, 'delta'] = 6
-		df = df.drop(['hour'], axis=1, inplace=True) if drop == 'True' else df
+		#df = df.drop(['hour'], axis=1, inplace=True) if drop == 'True' else df
 		return df
 
 	# array needs to contain at these positions
