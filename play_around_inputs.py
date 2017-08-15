@@ -103,10 +103,10 @@ table = 'second_coin_list_two'
 df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 drop_nan_rows = 'yes'
 #columns_to_drop = None
+#columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
+#'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change', 'date']
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
-'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'rate_USDT_ETH_change', 'date']
-columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
-'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'rate_USDT_ETH', 'date',
+'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'date',
  'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC']
 # columns all before any editing 
 columns_all_init = ['date']
@@ -126,7 +126,7 @@ normalize_columns_array = None
 time_period_returns_dict = None
 create_target_dict = None
 #target = 'rate_USDT_ETH_change_binary'
-create_target_in_one = {'target':['rate_USDT_ETH'], 'freq':[72], 'shift':'yes', 'value_mark':0, 'target_new':'rate_USDT_ETH_binary'}
+create_target_in_one = {'target':['rate_USDT_ETH'], 'freq':[72], 'shift':'no', 'value_mark':0, 'target_new':'rate_USDT_ETH_binary'}
 target = create_target_in_one['target_new']
 array_for_format_non_unix_date = ['date','%Y-%m-%d %H:%M:%S', 'UTC']
 format_human_date = ['date', '%Y-%m-%d %H:%M:%S', 'UTC'] 
@@ -163,7 +163,7 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = {'rate_USDT_LTC':[6,24,48,144], 'rate_USDT_BTC':[6,24,48,144]}
+rolling_averages_dict = {'rate_USDT_LTC':[6,24,48,144], 'rate_USDT_BTC':[6,24,48,144], 'rate_USDT_ETH':[6,24,48,144]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -192,11 +192,23 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 
 """
 # looking at data
-result = sample_instance._set_up_data_for_prob_predict()
-df = result.dataframe
-print(df)
-print(df['delta'].dtype)
+#result = sample_instance._set_up_data_for_prob_predict()
+result1 = sample_instance._set_up_data_for_models_test_non_cycle(1)
+print(type(result1))
+print(result1['X_train'])
+print(result1['y_train'])
 """
+"""
+columns_all_keras = result.dataframe.columns.values
+target_keras = 'rate_USDT_ETH_binary'
+result.shuffle_rows()
+train_data = result.set_features_and_target1(columns_all_keras, target_keras)
+print(type(train_data))
+#print(train_data['X_train'])
+"""
+
+
+
 """
 x = df['date']
 y = df['rate_USDT_BTC']
