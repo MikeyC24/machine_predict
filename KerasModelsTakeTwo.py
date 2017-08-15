@@ -15,7 +15,7 @@ from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
-from utils import *
+#from utils import *
 
 import pandas as pd
 import matplotlib.pylab as plt
