@@ -174,6 +174,7 @@ normalized_features_dict = {}
 X, Y = [], []
 #for feature, feature_data in feature_vars_dict.items():
 for i in range(0, len(v), STEP): 
+	dict_features = {}
 	try:
 		for feature, feature_data in feature_vars_dict.items():
 			# normalize feature
@@ -182,8 +183,9 @@ for i in range(0, len(v), STEP):
 			f = feature_data[i:i+WINDOW]
 			name = str(feature) + '_normalized'
 			name = (np.array(f) - np.mean(f)) / np.std(f)
+			dict_features[str(feature)] = name
 			#normalized_features_dict[str(name)] = name
-			features_array1.append(name)
+			#features_array1.append(name)
 
 		# set binary target
 		feature_wanted_data = feature_vars_dict.get(feature_wanted)
@@ -197,7 +199,14 @@ for i in range(0, len(v), STEP):
 			y_i = [0, 1]   
 
 		# append x_i values
-		x_i = np.column_stack(features_array1)
+		for k,v in dict_features.items():
+			print(k)
+			print(v)
+			print(len(dict_features))
+			print('___________________')
+		x_i = np.column_stack(dict_features.values())
+		print('i', i)
+		print('x_i', x_i)
 
 	except Exception as e:
 		print('hit break')
@@ -206,51 +215,13 @@ for i in range(0, len(v), STEP):
 	X.append(x_i)
 	Y.append(y_i)
 
-"""
-			rate = rate_USDT_ETH[i:i+WINDOW]
-			count = trade_count_USDT_ETH[i:i+WINDOW]
-			minr = min_rate_USDT_ETH[i:i+WINDOW]
-			maxr = max_rate_USDT_ETH[i:i+WINDOW]
-			MA6 = MA_6_rate_USDT_ETH[i:i+WINDOW]
-			MA24 = MA_24_rate_USDT_ETH[i:i+WINDOW]
-
-			rate = (np.array(rate) - np.mean(rate)) / np.std(rate)
-			count = (np.array(count) - np.mean(count)) / np.std(count)
-			minr = (np.array(minr) - np.mean(minr)) / np.std(minr)
-			maxr = (np.array(maxr) - np.mean(maxr)) / np.std(maxr)
-			MA6  = (np.array(MA6) - np.mean(MA6 )) / np.std(MA6)
-			MA24  = (np.array(MA24) - np.mean(MA24)) / np.std(MA24)
-
-			x_i = rate_USDT_ETH[i:i+WINDOW]
-			y_i = rate_USDT_ETH[i+WINDOW+FORECAST]  
-			print('x_i', x_i)
-
-			last_close = x_i[-1]
-			next_close = y_i
-			print('last close', last_close)
-			print('next close', next_close)
-			if last_close < next_close:
-				y_i = [1, 0]
-			else:
-				y_i = [0, 1] 
-			print('rate1', rate)
-			print(y_i)
-			x_i = np.column_stack((rate, count, minr, maxr, MA6, MA24))
-			print('after stack', x_i)
-		except Exception as e:
-			print('hit break')
-			break
-
-		X.append(x_i)
-		Y.append(y_i)
-"""
 
 print(X)
-print(Y)
+#print(Y)
 print(len(X))
 print(len(Y))
-
 """
+
 def shuffle_in_unison(a, b):
     # courtsey http://stackoverflow.com/users/190280/josh-bleecher-snyder
     assert len(a) == len(b)
