@@ -15,7 +15,7 @@ columns_to_drop1 = ['amount_USDT_ETH','total_USDT_ETH',
  'trade_count_USDT_LTC', 'max_rate_USDT_LTC','rate_USDT_BTC',
  'trade_count_USDT_BTC', 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'rate_USDT_LTC',
  'min_rate_USDT_LTC', ]
- columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH',
+columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH',
  'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'date',
  'trade_count_USDT_LTC', 'max_rate_USDT_LTC', 'rate_USDT_LTC',
  'min_rate_USDT_LTC', ]
@@ -106,3 +106,18 @@ df =result.dataframe
 print(df.columns.values)
 feature_wanted = 'rate_USDT_ETH'
 df = df.loc[23325:,]
+
+model_type = 'classification'
+parameter_type = 'constant'
+train_percent = .8
+dataframe = df
+window = 1
+step = 1
+forecast = 1
+plot = 'yes'
+
+keras_instance = KerasClass(model_type, parameter_type, 
+	dataframe, window, step, forecast, train_percent, plot)
+result = keras_instance.create_feature_var_dict()
+#result = keras_instance.create_X_Y_values(1)
+print(result)

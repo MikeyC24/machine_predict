@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 import matplotlib.pylab as plt
-
+"""
 from keras.models import Sequential
 from keras.layers import LSTM
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -34,7 +34,7 @@ from keras.initializers import *
 import seaborn as sns
 sns.despine()
 
-
+"""
 
 file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
 file_location = '/home/mike/Downloads/coin_months_data'
@@ -171,6 +171,9 @@ for k,v, in feature_vars_dict.items():
 print('len of vars dict',len(feature_vars_dict))
 print('len of v', len(v))
 print('len of dict.values', len(feature_vars_dict.values()))
+print('emb_size', len(feature_vars_dict))
+print('number of columns', len(df.columns))
+
 
 # vars
 WINDOW = 30
