@@ -49,6 +49,7 @@ write_to_db_tablename = '3_coin_list_june'
 # this is working for getting new data
 data_class = DatabaseFull(location_base)
 print('___________________________________')
+"""
 result = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 6,
 					top_3_coin_list, db_name, coin_name_end,
 					db_name, table_name_array, columns_wanted_array1, time_interval10,
@@ -56,6 +57,46 @@ result = data_class.cycle_over_dates_and_build_coin_db(start_wke, end_wke, 'H', 
 for data in result:
 	print('______________')
 	print(data)
+"""
+"""
+# apending coin tables 8.16.17
+# june to july/aug table
+# this combined table but index needs to be reset
+new_db_base = '/home/mike/Downloads/'
+data_class2 = DatabaseFull(new_db_base)
+table_jja = ['Jan_to_June_second_coin_list', 'coins_456_jan_mid_aug2']
+db_name_mac = 'coin_months_data'
+write_to_db_two = 'yes'
+new_sql_table_name_two =  'coins_456_jan_mid_aug_final' 
+data_class2.append_dataframes(db_name_mac, table_jja, write_new_db_to_sql=write_to_db_two,
+						new_sql_table_name=new_sql_table_name_two)
+"""
+# apending first 3 coins
+# doing this manual as no method to talk to two separate db bases
+new_db_base = '/home/mike/Downloads/'
+data_class2 = DatabaseFull(new_db_base)
+table_jja = ['Jan_to_June_second_coin_list', 'coins_456_jan_mid_aug2']
+db_name_mac = 'coin_months_data'
+write_to_db_two = 'yes'
+new_sql_table_name_two =  'coins_456_jan_mid_aug_finalwwww' 
+#data_class2.append_dataframes(db_name_mac, table_jja, write_new_db_to_sql=write_to_db_two,
+#						new_sql_table_name=new_sql_table_name_two)
+# top 3 coin list all june = '3_coin_list_june'
+# top 3 coin list july first to august 7 = 'second_coin_list_two'
+con1 = sqlite3.connect('/home/mike/Downloads/coin_months_data')
+con2 = sqlite3.connect('/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data')
+con3 = sqlite3.connect('/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data')
+df_first = pd.read_sql_query('SELECT * FROM Jan_to_June_top_3_coins_three', con1)
+df_second = pd.read_sql_query('SELECT * FROM %s' % ('use_this_one'), con2)
+df_third = pd.read_sql_query('SELECT * FROM second_coin_list_two', con3)
+#df_inter = pd.read_sql_query('SELECT * FROM inter_table', con3)
+df = df_first.append(df_second)
+df = df.append(df_third)
+df.set_index('date', inplace=True)
+print(df.head(15))
+print(df.shape)
+df.to_sql(name='top_3_jan_mid_aug_final', con=con1, if_exists='fail')
+
 # info for appending databases
 # table name 1 = BTC_LTC_ETH_July_2017
 # 2 = BTC_LTC_ETH_July_21_2017_august_10_17

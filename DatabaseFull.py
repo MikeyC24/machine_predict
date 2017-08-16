@@ -258,7 +258,7 @@ class DatabaseFull:
 			df2 = df2.loc[combine_date:]
 			df = df.append(df2)
 		df = df.append(df2)
-		df.reset_index(df['date'], inplace=True)
+		df.set_index('date', inplace=True)
 		#df.index = df['date']
 		if self.write_new_db_to_sql == 'yes':
 			df.to_sql(name=self.new_sql_table_name,con=con, if_exists='fail')
