@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 import matplotlib.pylab as plt
-"""
+
 from keras.models import Sequential
 from keras.layers import LSTM
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -31,7 +31,6 @@ from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import *
 from keras.optimizers import RMSprop, Adam, SGD, Nadam
 from keras.initializers import *
-"""
 import seaborn as sns
 sns.despine()
 
@@ -179,16 +178,18 @@ for i in range(0, len(v), STEP):
 		for feature, feature_data in feature_vars_dict.items():
 			# normalize feature
 			features_array1 = []
+			array_stacks =[]
 			print('feature', feature)
 			f = feature_data[i:i+WINDOW]
 			name = str(feature) + '_normalized'
 			name = (np.array(f) - np.mean(f)) / np.std(f)
-			dict_features[str(feature)] = name
+			array_stacks.append(name)
+			dict_features[str(feature)] = (name)
 			#normalized_features_dict[str(name)] = name
 			#features_array1.append(name)
 
 		# set binary target
-		feature_wanted_data = feature_vars_dict.get(feature_wanted)
+		feature_wanted_data = feature_vars_dict[feature_wanted]
 		x_i = feature_wanted_data[i:i+WINDOW]
 		y_i = feature_wanted_data[i+WINDOW+FORECAST]
 		last_close = x_i[-1]
@@ -204,7 +205,10 @@ for i in range(0, len(v), STEP):
 			print(v)
 			print(len(dict_features))
 			print('___________________')
-		x_i = np.column_stack(dict_features.values())
+		#x_i = np.column_stack((dict_features['rate_USDT_ETH'], dict_features['trade_count_USDT_ETH'],
+		#	dict_features['min_rate_USDT_ETH'],dict_features['max_rate_USDT_ETH'], dict_features['MA_6_rate_USDT_ETH'],
+		#	dict_features['MA_24_rate_USDT_ETH']))
+		x_i = np.column_stack((dict_features.values()))
 		print('i', i)
 		print('x_i', x_i)
 
@@ -220,7 +224,7 @@ print(X)
 #print(Y)
 print(len(X))
 print(len(Y))
-"""
+
 
 def shuffle_in_unison(a, b):
     # courtsey http://stackoverflow.com/users/190280/josh-bleecher-snyder
@@ -333,4 +337,3 @@ plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='best')
 plt.show()
 
-"""

@@ -22,6 +22,7 @@ from sklearn.model_selection import ParameterGrid, GridSearchCV, KFold
 from sklearn.model_selection import cross_val_score, cross_validate, StratifiedKFold
 #from sklearn.model_selection import *
 
+
 # notes need to add a roc area curve for kfold
 
 # this class will combine all regressions
