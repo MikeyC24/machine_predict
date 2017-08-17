@@ -1,8 +1,8 @@
 from MachinePredictModelrefractored import *
 from KerasClass import *
 
-file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
-file_location = '/home/mike/Downloads/coin_months_data'
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location1 = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
@@ -77,6 +77,7 @@ db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
 rolling_averages_dict = { 'rate_USDT_ETH':[6,24]}
+rolling_std_dict = {'rate_USDT_ETH':[6,24]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -101,7 +102,8 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					minimum_feature_count_for_var_cycle=minimum_feature_count_for_var_cycle,
 					database_name=database_name, table_name=table_name, db_location_base=db_location_base,
 					write_to_db=write_to_db, normalize_columns_array=normalize_columns_array,
-					rolling_averages_dict=rolling_averages_dict)
+					rolling_averages_dict=rolling_averages_dict,
+					rolling_std_dict=rolling_std_dict)
 
 result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
@@ -109,6 +111,8 @@ print(df.columns.values)
 feature_wanted = 'rate_USDT_ETH'
 df = df.loc[29425:,]
 print(df.shape)
+
+
 model_type = 'classification'
 parameter_type = 'constant'
 train_percent = .8
@@ -118,7 +122,8 @@ step = 1
 forecast = 1
 plot = 'yes'
 feature_wanted = 'rate_USDT_ETH'
-
+percent_change = 1
+"""
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)
 #keras_instance.binary_classification_model(1)
@@ -129,3 +134,13 @@ keras_instance = KerasClass(model_type, parameter_type,
 #print(X,Y)
 #print(X_train, X_test, Y_train, Y_test)
 keras_instance.simple_mlp_example(1)
+
+"""
+keras_instance = KerasClass(model_type, parameter_type, 
+	dataframe, window, step, forecast, feature_wanted, percent_change,  train_percent, plot)
+
+space ={'window':hp.choice('window', [6,24,72]),
+		'loss':hp.choice('loss', ['binary_crossentropy', 'categorical_crossentropy']),
+		}
+keras_instance.best_params(space)
+#keras_instance.binary_classification_model()

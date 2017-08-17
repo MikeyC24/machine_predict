@@ -156,6 +156,16 @@ class ArrangeData:
 		df['STD' + str(periods)] = y.rolling(window =periods).std()
 		return df
 
+	def rolling_std_dict(self, rolling_std_dict):
+		df = self.dataframe
+		columns = rolling_std_dict.keys()
+		for column in columns:
+			for x in range(len(rolling_std_dict[column])):
+				period = rolling_std_dict[column][x]
+				y = df[column]
+				df['MA_STD' + str(period) + '_' + str(column)] = y.shift(-1).rolling(window=period).std()
+		return df
+
 	# http://blog.mathandpencil.com/group-by-datetimes-in-pandas
 	# above link is for grouping by weeks, months etc from unix and datatimes
 	# https://stackoverflow.com/questions/26646191/pandas-groupby-month-and-year 

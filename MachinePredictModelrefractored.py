@@ -93,6 +93,7 @@ class MachinePredictModel:
 		self.vars_to_return_from_db = kwargs.get('vars_to_return_from_db', None)
 		self.drop_nan_rows = kwargs.get('drop_nan_rows', None)
 		self.rolling_averages_dict = kwargs.get('rolling_averages_dict', None)
+		self.rolling_std_dict = kwargs.get('rolling_std_dict', None)
 		self.cat_rows_for_time_delta = kwargs.get('cat_rows_for_time_delta', None)
 
 	# this method is an interal class method to clean up date
@@ -131,6 +132,8 @@ class MachinePredictModel:
 		# column name + normalized
 		if self.rolling_averages_dict is not None:
 			model_dataframe.rolling_average_dict(self.rolling_averages_dict)
+		if self.rolling_std_dict is not None:
+			model_dataframe.rolling_std_dict(self.rolling_std_dict)
 		if self.normalize_columns_array is not None:
 			model_dataframe.normalize_new_column(self.normalize_columns_array)
 		# takes in a dict, always has the same keys, column_name_old, column_name_new,

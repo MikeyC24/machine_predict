@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pylab as plt
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
+from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 from keras.models import Sequential
 from keras.layers import LSTM
@@ -21,8 +22,10 @@ from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import *
 from keras.optimizers import RMSprop, Adam, SGD, Nadam
 from keras.initializers import *
+from keras import losses
 import seaborn as sns
 sns.despine()
+
 
 # for now this class is only taking a dataframe from main model that has been
 # worked on from the arrange data class, traing/test and all keras model vars
@@ -31,7 +34,7 @@ sns.despine()
 class KerasClass:
 
 	def __init__(self, model_type, parameter_type, dataframe,
-		window, step, forecast, feature_wanted, train_percent=.8, plot='yes'):
+		window, step, forecast, feature_wanted, percent_change = 1, train_percent=.8, plot='yes'):
 		self.model_type = model_type
 		self.parameter_type = parameter_type
 		self.train_percent = train_percent
@@ -41,6 +44,7 @@ class KerasClass:
 		self.forecast = forecast
 		self.feature_wanted = feature_wanted
 		self.plot = plot
+		self.percent_change = percent_change
 		self.EMB_SIZE = len(self.dataframe.columns)
 
 	def create_feature_var_dict(self):
@@ -51,7 +55,7 @@ class KerasClass:
 			feature_vars_dict[str(column)] = feature
 		return feature_vars_dict
 
-	def create_X_Y_values(self, change_percent=1):
+	def create_X_Y_values(self, window=30):
 		print('running create X Y values')
 		feature_vars_dict = self.create_feature_var_dict()
 		print(len(feature_vars_dict))
@@ -67,7 +71,7 @@ class KerasClass:
 					# change over time )
 					print('feature', feature)
 					#print('feature_data', feature_data)
-					f = feature_data[i:i+self.window]
+					f = feature_data[i:i+window]
 					print('i', i)
 					print('window', self.window)
 					print('f', f)
@@ -86,7 +90,7 @@ class KerasClass:
 				y_i = feature_wanted_data[i+self.window+self.forecast]
 				last_close = x_i[-1]
 				next_close = y_i
-				if (last_close*change_percent) < next_close:
+				if (last_close* self.percent_change) < next_close:
 					y_i = [1, 0]
 				else:
 					y_i = [0, 1]
@@ -131,10 +135,10 @@ class KerasClass:
 
 		return X_train, X_test, Y_train, Y_test
 
-	def binary_classification_model(self, change_percent=1):
+	def binary_classification_model(self):
 
 		# get x,y values, create train/test/set then reshape them
-		X, Y = self.create_X_Y_values(change_percent)
+		X, Y = self.create_X_Y_values(self.window)
 		X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
 		X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
 		X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
@@ -176,7 +180,7 @@ class KerasClass:
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 100, 
+		          nb_epoch = 5, 
 		          batch_size = 128, 
 		          verbose=1, 
 		          validation_data=(X_test, Y_test),
@@ -186,8 +190,7 @@ class KerasClass:
 		model.load_weights("lolkek.hdf5")
 		pred = model.predict(np.array(X_test))
 
-		from sklearn.metrics import classification_report
-		from sklearn.metrics import confusion_matrix
+		
 		C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
 
 		print(C / C.astype(np.float).sum(axis=1))
@@ -211,61 +214,72 @@ class KerasClass:
 			plt.legend(['train', 'test'], loc='best')
 			plt.show()
 
-	# not working on input dimension need to change
-	def simple_mlp_example(self, change_percent):
-		X, Y = self.create_X_Y_values(change_percent)
+
+
+	def optimize_experiment_classification(self, params):
+		X, Y = self.create_X_Y_values(params['window'])
 		X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
+		X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
+		X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
+
+		print('params set up')
 
 		model = Sequential()
-		model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
+		model.add(Convolution1D(input_shape = (params['window'], self.EMB_SIZE),
 		                        nb_filter=16,
 		                        filter_length=4,
 		                        border_mode='same'))
-		model.add(Dense(64, input_dim=30))
-		# activity_regularizer=regularizers.12(0.01)
 		model.add(BatchNormalization())
 		model.add(LeakyReLU())
 		model.add(Dropout(0.5))
+
 		model.add(Convolution1D(nb_filter=8,
 		                        filter_length=4,
 		                        border_mode='same'))
-		model.add(Dense(16))
-		# activity_regularizer=regularizers.12(0.01)
 		model.add(BatchNormalization())
 		model.add(LeakyReLU())
+		model.add(Dropout(0.5))
+
+		model.add(Flatten())
+
+		model.add(Dense(64))
+		model.add(BatchNormalization())
+		model.add(LeakyReLU())
+
+
 		model.add(Dense(2))
 		model.add(Activation('softmax'))
 
 		opt = Nadam(lr=0.002)
 
 		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+		checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+
 
 		model.compile(optimizer=opt, 
-			loss='binary_crossentropy', metrics=['accuracy'])
+		              loss=params['loss'],
+		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 10, 
+		          nb_epoch = 100, 
 		          batch_size = 128, 
 		          verbose=1, 
 		          validation_data=(X_test, Y_test),
-		          callbacks=[reduce_lr],
+		          callbacks=[reduce_lr, checkpointer],
 		          shuffle=True)
 
-		plt.figure()
-		plt.plot(history.history['loss'])
-		plt.plot(history.history['val_loss'])
-		plt.title('model loss')
-		plt.ylabel('loss')
-		plt.xlabel('epoch')
-		plt.legend(['train', 'test'], loc='best')
-		plt.show()
+		model.load_weights("lolkek.hdf5")
+		pred = model.predict(np.array(X_test))
 
-		plt.figure()
-		plt.plot(history.history['acc'])
-		plt.plot(history.history['val_acc'])
-		plt.title('model accuracy')
-		plt.ylabel('accuracy')
-		plt.xlabel('epoch')
-		plt.legend(['train', 'test'], loc='best')
-		plt.show()
+		C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
+
+		print(C / C.astype(np.float).sum(axis=1))
+
+
+	def best_params(self, space):
+
+		trials = Trials()
+		best = fmin(self.optimize_experiment_classification, space, algo=tpe.suggest,
+			max_evals=50, trials=trials)
+		print(best)
 
