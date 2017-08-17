@@ -211,17 +211,24 @@ class KerasClass:
 			plt.legend(['train', 'test'], loc='best')
 			plt.show()
 
-
+	# not working on input dimension need to change
 	def simple_mlp_example(self, change_percent):
 		X, Y = self.create_X_Y_values(change_percent)
 		X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
 
 		model = Sequential()
+		model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
+		                        nb_filter=16,
+		                        filter_length=4,
+		                        border_mode='same'))
 		model.add(Dense(64, input_dim=30))
 		# activity_regularizer=regularizers.12(0.01)
 		model.add(BatchNormalization())
 		model.add(LeakyReLU())
 		model.add(Dropout(0.5))
+		model.add(Convolution1D(nb_filter=8,
+		                        filter_length=4,
+		                        border_mode='same'))
 		model.add(Dense(16))
 		# activity_regularizer=regularizers.12(0.01)
 		model.add(BatchNormalization())
@@ -232,6 +239,9 @@ class KerasClass:
 		opt = Nadam(lr=0.002)
 
 		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+
+		model.compile(optimizer=opt, 
+			loss='binary_crossentropy', metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
 		          nb_epoch = 10, 
