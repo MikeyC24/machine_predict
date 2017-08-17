@@ -1,10 +1,12 @@
 from MachinePredictModelrefractored import *
 from KerasClass import *
 
-file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
-table = 'second_coin_list_two'
+table1 = 'second_coin_list_two'
+table = 'top_3_jan_mid_aug_final'
 df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 drop_nan_rows = 'yes'
 #columns_to_drop = None
@@ -105,19 +107,25 @@ result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print(df.columns.values)
 feature_wanted = 'rate_USDT_ETH'
-df = df.loc[23325:,]
-
+df = df.loc[29425:,]
+print(df.shape)
 model_type = 'classification'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
-window = 1
+window = 30
 step = 1
 forecast = 1
 plot = 'yes'
+feature_wanted = 'rate_USDT_ETH'
 
 keras_instance = KerasClass(model_type, parameter_type, 
-	dataframe, window, step, forecast, train_percent, plot)
-result = keras_instance.create_feature_var_dict()
-#result = keras_instance.create_X_Y_values(1)
-print(result)
+	dataframe, window, step, forecast, feature_wanted, train_percent, plot)
+#keras_instance.binary_classification_model(1)
+#result = keras_instance.create_feature_var_dict()
+#X, Y = keras_instance.create_X_Y_values(1)
+#X_train, X_test, Y_train, Y_test = keras_instance.create_Xt_Yt(X,Y)
+#print(result)
+#print(X,Y)
+#print(X_train, X_test, Y_train, Y_test)
+keras_instance.simple_mlp_example(1)

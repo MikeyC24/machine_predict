@@ -4,10 +4,11 @@ from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 #from utils import *
 import pandas as pd
+import numpy as np
 import matplotlib.pylab as plt
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
-"""
+
 from keras.models import Sequential
 from keras.layers import LSTM
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -22,7 +23,7 @@ from keras.optimizers import RMSprop, Adam, SGD, Nadam
 from keras.initializers import *
 import seaborn as sns
 sns.despine()
-"""
+
 # for now this class is only taking a dataframe from main model that has been
 # worked on from the arrange data class, traing/test and all keras model vars
 # will be entered into this class until refractored later 
@@ -30,7 +31,7 @@ sns.despine()
 class KerasClass:
 
 	def __init__(self, model_type, parameter_type, dataframe,
-		window, step, forecast,train_percent=.8, plot='yes'):
+		window, step, forecast, feature_wanted, train_percent=.8, plot='yes'):
 		self.model_type = model_type
 		self.parameter_type = parameter_type
 		self.train_percent = train_percent
@@ -38,6 +39,7 @@ class KerasClass:
 		self.window = window
 		self.step = step
 		self.forecast = forecast
+		self.feature_wanted = feature_wanted
 		self.plot = plot
 		self.EMB_SIZE = len(self.dataframe.columns)
 
@@ -47,29 +49,41 @@ class KerasClass:
 		for column in df.columns.values:
 			feature = df.ix[:,column].tolist()
 			feature_vars_dict[str(column)] = feature
-		EMB = (feature_vars_dict)
 		return feature_vars_dict
 
 	def create_X_Y_values(self, change_percent=1):
+		print('running create X Y values')
 		feature_vars_dict = self.create_feature_var_dict()
+		print(len(feature_vars_dict))
 		X, Y = [], []
 		for i in range(0, self.dataframe.shape[0], self.step):
+			print('i', i)
 			dict_features = {}
 			try:
 				for feature, feature_data in feature_vars_dict.items():
 					# normalize feature this would be cheating for regression
-					# but for classification works ok (cheating bc mean and variance
+					# but for classification works ok since prediction
+					#doesnt need to be exact (cheating bc mean and variance
 					# change over time )
 					print('feature', feature)
-					f = feature_data[i:i+WINDOW]
+					#print('feature_data', feature_data)
+					f = feature_data[i:i+self.window]
+					print('i', i)
+					print('window', self.window)
+					print('f', f)
 					name = str(feature) + '_normalized'
+					print('name1', name)
+					print('np array', np.array(f))
+					print('np mean', np.mean(f))
+					print('np std', np.std(f))
 					name = (np.array(f) - np.mean(f)) / np.std(f)
+					print(name)
 					dict_features[str(feature)] = (name)
 
 				# set binary target
-				feature_wanted_data = feature_vars_dict[feature_wanted]
-				x_i = feature_wanted_data[i:i+WINDOW]
-				y_i = feature_wanted_data[i+WINDOW+FORECAST]
+				feature_wanted_data = feature_vars_dict[self.feature_wanted]
+				x_i = feature_wanted_data[i:i+self.window]
+				y_i = feature_wanted_data[i+self.window+self.forecast]
 				last_close = x_i[-1]
 				next_close = y_i
 				if (last_close*change_percent) < next_close:
@@ -86,12 +100,15 @@ class KerasClass:
 
 			X.append(x_i)
 			Y.append(y_i)
+		X, Y = np.array(X), np.array(Y)
 
 		return X, Y
 
 	#shuffle training data 
 	def shuffle_in_unison(self, a, b):
 		# courtsey http://stackoverflow.com/users/190280/josh-bleecher-snyder
+		print('made it to shuffle')
+		print('a,b type', type(a), type(b))
 		assert len(a) == len(b)
 		shuffled_a = np.empty(a.shape, dtype=a.dtype)
 		shuffled_b = np.empty(b.shape, dtype=b.dtype)
@@ -102,6 +119,7 @@ class KerasClass:
 		return shuffled_a, shuffled_b
 
 	def create_Xt_Yt(self, X, y):
+		print('made it to create train')
 		p = int(len(X) * self.train_percent)
 		X_train = X[0:p]
 		Y_train = y[0:p]
@@ -122,7 +140,7 @@ class KerasClass:
 		X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
 
 		model = Sequential()
-		model.add(Convolution1D(input_shape = (WINDOW, self.EMB_SIZE),
+		model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
 		                        nb_filter=16,
 		                        filter_length=4,
 		                        border_mode='same'))
@@ -154,7 +172,7 @@ class KerasClass:
 
 
 		model.compile(optimizer=opt, 
-		              loss='categorical_crossentropy',
+		              loss='binary_crossentropy',
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
@@ -192,4 +210,52 @@ class KerasClass:
 			plt.xlabel('epoch')
 			plt.legend(['train', 'test'], loc='best')
 			plt.show()
+
+
+	def simple_mlp_example(self, change_percent):
+		X, Y = self.create_X_Y_values(change_percent)
+		X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
+
+		model = Sequential()
+		model.add(Dense(64, input_dim=30))
+		# activity_regularizer=regularizers.12(0.01)
+		model.add(BatchNormalization())
+		model.add(LeakyReLU())
+		model.add(Dropout(0.5))
+		model.add(Dense(16))
+		# activity_regularizer=regularizers.12(0.01)
+		model.add(BatchNormalization())
+		model.add(LeakyReLU())
+		model.add(Dense(2))
+		model.add(Activation('softmax'))
+
+		opt = Nadam(lr=0.002)
+
+		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+
+		history = model.fit(X_train, Y_train, 
+		          nb_epoch = 10, 
+		          batch_size = 128, 
+		          verbose=1, 
+		          validation_data=(X_test, Y_test),
+		          callbacks=[reduce_lr],
+		          shuffle=True)
+
+		plt.figure()
+		plt.plot(history.history['loss'])
+		plt.plot(history.history['val_loss'])
+		plt.title('model loss')
+		plt.ylabel('loss')
+		plt.xlabel('epoch')
+		plt.legend(['train', 'test'], loc='best')
+		plt.show()
+
+		plt.figure()
+		plt.plot(history.history['acc'])
+		plt.plot(history.history['val_acc'])
+		plt.title('model accuracy')
+		plt.ylabel('accuracy')
+		plt.xlabel('epoch')
+		plt.legend(['train', 'test'], loc='best')
+		plt.show()
 

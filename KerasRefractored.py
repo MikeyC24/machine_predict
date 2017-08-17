@@ -194,8 +194,16 @@ for i in range(0, df.shape[0], STEP):
 			array_stacks =[]
 			print('feature', feature)
 			f = feature_data[i:i+WINDOW]
+			print('i', i)
+			print('window', WINDOW)
+			#print('feature_data', feature_data)
 			name = str(feature) + '_normalized'
 			name = (np.array(f) - np.mean(f)) / np.std(f)
+			print('f', f)
+			print('name1', name)
+			print('np array', np.array(f))
+			print('np mean', np.mean(f))
+			print('np std', np.std(f))
 			array_stacks.append(name)
 			dict_features[str(feature)] = (name)
 			#normalized_features_dict[str(name)] = name
