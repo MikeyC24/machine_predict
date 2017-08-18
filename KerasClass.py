@@ -9,7 +9,7 @@ import matplotlib.pylab as plt
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-"""
+
 from keras.models import Sequential
 from keras.layers import LSTM
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -25,7 +25,7 @@ from keras.initializers import *
 from keras import losses
 import seaborn as sns
 sns.despine()
-"""
+
 
 # for now this class is only taking a dataframe from main model that has been
 # worked on from the arrange data class, traing/test and all keras model vars

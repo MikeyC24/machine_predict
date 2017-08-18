@@ -1,8 +1,8 @@
 from MachinePredictModelrefractored import *
 from KerasClass import *
 
-file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
-file_location1 = '/home/mike/Downloads/coin_months_data'
+file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
@@ -154,12 +154,120 @@ print('X_train shape', X_train.shape)
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 y = 1
-for x in Y_train:
+for x in X_train:
 	print(y)
 	print(x)
 	print(len(x))
 	y+=1
 
+try:
+	df2 = pd.DataFrame(X_train.reshape(-1,3), columns=list('X_train'))
+	print(df2.shape)
+	print(df2.columns)
+except:
+	print('df2 didn;t work')
+
+try:
+	df3 = pd.Panel(X_train).to_frame()
+	#df3 = pan.swapaxes(0,2).to_frame()
+	print(df3.shape)
+	print(df3.columns)
+	print(df3.head(10))
+	print('row 0', df3.iloc[0])
+	#x_train_new = df3.as_matrix()
+	#print('x train new', x_train_new)
+	print('x train', X_train, X_train.shape)
+	# above shape is 150,30,16
+	# panel saves it to dataframe as 480, 150 (16*30 is 480)
+	# need to figure out how to unpack panel back to 3d array of 150,30,16
+except:
+	print('df3 didnt work')
+
+
+"""
+model = Sequential()
+model.add(Convolution1D(input_shape = (window, EMB_SIZE),
+                        nb_filter=16,
+                        filter_length=4,
+                        border_mode='same'))
+model.add(BatchNormalization())
+model.add(LeakyReLU())
+model.add(Dropout(0.5))
+
+model.add(Convolution1D(nb_filter=8,
+                        filter_length=4,
+                        border_mode='same'))
+model.add(BatchNormalization())
+model.add(LeakyReLU())
+model.add(Dropout(0.5))
+
+model.add(Flatten())
+
+model.add(Dense(64))
+model.add(BatchNormalization())
+model.add(LeakyReLU())
+
+
+model.add(Dense(2))
+model.add(Activation('softmax'))
+
+opt = Nadam(lr=0.002)
+
+reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+
+
+model.compile(optimizer=opt, 
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+history = model.fit(df3, Y_train, 
+          nb_epoch = 100, 
+          batch_size = 128, 
+          verbose=1, 
+          validation_data=(X_test, Y_test),
+          callbacks=[reduce_lr, checkpointer],
+          shuffle=True)
+
+model.load_weights("lolkek.hdf5")
+pred = model.predict(np.array(X_test))
+
+
+C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
+print(C / C.astype(np.float).sum(axis=1))
+
+if self.plot == 'yes':
+	plt.figure()
+	plt.plot(history.history['loss'])
+	plt.plot(history.history['val_loss'])
+	plt.title('model loss')
+	plt.ylabel('loss')
+	plt.xlabel('epoch')
+	plt.legend(['train', 'test'], loc='best')
+	plt.show()
+
+	plt.figure()
+	plt.plot(history.history['acc'])
+	plt.plot(history.history['val_acc'])
+	plt.title('model accuracy')
+	plt.ylabel('accuracy')
+	plt.xlabel('epoch')
+	plt.legend(['train', 'test'], loc='best')
+	plt.show()
+"""
+
+"""
+array_check = ['a', 'b', 'c']
+df1 = pd.DataFrame()
+df1['X_train'] = X_train
+df1['Y_train'] = Y_train
+df1['X_test'] = X_test
+df1['Y_test'] = Y_test
+print(df1.shape1)
+print(df1.columns)
+"""
+# https://stackoverflow.com/questions/35525028/how-to-transform-a-3d-arrays-into-a-dataframe-in-python
+# https://stackoverflow.com/questions/35525028/how-to-transform-a-3d-arrays-into-a-dataframe-in-python
 # set up x,y train and test as columns in df, write df to sql. see if model can just
 # load those columns as the vars
 

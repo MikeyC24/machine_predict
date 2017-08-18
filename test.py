@@ -1,12 +1,6 @@
-def test_math(a,b):
-	y = a+b
-	z = a-b
-	return y,z
-
-vars = test_math(10,5)
-print(vars)
-a = vars
-v = vars[0]
-
-print(a)
-print(v)
+arraya = [1,2,3]
+import pandas as pd
+df2 =  pd.DataFrame()
+print(df2.shape)
+df2['test'] = arraya
+print(df2.shape)
