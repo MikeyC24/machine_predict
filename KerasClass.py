@@ -9,7 +9,7 @@ import matplotlib.pylab as plt
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-
+"""
 from keras.models import Sequential
 from keras.layers import LSTM
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -25,7 +25,7 @@ from keras.initializers import *
 from keras import losses
 import seaborn as sns
 sns.despine()
-
+"""
 
 # for now this class is only taking a dataframe from main model that has been
 # worked on from the arrange data class, traing/test and all keras model vars
@@ -112,7 +112,6 @@ class KerasClass:
 	def shuffle_in_unison(self, a, b):
 		# courtsey http://stackoverflow.com/users/190280/josh-bleecher-snyder
 		print('made it to shuffle')
-		print('a,b type', type(a), type(b))
 		assert len(a) == len(b)
 		shuffled_a = np.empty(a.shape, dtype=a.dtype)
 		shuffled_b = np.empty(b.shape, dtype=b.dtype)
@@ -132,7 +131,6 @@ class KerasClass:
 	
 		X_test = X[p:]
 		Y_test = y[p:]
-
 		return X_train, X_test, Y_train, Y_test
 
 	def binary_classification_model(self):
@@ -140,9 +138,10 @@ class KerasClass:
 		# get x,y values, create train/test/set then reshape them
 		X, Y = self.create_X_Y_values(self.window)
 		X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
+		print('X_train shape', X_train.shape)
 		X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
 		X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
-
+		print('X_train shape after reshape', X_train.shape)
 		model = Sequential()
 		model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
 		                        nb_filter=16,
@@ -180,7 +179,7 @@ class KerasClass:
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 5, 
+		          nb_epoch = 100, 
 		          batch_size = 128, 
 		          verbose=1, 
 		          validation_data=(X_test, Y_test),
@@ -192,7 +191,6 @@ class KerasClass:
 
 		
 		C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
-
 		print(C / C.astype(np.float).sum(axis=1))
 
 		if self.plot == 'yes':
@@ -215,71 +213,78 @@ class KerasClass:
 			plt.show()
 
 
-
+#https://github.com/Rachnog/Deep-Trading/blob/master/hyperparameters/hyper.py
 	def optimize_experiment_classification(self, params):
 		X, Y = self.create_X_Y_values(params['window'])
 		X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
 		X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
 		X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
+		try: 
 
-		print('params set up')
+			print('params set up')
 
-		model = Sequential()
-		model.add(Convolution1D(input_shape = (params['window'], self.EMB_SIZE),
-		                        nb_filter=16,
-		                        filter_length=4,
-		                        border_mode='same'))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-		model.add(Dropout(0.5))
+			model = Sequential()
+			model.add(Convolution1D(input_shape = (params['window'], self.EMB_SIZE),
+			                        nb_filter=16,
+			                        filter_length=4,
+			                        border_mode='same'))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
+			model.add(Dropout(0.5))
 
-		model.add(Convolution1D(nb_filter=8,
-		                        filter_length=4,
-		                        border_mode='same'))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-		model.add(Dropout(0.5))
+			model.add(Convolution1D(nb_filter=8,
+			                        filter_length=4,
+			                        border_mode='same'))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
+			model.add(Dropout(0.5))
 
-		model.add(Flatten())
+			model.add(Flatten())
 
-		model.add(Dense(64))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-
-
-		model.add(Dense(2))
-		model.add(Activation('softmax'))
-
-		opt = Nadam(lr=0.002)
-
-		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
-		checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+			model.add(Dense(64))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
 
 
-		model.compile(optimizer=opt, 
-		              loss=params['loss'],
-		              metrics=['accuracy'])
+			model.add(Dense(2))
+			model.add(Activation('softmax'))
 
-		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 100, 
-		          batch_size = 128, 
-		          verbose=1, 
-		          validation_data=(X_test, Y_test),
-		          callbacks=[reduce_lr, checkpointer],
-		          shuffle=True)
+			opt = Nadam(lr=0.002)
 
-		model.load_weights("lolkek.hdf5")
-		pred = model.predict(np.array(X_test))
+			reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+			checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
 
-		C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
 
-		print(C / C.astype(np.float).sum(axis=1))
+			model.compile(optimizer=opt, 
+			              loss=params['loss'],
+			              metrics=['accuracy'])
 
+			history = model.fit(X_train, Y_train, 
+			          nb_epoch = 10, 
+			          batch_size = 128, 
+			          verbose=1, 
+			          validation_data=(X_test, Y_test),
+			          callbacks=[reduce_lr, checkpointer],
+			          shuffle=True)
+
+			model.load_weights("lolkek.hdf5")
+			pred = model.predict(np.array(X_test))
+
+		except:
+			print('somthing happened')
+			return {'loss':9999999, 'status':STATUS_OK}
+
+	
+			#C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
+			#print('c', C)
+			#print(C / C.astype(np.float).sum(axis=1))
+		sys.stdout.flush()
+		return {'loss':'categorical_crossentropy', 'status':STATUS_OK}
 
 	def best_params(self, space):
 
 		trials = Trials()
 		best = fmin(self.optimize_experiment_classification, space, algo=tpe.suggest,
-			max_evals=50, trials=trials)
+			max_evals=5, trials=trials)
 		print(best)
 

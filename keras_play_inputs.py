@@ -19,8 +19,7 @@ columns_to_drop1 = ['amount_USDT_ETH','total_USDT_ETH',
  'min_rate_USDT_LTC', ]
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH',
  'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'date',
- 'trade_count_USDT_LTC', 'max_rate_USDT_LTC', 'rate_USDT_LTC',
- 'min_rate_USDT_LTC', ]
+]
 # columns all before any editing 
 columns_all_init = ['date']
 # took date out of colums_all
@@ -76,8 +75,8 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = { 'rate_USDT_ETH':[6,24]}
-rolling_std_dict = {'rate_USDT_ETH':[6,24]}
+rolling_averages_dict = { 'rate_USDT_ETH':[144,288],'rate_USDT_ETH':[144,288],'rate_USDT_ETH':[144,288]}
+rolling_std_dict = {'rate_USDT_ETH':[144,288],'rate_USDT_ETH':[144,288],'rate_USDT_ETH':[144,288]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -136,11 +135,38 @@ keras_instance = KerasClass(model_type, parameter_type,
 keras_instance.simple_mlp_example(1)
 
 """
+
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, percent_change,  train_percent, plot)
 
-space ={'window':hp.choice('window', [6,24,72]),
+space ={'window':hp.choice('window', [30]),
 		'loss':hp.choice('loss', ['binary_crossentropy', 'categorical_crossentropy']),
 		}
-keras_instance.best_params(space)
+space ={'window':hp.choice('window', [6,30,72]),}
+#keras_instance.best_params(space)
 #keras_instance.binary_classification_model()
+
+# seeing how prepared ata may be written to database
+EMB_SIZE = len(df.columns)
+X, Y = keras_instance.create_X_Y_values()
+X_train, X_test, Y_train, Y_test = keras_instance.create_Xt_Yt(X, Y)
+print('X_train shape', X_train.shape)
+X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
+X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
+y = 1
+for x in Y_train:
+	print(y)
+	print(x)
+	print(len(x))
+	y+=1
+
+
+
+
+"""
+print('X_train shape after reshape', X_train.shape)
+print('________________')
+print('one',X_test[0])
+print('two',X_test[0][0])
+print('three',X_test[0][0][0])
+"""
