@@ -160,7 +160,8 @@ for x in Y_train:
 	print(len(x))
 	y+=1
 
-
+# set up x,y train and test as columns in df, write df to sql. see if model can just
+# load those columns as the vars
 
 
 """
