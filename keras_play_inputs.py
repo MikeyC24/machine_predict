@@ -150,16 +150,17 @@ space ={'window':hp.choice('window', [6,30,72]),}
 EMB_SIZE = len(df.columns)
 X, Y = keras_instance.create_X_Y_values()
 X_train, X_test, Y_train, Y_test = keras_instance.create_Xt_Yt(X, Y)
-print('X_train shape', X_train.shape)
+print('X_train shape', X_train.shape, 'xtrain type before reshape',  type(X_train))
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 y = 1
+"""
 for x in X_train:
 	print(y)
 	print(x)
 	print(len(x))
 	y+=1
-
+"""
 try:
 	df2 = pd.DataFrame(X_train.reshape(-1,3), columns=list('X_train'))
 	print(df2.shape)
@@ -176,15 +177,52 @@ try:
 	print('row 0', df3.iloc[0])
 	#x_train_new = df3.as_matrix()
 	#print('x train new', x_train_new)
-	print('x train', X_train, X_train.shape)
+	print('x train', X_train, X_train.shape, 'xtrain_type', type(X_train))
+	print('x_train row 0 shape', X_train[0].shape)
+	print('df3 shape', df3.shape)
+	print('first row shape df3', df3.iloc[0].shape, 'type of df3 first row', type(df3.iloc[0]))
+	print('df row 0 without i loc', df3[0])
+	#print('trying to reshape first row of df3', '________')
+	#print('first converting to numpy nd array', df3[0].values. type(df3[0].values))
+
 	# above shape is 150,30,16
 	# panel saves it to dataframe as 480, 150 (16*30 is 480)
 	# need to figure out how to unpack panel back to 3d array of 150,30,16
 except:
 	print('df3 didnt work')
 
+print('trying to reshape first row of df3', '________')
+print('first converting to numpy nd array')
+df4 =df3.values
+print('type of df3.values', type(df4))
+print(df4[0])
+print('reshaping df4 0')
+reshape1 = np.reshape(df4, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
+print(reshape1, reshape1.shape)
+print('above is reshape, below is x_Train_________')
+print('x train', X_train, X_train.shape)
+df5 = pd.Panel(X_test).to_frame()
+df6 = df5.values
+reshape2 = np.reshape(df6, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
+print('shape of x train, x test, reshape 1, eshape 2 in order',
+	X_train.shape, X_test.shape, reshape1.shape, reshape2.shape)
 
-"""
+print('Y_train and y_test shapes', Y_train.shape, Y_test.shape)
+y_data_dict = {'y_train':Y_train}
+print(type(Y_train))
+
+df_y_train = pd.DataFrame(Y_train)
+df_y_test = pd.DataFrame(Y_test)
+#df_y_train['y_train'] = Y_train
+print(type(df_y_train))
+print(df_y_train)
+df_y_train_f = np.reshape(df_y_train.values, (150, 2))
+print(df_y_train_f)
+print('________________________')
+df_y_test_f = np.reshape(df_y_test.values, (Y_test.shape[0], 2))
+print(df_y_test_f, print(df_y_test_f.shape))
+
+
 model = Sequential()
 model.add(Convolution1D(input_shape = (window, EMB_SIZE),
                         nb_filter=16,
@@ -221,40 +259,40 @@ model.compile(optimizer=opt,
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
-history = model.fit(df3, Y_train, 
-          nb_epoch = 100, 
+history = model.fit(reshape1, df_y_train_f, 
+          nb_epoch = 10, 
           batch_size = 128, 
           verbose=1, 
-          validation_data=(X_test, Y_test),
+          validation_data=(reshape2, df_y_test_f),
           callbacks=[reduce_lr, checkpointer],
           shuffle=True)
 
 model.load_weights("lolkek.hdf5")
-pred = model.predict(np.array(X_test))
+pred = model.predict(np.array(reshape2))
 
 
-C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
+C = confusion_matrix([np.argmax(y) for y in df_y_test_f], [np.argmax(y) for y in pred])
 print(C / C.astype(np.float).sum(axis=1))
 
-if self.plot == 'yes':
-	plt.figure()
-	plt.plot(history.history['loss'])
-	plt.plot(history.history['val_loss'])
-	plt.title('model loss')
-	plt.ylabel('loss')
-	plt.xlabel('epoch')
-	plt.legend(['train', 'test'], loc='best')
-	plt.show()
 
-	plt.figure()
-	plt.plot(history.history['acc'])
-	plt.plot(history.history['val_acc'])
-	plt.title('model accuracy')
-	plt.ylabel('accuracy')
-	plt.xlabel('epoch')
-	plt.legend(['train', 'test'], loc='best')
-	plt.show()
-"""
+plt.figure()
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='best')
+plt.show()
+
+plt.figure()
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='best')
+plt.show()
+
 
 """
 array_check = ['a', 'b', 'c']
