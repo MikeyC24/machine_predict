@@ -136,18 +136,23 @@ class KerasClass:
 		Y_test = y[p:]
 		if self.write_to_sql is not None:
 			print('writing to sql')
-			try:
-				conn  = sqlite3.connect(self.write_to_sql['database'])
-				df_x_train = pd.Panel(X_train).to_frame()
-				df_x_test = pd.Panel(X_test).to_frame()
-				df_y_train = pd.DataFrame(Y_train)
-				df_y_test = pd.DataFrame(Y_test)
-				df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail')
-				df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail')
-				df_y_train.to_sql(name=self.write_to_sql['y_train'], con=conn, if_exists='fail')
-				df_y_test.to_sql(name=self.write_to_sql['y_test'], con=conn, if_exists='fail')
-			except:
-				print('count not write to sql')
+			#try:
+			conn  = sqlite3.connect(self.write_to_sql['database'])
+			df_x_train = pd.Panel(X_train).to_frame()
+			df_x_test = pd.Panel(X_test).to_frame()
+			df_y_train = pd.DataFrame(Y_train)
+			df_y_test = pd.DataFrame(Y_test)
+			print(df_x_train.shape)
+			print(df_x_test.shape)
+			print(df_y_train.shape)
+			print(df_y_test.shape)
+			df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail')
+			df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail')
+			df_y_train.to_sql(name=self.write_to_sql['y_train'], con=conn, if_exists='fail')
+			df_y_test.to_sql(name=self.write_to_sql['y_test'], con=conn, if_exists='fail')
+			#except Exception as e:
+				#print('could not write to sql')
+				print('error is ', e)
 		return X_train, X_test, Y_train, Y_test
 
 	def binary_classification_model(self):

@@ -108,7 +108,7 @@ result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print(df.columns.values)
 feature_wanted = 'rate_USDT_ETH'
-df = df.loc[29425:,]
+df = df.loc[24425:,]
 print(df.shape)
 
 
@@ -123,11 +123,12 @@ plot = 'yes'
 feature_wanted = 'rate_USDT_ETH'
 percent_change = 1
 database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_array_rearrange'
-#write_to_sql = {'database':database_arrange, 'x_train':'x_train_table',
+write_to_sql = {'database':database_arrange, 'x_train':'x_train_table_3',
+'x_test':'x_test_table_3', 'y_train':'y_train_table_3', 'y_test':'y_test_table_3'}
+#write_to_sql = None
+#read_from_sql_for_model = {'database':database_arrange, 'x_train':'x_train_table',
 #'x_test':'x_test_table', 'y_train':'y_train_table', 'y_test':'y_test_table'}
-write_to_sql = None
-read_from_sql_for_model = {'database':database_arrange, 'x_train':'x_train_table',
-'x_test':'x_test_table', 'y_train':'y_train_table', 'y_test':'y_test_table'}
+read_from_sql_for_model = None
 """
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)
