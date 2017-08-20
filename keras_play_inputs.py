@@ -191,6 +191,7 @@ try:
 except:
 	print('df3 didnt work')
 
+x_train_df = df3
 print('trying to reshape first row of df3', '________')
 print('first converting to numpy nd array')
 df4 =df3.values
@@ -202,6 +203,7 @@ print(reshape1, reshape1.shape)
 print('above is reshape, below is x_Train_________')
 print('x train', X_train, X_train.shape)
 df5 = pd.Panel(X_test).to_frame()
+x_test_df = df5
 df6 = df5.values
 reshape2 = np.reshape(df6, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 print('shape of x train, x test, reshape 1, eshape 2 in order',
@@ -221,6 +223,64 @@ print(df_y_train_f)
 print('________________________')
 df_y_test_f = np.reshape(df_y_test.values, (Y_test.shape[0], 2))
 print(df_y_test_f, print(df_y_test_f.shape))
+
+# trying to save to sql and back
+# 4 dataframes to save
+# df_y_train, , df_y_test , x_test_df, x_train_df
+database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_array_rearrange'
+conn2 = sqlite3.connect(database_arrange)
+#df_y_train.to_sql(name='df_y_train_table', con=conn2, if_exists='fail')
+#x_test_df.to_sql(name='x_test_df_table', con=conn2, if_exists='fail')
+#df_y_test.to_sql(name='df_y_test_table', con=conn2, if_exists='fail')
+#x_train_df.to_sql(name='x_train_df_table', con=conn2, if_exists='fail')
+df_x_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % ('x_test_df_table'), conn2)
+df_y_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % ('df_y_train_table'), conn2)
+df_x_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % ('x_train_df_table'), conn2)
+df_y_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % ('df_y_test_table'), conn2)
+
+
+print(df_x_test_from_sql.head(10))
+print('shape of df before sql', x_test_df.shape)
+print('shape of df after taken from sql', df_x_test_from_sql.shape)
+df_x_test_from_sql = df_x_test_from_sql.drop('major', axis=1)
+df_x_test_from_sql = df_x_test_from_sql.drop('minor',axis=1)
+print('df_x_test_from_sql after dropping major and minor shape', df_x_test_from_sql.shape)
+print(df_x_test_from_sql.head(10))
+print(df_y_train_from_sql.head(10))
+df_y_train_from_sql = df_y_train_from_sql.drop('index', axis=1)
+print(df_y_train_from_sql.head(10))
+df_y_test_from_sql = df_y_test_from_sql.drop('index', axis=1)
+df_x_train_from_sql = df_x_train_from_sql.drop('major', axis=1)
+df_x_train_from_sql = df_x_train_from_sql.drop('minor',axis=1)
+print('shapes in order of x_test, x train, y test, y train')
+print('_____________')
+print(df_x_train_from_sql.shape, df_x_test_from_sql.shape,
+	df_y_train_from_sql.shape, df_y_test_from_sql.shape)
+#reshaping
+df_y_train_from_sql = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
+df_y_test_from_sql = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+# getting shape values
+#df_x_train_from_sql = np.reshape(df_x_train_from_sql.values, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
+#print(df_x_train_from_sql.shape)
+
+#print(df_x_train_from_sql.shape[0],df_x_train_from_sql.shape[1], EMB_SIZE)
+#print(df_x_train_from_sql.shape[0]/EMB_SIZE)
+#print(int((df_x_train_from_sql.shape[0])/(EMB_SIZE)))
+df_x_train_from_sql = np.reshape(df_x_train_from_sql.values, (df_x_train_from_sql.shape[1], int((df_x_train_from_sql.shape[0])/(EMB_SIZE)), EMB_SIZE))
+#print(df_x_train_from_sql.shape)
+
+df_x_test_from_sql = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(EMB_SIZE)),  EMB_SIZE))
+#print(df_x_test_from_sql.shape)
+print('all after reshape___________')
+print(df_x_train_from_sql.shape, df_x_test_from_sql.shape,
+	df_y_train_from_sql.shape, df_y_test_from_sql.shape)
+
+"""
+reshaped_x_test_from_sql = np.reshape(df_x_test_from_sql.values, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
+reshaped_y_train_from_sql = np.reshape(df_y_train_from_sql.values, (Y_train.shape[0], 2))
+print(reshaped_y_train_from_sql.shape)
+print(reshaped_x_test_from_sql.shape)
+"""
 
 
 model = Sequential()
@@ -259,19 +319,19 @@ model.compile(optimizer=opt,
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
-history = model.fit(reshape1, df_y_train_f, 
+history = model.fit(df_x_train_from_sql, df_y_train_from_sql, 
           nb_epoch = 10, 
           batch_size = 128, 
           verbose=1, 
-          validation_data=(reshape2, df_y_test_f),
+          validation_data=(df_x_test_from_sql, df_y_test_from_sql),
           callbacks=[reduce_lr, checkpointer],
           shuffle=True)
 
 model.load_weights("lolkek.hdf5")
-pred = model.predict(np.array(reshape2))
+pred = model.predict(np.array(df_x_test_from_sql))
 
 
-C = confusion_matrix([np.argmax(y) for y in df_y_test_f], [np.argmax(y) for y in pred])
+C = confusion_matrix([np.argmax(y) for y in df_y_test_from_sql], [np.argmax(y) for y in pred])
 print(C / C.astype(np.float).sum(axis=1))
 
 
@@ -292,7 +352,6 @@ plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='best')
 plt.show()
-
 
 """
 array_check = ['a', 'b', 'c']
