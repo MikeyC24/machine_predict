@@ -34,7 +34,8 @@ sns.despine()
 class KerasClass:
 
 	def __init__(self, model_type, parameter_type, dataframe,
-		window, step, forecast, feature_wanted, percent_change = 1, train_percent=.8, plot='yes'):
+		window, step, forecast, feature_wanted, percent_change = 1, train_percent=.8, 
+		plot='yes', **kwargs):
 		self.model_type = model_type
 		self.parameter_type = parameter_type
 		self.train_percent = train_percent
@@ -46,6 +47,8 @@ class KerasClass:
 		self.plot = plot
 		self.percent_change = percent_change
 		self.EMB_SIZE = len(self.dataframe.columns)
+		self.write_to_sql = kwargs.get('write_to_sql', None)
+		self.read_from_sql_for_model = kwargs.get('read_from_sql_for_model', None)
 
 	def create_feature_var_dict(self):
 		df = self.dataframe
@@ -131,17 +134,51 @@ class KerasClass:
 	
 		X_test = X[p:]
 		Y_test = y[p:]
+		if self.write_to_sql is not None:
+			print('writing to sql')
+			try:
+				conn  = sqlite3.connect(self.write_to_sql['database'])
+				df_x_train = pd.Panel(X_train).to_frame()
+				df_x_test = pd.Panel(X_test).to_frame()
+				df_y_train = pd.DataFrame(Y_train)
+				df_y_test = pd.DataFrame(Y_test)
+				df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail')
+				df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail')
+				df_y_train.to_sql(name=self.write_to_sql['y_train'], con=conn, if_exists='fail')
+				df_y_test.to_sql(name=self.write_to_sql['y_test'], con=conn, if_exists='fail')
+			except:
+				print('count not write to sql')
 		return X_train, X_test, Y_train, Y_test
 
 	def binary_classification_model(self):
 
 		# get x,y values, create train/test/set then reshape them
-		X, Y = self.create_X_Y_values(self.window)
-		X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
-		print('X_train shape', X_train.shape)
-		X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
-		X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
-		print('X_train shape after reshape', X_train.shape)
+		if self.read_from_sql_for_model is None:
+			X, Y = self.create_X_Y_values(self.window)
+			X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
+			print('X_train shape', X_train.shape)
+			X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
+			X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
+			print('X_train shape after reshape', X_train.shape)
+		else:
+			print('using train and test data from sql db')
+			con = sqlite3.connect(self.read_from_sql_for_model['database'])
+			df_x_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['x_train']), con)
+			df_x_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['x_test']), con)
+			df_y_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_train']), con)
+			df_y_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_test']), con)
+			df_x_train_from_sql = df_x_train_from_sql.drop('major', axis=1)
+			df_x_train_from_sql = df_x_train_from_sql.drop('minor',axis=1)
+			df_x_test_from_sql = df_x_test_from_sql.drop('major', axis=1)
+			df_x_test_from_sql = df_x_test_from_sql.drop('minor',axis=1)
+			df_y_train_from_sql = df_y_train_from_sql.drop('index', axis=1)
+			df_y_test_from_sql = df_y_test_from_sql.drop('index', axis=1)
+			X_train = np.reshape(df_x_train_from_sql.values, (df_x_train_from_sql.shape[1], int((df_x_train_from_sql.shape[0])/(self.EMB_SIZE)), self.EMB_SIZE))
+			X_test = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(self.EMB_SIZE)),  self.EMB_SIZE))
+			Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
+			Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+
+
 		model = Sequential()
 		model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
 		                        nb_filter=16,
@@ -175,11 +212,11 @@ class KerasClass:
 
 
 		model.compile(optimizer=opt, 
-		              loss='binary_crossentropy',
+		              loss='categorical_crossentropy',
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 100, 
+		          nb_epoch = 10, 
 		          batch_size = 128, 
 		          verbose=1, 
 		          validation_data=(X_test, Y_test),

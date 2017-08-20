@@ -122,6 +122,12 @@ forecast = 1
 plot = 'yes'
 feature_wanted = 'rate_USDT_ETH'
 percent_change = 1
+database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_array_rearrange'
+#write_to_sql = {'database':database_arrange, 'x_train':'x_train_table',
+#'x_test':'x_test_table', 'y_train':'y_train_table', 'y_test':'y_test_table'}
+write_to_sql = None
+read_from_sql_for_model = {'database':database_arrange, 'x_train':'x_train_table',
+'x_test':'x_test_table', 'y_train':'y_train_table', 'y_test':'y_test_table'}
 """
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)
@@ -137,16 +143,21 @@ keras_instance.simple_mlp_example(1)
 """
 
 keras_instance = KerasClass(model_type, parameter_type, 
-	dataframe, window, step, forecast, feature_wanted, percent_change,  train_percent, plot)
+	dataframe, window, step, forecast, feature_wanted, 
+	percent_change,  train_percent, plot, write_to_sql=write_to_sql,
+	read_from_sql_for_model=read_from_sql_for_model)
 
 space ={'window':hp.choice('window', [30]),
 		'loss':hp.choice('loss', ['binary_crossentropy', 'categorical_crossentropy']),
 		}
 space ={'window':hp.choice('window', [6,30,72]),}
 #keras_instance.best_params(space)
-#keras_instance.binary_classification_model()
+keras_instance.binary_classification_model()
 
 # seeing how prepared ata may be written to database
+
+
+"""
 EMB_SIZE = len(df.columns)
 X, Y = keras_instance.create_X_Y_values()
 X_train, X_test, Y_train, Y_test = keras_instance.create_Xt_Yt(X, Y)
@@ -154,13 +165,7 @@ print('X_train shape', X_train.shape, 'xtrain type before reshape',  type(X_trai
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 y = 1
-"""
-for x in X_train:
-	print(y)
-	print(x)
-	print(len(x))
-	y+=1
-"""
+
 try:
 	df2 = pd.DataFrame(X_train.reshape(-1,3), columns=list('X_train'))
 	print(df2.shape)
@@ -274,7 +279,7 @@ df_x_test_from_sql = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.s
 print('all after reshape___________')
 print(df_x_train_from_sql.shape, df_x_test_from_sql.shape,
 	df_y_train_from_sql.shape, df_y_test_from_sql.shape)
-
+"""
 """
 reshaped_x_test_from_sql = np.reshape(df_x_test_from_sql.values, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 reshaped_y_train_from_sql = np.reshape(df_y_train_from_sql.values, (Y_train.shape[0], 2))
@@ -282,7 +287,7 @@ print(reshaped_y_train_from_sql.shape)
 print(reshaped_x_test_from_sql.shape)
 """
 
-
+"""
 model = Sequential()
 model.add(Convolution1D(input_shape = (window, EMB_SIZE),
                         nb_filter=16,
@@ -352,7 +357,7 @@ plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='best')
 plt.show()
-
+"""
 """
 array_check = ['a', 'b', 'c']
 df1 = pd.DataFrame()
