@@ -151,8 +151,8 @@ class KerasClass:
 			print(df_x_train.shape)
 			print(df_x_test.shape)
 			#print(df_x_train.head(10))
-			df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail')
-			df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail')
+			df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail', index=False)
+			df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail', index=False)
 			df_y_train.to_sql(name=self.write_to_sql['y_train'], con=conn, if_exists='fail')
 			df_y_test.to_sql(name=self.write_to_sql['y_test'], con=conn, if_exists='fail')
 			#except Exception as e:
@@ -187,8 +187,8 @@ class KerasClass:
 			print( df_x_test_from_sql.head(10))
 			#df_x_train_from_sql = df_x_train_from_sql.drop('index', axis=1)
 			#df_x_train_from_sql = df_x_train_from_sql.drop('minor',axis=1)
-			df_x_train_from_sql = df_x_train_from_sql.iloc[1:,]
-			df_x_test_from_sql = df_x_test_from_sql.iloc[1:,]
+			#df_x_train_from_sql = df_x_train_from_sql.iloc[1:,]
+			#df_x_test_from_sql = df_x_test_from_sql.iloc[1:,]
 			#df_x_test_from_sql = df_x_test_from_sql.drop('major', axis=1)
 			#df_x_test_from_sql = df_x_test_from_sql.drop('minor',axis=1)
 			df_y_train_from_sql = df_y_train_from_sql.drop('index', axis=1)

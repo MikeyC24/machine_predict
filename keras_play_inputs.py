@@ -1,5 +1,9 @@
 from MachinePredictModelrefractored import *
 from KerasClass import *
+import unittest
+
+# may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
+
 
 file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
 file_location = '/home/mike/Downloads/coin_months_data'
@@ -75,8 +79,8 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = { 'rate_USDT_ETH':[144,288],'rate_USDT_ETH':[144,288],'rate_USDT_ETH':[144,288]}
-rolling_std_dict = {'rate_USDT_ETH':[144,288],'rate_USDT_ETH':[144,288],'rate_USDT_ETH':[144,288]}
+rolling_averages_dict = { 'rate_USDT_ETH':[6,30],'rate_USDT_ETH':[6,30],'rate_USDT_ETH':[6,30]}
+rolling_std_dict = {'rate_USDT_ETH':[6,30],'rate_USDT_ETH':[6,30],'rate_USDT_ETH':[6,30]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -108,7 +112,7 @@ result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print(df.columns.values)
 feature_wanted = 'rate_USDT_ETH'
-df = df.loc[24425:,]
+df = df.loc[27425:,]
 print(df.shape)
 
 
@@ -116,19 +120,19 @@ model_type = 'classification'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
-window = 30
+window = 288
 step = 1
 forecast = 1
 plot = 'yes'
 feature_wanted = 'rate_USDT_ETH'
 percent_change = 1
 database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_array_rearrange'
-#write_to_sql = {'database':database_arrange, 'x_train':'x_train_table_3',
-#'x_test':'x_test_table_3', 'y_train':'y_train_table_3', 'y_test':'y_test_table_3'}
-write_to_sql = None
-read_from_sql_for_model = {'database':database_arrange, 'x_train':'x_train_table_3',
-'x_test':'x_test_table_3', 'y_train':'y_train_table_3', 'y_test':'y_test_table_3'}
-#read_from_sql_for_model = None
+write_to_sql = {'database':database_arrange, 'x_train':'x_train_table_6',
+'x_test':'x_test_table_6', 'y_train':'y_train_table_6', 'y_test':'y_test_table_6'}
+#write_to_sql = None
+read_from_sql_for_model = None
+#read_from_sql_for_model = {'database':database_arrange, 'x_train':'x_train_table_5',
+#'x_test':'x_test_table_5', 'y_train':'y_train_table_5', 'y_test':'y_test_table_5'}
 """
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)
@@ -167,12 +171,6 @@ X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 y = 1
 
-try:
-	df2 = pd.DataFrame(X_train.reshape(-1,3), columns=list('X_train'))
-	print(df2.shape)
-	print(df2.columns)
-except:
-	print('df2 didn;t work')
 
 try:
 	df3 = pd.Panel(X_train).to_frame()
@@ -211,10 +209,57 @@ print('x train', X_train, X_train.shape)
 df5 = pd.Panel(X_test).to_frame()
 x_test_df = df5
 df6 = df5.values
+"""
+"""
 reshape2 = np.reshape(df6, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 print('shape of x train, x test, reshape 1, eshape 2 in order',
 	X_train.shape, X_test.shape, reshape1.shape, reshape2.shape)
+# two x dataframes rigt after panel
+if X_train[0].all() == reshape1[0].all():
+	print('even before transpose')
+print('x dataframes before transose',reshape1.shape)
+#print(reshape1[0])
+reshape1 =  reshape1.transpose()
+print('reshape after transpose shape', reshape1.shape)
+#print(reshape1[0])
+reshape1 = reshape1.transpose()
+print('reshape after 2nd transpose', reshape1.shape)
+#print(reshape1[0])
+if X_train[0].all() == reshape1[0].all():
+	print('even after reshape')
+"""
+"""
+print('df5 before transopose', df5.shape)
+print(df.head(5))
+if df5[0].all() == df5[0].all():
+	print('df are equal before transpose')
+df5 =  df5.transpose()
+print('df5 after 1st transopose', df5.shape)
+"""
+"""
+if df5[0].all() == df5[0].all():
+	print('dfs are not  after 1st transpose')
+else:
+	print('dfs are not equal after 1st transpose')
+df5 =  df5.transpose()
+print('df5 after 2nd transopose', df5.shape)
+if df5[0].all() == df5[0].all():
+	print('df are equal after 2nd transpose')
+"""
+"""
+conn = sqlite3.connect(database_arrange)
+df5.to_sql(name='test_db_transpose', con=conn, if_exists='replace', index=False)
 
+df_from_sql = pd.read_sql_query('SELECT * FROM %s' % ('test_db_transpose'), conn)
+print('after sql', df_from_sql.shape, df_from_sql.head(5))
+df_from_sql = df_from_sql.transpose()
+print('after sql and 2nd transpose',df_from_sql.shape, df_from_sql.head(5))
+df_from_sql = np.reshape(df_from_sql.values, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
+if df_from_sql[0].all() == X_test[0].all():
+	print('equal after transposing from sql')
+print('final shapes', X_test.shape, df_from_sql.shape)
+"""
+"""
 print('Y_train and y_test shapes', Y_train.shape, Y_test.shape)
 y_data_dict = {'y_train':Y_train}
 print(type(Y_train))
@@ -230,6 +275,8 @@ print('________________________')
 df_y_test_f = np.reshape(df_y_test.values, (Y_test.shape[0], 2))
 print(df_y_test_f, print(df_y_test_f.shape))
 
+"""
+"""
 # trying to save to sql and back
 # 4 dataframes to save
 # df_y_train, , df_y_test , x_test_df, x_train_df
