@@ -54,12 +54,44 @@ def separate_dfs_by_cols_even(df, num):
 		counter +=1
 	return dfs_array 
 
+
 dfs = separate_dfs_by_cols_even(df, 6)
+
 for x in dfs:
 	print(x.columns.values)
+	print('____________')
 
-df8 = pd.concat(dfs, axis =1)
-a= True if df.equals(df8) else False
-print(df.head(5))
-print(df8.head(5))
+#df8 = pd.concat(dfs, axis =1)
+#a= True if df.equals(df8) else False
+#print(df.head(5))
+#print(df8.head(5))
+#print(a)
+
+
+database = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_array_rearrange_two'
+def write_array_dbs_to_tables(df_array, name_var, database):
+	conn = sqlite3.connect(database)
+	counter = 1
+	for df in df_array:
+		df.to_sql(name=name_var+str(counter), con=conn, if_exists='replace', index=False)
+		counter +=1
+
+write_array_dbs_to_tables(dfs, 'x_train', database)
+
+db_name_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
+def read_from_sql_recombine_dfs(df_name_array, database):
+	conn = sqlite3.connect(database)
+	dfs_array = []
+	counter = 1
+	for name in df_name_array:
+		title = 'df_' +str(counter)
+		title = pd.read_sql_query('SELECT * FROM %s' % (name), conn)
+		dfs_array.append(title)
+		counter += 1
+	combined = pd.concat(dfs_array, axis=1)
+	return combined
+
+combined_df = read_from_sql_recombine_dfs(db_name_array, database)
+print(combined_df.head(5))
+a= True if df.equals(combined_df) else False
 print(a)
