@@ -79,8 +79,8 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = { 'rate_USDT_ETH':[6,30],'rate_USDT_ETH':[6,30],'rate_USDT_ETH':[6,30]}
-rolling_std_dict = {'rate_USDT_ETH':[6,30],'rate_USDT_ETH':[6,30],'rate_USDT_ETH':[6,30]}
+rolling_averages_dict = { 'rate_USDT_ETH':[6,30,60],'rate_USDT_ETH':[6,30,60],'rate_USDT_ETH':[6,30,60]}
+rolling_std_dict = {'rate_USDT_ETH':[6,30,60],'rate_USDT_ETH':[6,30,60],'rate_USDT_ETH':[6,30,60]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -112,7 +112,7 @@ result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print(df.columns.values)
 feature_wanted = 'rate_USDT_ETH'
-df = df.loc[27425:,]
+df = df.loc[19425:,]
 print(df.shape)
 
 
@@ -120,16 +120,16 @@ model_type = 'classification'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
-window = 288
+window = 30
 step = 1
 forecast = 1
 plot = 'yes'
 feature_wanted = 'rate_USDT_ETH'
 percent_change = 1
 database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_array_rearrange'
-write_to_sql = {'database':database_arrange, 'x_train':'x_train_table_6',
-'x_test':'x_test_table_6', 'y_train':'y_train_table_6', 'y_test':'y_test_table_6'}
-#write_to_sql = None
+#write_to_sql = {'database':database_arrange, 'x_train':'x_train_table_6',
+#'x_test':'x_test_table_6', 'y_train':'y_train_table_6', 'y_test':'y_test_table_6'}
+write_to_sql = None
 read_from_sql_for_model = None
 #read_from_sql_for_model = {'database':database_arrange, 'x_train':'x_train_table_5',
 #'x_test':'x_test_table_5', 'y_train':'y_train_table_5', 'y_test':'y_test_table_5'}

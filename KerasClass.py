@@ -236,7 +236,7 @@ class KerasClass:
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 10, 
+		          nb_epoch = 100, 
 		          batch_size = 128, 
 		          verbose=1, 
 		          validation_data=(X_test, Y_test),
