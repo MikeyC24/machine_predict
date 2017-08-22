@@ -95,6 +95,7 @@ class MachinePredictModel:
 		self.rolling_averages_dict = kwargs.get('rolling_averages_dict', None)
 		self.rolling_std_dict = kwargs.get('rolling_std_dict', None)
 		self.cat_rows_for_time_delta = kwargs.get('cat_rows_for_time_delta', None)
+		self.group_by_time_with_vars = kwargs.get('group_by_time_with_vars', None)
 
 	# this method is an interal class method to clean up date
 	# what still needs to be added
@@ -128,6 +129,8 @@ class MachinePredictModel:
 			model_dataframe.resample_date(self.target, 'month_highs_avg', 'M', 'mean')
 			model_dataframe.resample_date(self.target, 'week_highs_avg', 'W', 'mean')
 			model_dataframe.resample_date(self.target, 'day_highs_avg', 'D', 'mean')
+		if self.group_by_time_with_vars is not None:
+			model_dataframe.group_by_time_with_vars(self.group_by_time_with_vars)
 		# normalize the given columns, with a new name which is always orginal 
 		# column name + normalized
 		if self.rolling_averages_dict is not None:
