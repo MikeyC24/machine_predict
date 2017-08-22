@@ -1,5 +1,8 @@
 from DatabaseFull import *
 
+# look into below for indexing
+#https://stackoverflow.com/questions/19324453/add-missing-dates-to-pandas-dataframe
+
 # '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
 location_base = '/home/mike/Documents/coding_all/data_sets_machine_predict/'
 # 8/7/17 100 GMT

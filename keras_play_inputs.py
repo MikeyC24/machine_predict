@@ -169,7 +169,7 @@ space ={'window':hp.choice('window', [30]),
 		}
 space ={'window':hp.choice('window', [6,30,72]),}
 #keras_instance.best_params(space)
-keras_instance.binary_classification_model()
+#keras_instance.binary_classification_model()
 
 # seeing how prepared ata may be written to database
 
