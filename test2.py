@@ -5,8 +5,8 @@ import unittest
 # may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
 
 
-file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
-file_location1 = '/home/mike/Downloads/coin_months_data'
+file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
@@ -79,8 +79,8 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = { 'rate_USDT_ETH':[432,1296,1728],'rate_USDT_ETH':[432,1296,1728],'rate_USDT_ETH':[432,1296,1728]}
-rolling_std_dict = {'rate_USDT_ETH':[432,1296,1728],'rate_USDT_ETH':[432,1296,1728],'rate_USDT_ETH':[432,1296,1728]}
+rolling_averages_dict = { 'rate_USDT_ETH':[10,30],'rate_USDT_ETH':[10,30],'rate_USDT_ETH':[10,30]}
+rolling_std_dict = {'rate_USDT_ETH':[10,30],'rate_USDT_ETH':[10,30],'rate_USDT_ETH':[10,30]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -113,5 +113,61 @@ result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print('_______________')
 #df = df.set_index('date')
-#print(df.head(10))
+print(df.head(10))
+print(df.shape)
+print(df.iloc[0])
+print(df.iloc[-1])
 #print(df.columns.values)
+"""
+print('___________')
+df = df.reindex()
+print(df.head(10))
+print(df.shape)
+"""
+start_date = '2017-01-01 13:50:00'
+end_date = '2017-08-07 12:40:00'
+
+drange = pd.date_range(start=start_date, end=end_date, freq='10Min')
+print(drange)
+#idx = pd.date_range('09-01-2013 00:00:00', '09-30-2013 00:00:00', freq='12H')
+#print(idx)
+#df.reset_index(drop=True, inplace=True)
+#print(df.head(10))
+cols = ['max_rate_USDT_BTC' 'max_rate_USDT_ETH' 'max_rate_USDT_LTC'
+ 'min_rate_USDT_BTC' 'min_rate_USDT_ETH' 'min_rate_USDT_LTC'
+ 'rate_USDT_BTC' 'rate_USDT_ETH' 'rate_USDT_LTC' 'trade_count_USDT_BTC'
+ 'trade_count_USDT_ETH' 'trade_count_USDT_LTC' 'MA_10_rate_USDT_ETH'
+ 'MA_30_rate_USDT_ETH' 'MA_STD10_rate_USDT_ETH' 'MA_STD30_rate_USDT_ETH']
+ # https://stackoverflow.com/questions/25909984/missing-data-insert-rows-in-pandas-and-fill-with-nan
+#df = df.drop('date', axis=1)
+#print(df.columns.values)
+dseries = df['date']
+df = df.drop('date', axis=1)
+df.reset_index(drop=True, inplace=True)
+print(df.index.is_unique)
+
+
+"""
+df = df.set_index('date', drop=True)
+print(df.head(10))
+print(df.columns.values)
+print(df.index.is_unique)
+print(df.index)
+df.reset_index()
+print(df.index.is_unique)
+"""
+"""
+df.reset_index(inplace=True)
+print(df.index.is_unique)
+print(df.head(10))
+df.set_index('date', inplace=True, drop=True)
+print(df.head(10))
+print(df.index.is_unique)
+print(df.index.unique)
+"""
+#df.index = pd.DatetimeIndex(df.index)
+#print(df.head(10), df.shape)
+#df = df.reindex(drange)
+#print(df.head(10))
+
+#print(df.head(10), df.shape)
