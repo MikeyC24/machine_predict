@@ -166,22 +166,16 @@ class ArrangeData:
 				df['MA_STD' + str(period) + '_' + str(column)] = y.shift(-1).rolling(window=period).std()
 		return df
 
-	def group_by_time_with_vars(self, time_interval):
+	def group_by_time_with_vars(self, time_interval, reset_index='yes'):
 		df =self.dataframe
 		df['date'] = pd.to_datetime(df['date'])
+		#print('df after datetime', df)
 		#df.index = df['date']
-		df.set_index(['date'], inplace=True)
-		"""
-		df = df.groupby(pd.TimeGrouper(time_interval)).mean()
-		df = df.dropna()
-		print(df.isnull().sum())
-		print(df.shape)
-		print('df inside broup by', df.head(20))
-		"""
-		df = df.resample('1H').mean().bfill()
-		print('df inside broup by', df.head(20))
+		df.set_index(['date'], inplace=True, drop=False)
+		df = df.resample(time_interval, on='date').mean().interpolate()
+		df.reset_index(inplace=True) if reset_index == 'yes' else print('no reset index')
+		#print('df inside broup by', df.head(20))
 		return df
-
 
 	# http://blog.mathandpencil.com/group-by-datetimes-in-pandas
 	# above link is for grouping by weeks, months etc from unix and datatimes

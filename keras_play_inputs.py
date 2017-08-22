@@ -12,6 +12,12 @@ con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
 table = 'top_3_jan_mid_aug_final'
 df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
+"""
+# to change time interval
+arrange_data_for_df_timeframe = ArrangeData(df)
+df_by_hour = arrange_data_for_df_timeframe.group_by_time_with_vars('1H',reset_index='no')
+df = df_by_hour
+"""
 drop_nan_rows = 'yes'
 #columns_to_drop = None
 #columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
