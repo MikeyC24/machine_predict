@@ -111,6 +111,37 @@ class KerasClass:
 
 		return X, Y
 
+	def chunkIt(self, seq, num):
+		avg = len(seq) / float(num)
+		out = []
+		last = 0.0
+
+		while last < len(seq):
+			out.append(seq[int(last):int(last + avg)])
+			last += avg
+
+		return out
+
+	def separate_dfs_by_cols_even(self, df, num):
+		cols = df.columns.values
+		col_len = len(df.columns.values)
+		chunks = self.chunkIt(cols, num)
+		counter = 1
+		dfs_array = []
+		for array in chunks:
+			name = 'df' + str(counter)
+			name = df.loc[:,array[0]:array[-1]]
+			dfs_array.append(name)
+			counter +=1
+		return dfs_array
+
+	def write_array_dbs_to_tables(self, df_array, name_var, database):
+		conn = sqlite3.connect(database)
+		counter = 1
+		for df in df_array:
+			df.to_sql(name=name_var+str(counter), con=conn, if_exists='fail', index=False)
+			counter +=1
+
 	#shuffle training data 
 	def shuffle_in_unison(self, a, b):
 		# courtsey http://stackoverflow.com/users/190280/josh-bleecher-snyder
@@ -137,28 +168,37 @@ class KerasClass:
 		if self.write_to_sql is not None:
 			print('writing to sql')
 			#try:
+			X_array_dfs = []
 			conn  = sqlite3.connect(self.write_to_sql['database'])
 			df_x_train = pd.Panel(X_train).to_frame()
 			df_x_test = pd.Panel(X_test).to_frame()
 			df_y_train = pd.DataFrame(Y_train)
 			df_y_test = pd.DataFrame(Y_test)
-			print(df_x_train.shape)
-			print(df_x_test.shape)
-			print(df_y_train.shape)
-			print(df_y_test.shape)
-			# add a method that checks length of columns, if above a certain size
-			# divide into smaller tables that can can be recombined from later
-			#df_x_train = df_x_train.transpose()
-			#df_x_test = df_x_test.transpose()
-			#print(df_x_train.head(10))
-			df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail')
-			df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail')
+			separated_dfs = self.separate_dfs_by_cols_even(df_x_train, 6)
+			self.write_array_dbs_to_tables(separated_dfs, 'x_train', self.write_to_sql['database'])
+			separated_dfs = self.separate_dfs_by_cols_even(df_x_test, 6)
+			self.write_array_dbs_to_tables(separated_dfs, 'x_test', self.write_to_sql['database'])
+			#df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail')
+			#df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail')
 			df_y_train.to_sql(name=self.write_to_sql['y_train'], con=conn, if_exists='fail')
 			df_y_test.to_sql(name=self.write_to_sql['y_test'], con=conn, if_exists='fail')
 			#except Exception as e:
 				#print('could not write to sql')
 				#print('error is ', e)
 		return X_train, X_test, Y_train, Y_test
+
+	def read_from_sql_recombine_dfs(self, df_name_array, database):
+		conn = sqlite3.connect(database)
+		dfs_array = []
+		counter = 1
+		for name in df_name_array:
+			title = 'df_' +str(counter)
+			title = pd.read_sql_query('SELECT * FROM %s' % (name), conn)
+			dfs_array.append(title)
+			counter += 1
+		combined_df = pd.concat(dfs_array, axis=1)
+		return combined_df
+
 
 	def binary_classification_model(self):
 
@@ -172,6 +212,23 @@ class KerasClass:
 			print('X_train shape after reshape', X_train.shape)
 		else:
 			print('using train and test data from sql db')
+			con = sqlite3.connect(self.read_from_sql_for_model['database'])
+			df_x_train_from_sql = self.read_from_sql_recombine_dfs(self.read_from_sql_for_model['x_train_array'],
+				self.read_from_sql_for_model['database'])
+			df_x_test_from_sql = self.read_from_sql_recombine_dfs(self.read_from_sql_for_model['x_test_array'],
+				self.read_from_sql_for_model['database'])
+			df_y_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_train']), con)
+			df_y_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_test']), con)
+			df_y_train_from_sql = df_y_train_from_sql.drop('index', axis=1)
+			df_y_test_from_sql = df_y_test_from_sql.drop('index', axis=1)
+			X_train = np.reshape(df_x_train_from_sql.values, (df_x_train_from_sql.shape[1], int((df_x_train_from_sql.shape[0])/(self.EMB_SIZE)), self.EMB_SIZE))
+			X_test = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(self.EMB_SIZE)),  self.EMB_SIZE))
+			Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
+			Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+			print(' shapes in order', X_train.shape, X_test.shape,
+				Y_train.shape, Y_test.shape)
+
+			"""
 			con = sqlite3.connect(self.read_from_sql_for_model['database'])
 			df_x_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['x_train']), con)
 			df_x_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['x_test']), con)
@@ -197,7 +254,7 @@ class KerasClass:
 			X_test = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(self.EMB_SIZE)),  self.EMB_SIZE))
 			Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
 			Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
-
+			"""
 
 		model = Sequential()
 		model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),

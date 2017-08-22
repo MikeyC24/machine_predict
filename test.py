@@ -79,7 +79,7 @@ def write_array_dbs_to_tables(df_array, name_var, database):
 write_array_dbs_to_tables(dfs, 'x_train', database)
 
 db_name_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
-def read_from_sql_recombine_dfs(df_name_array, database):
+def read_from_sql_recombine_dfs(df_name_array, database, final_df_name):
 	conn = sqlite3.connect(database)
 	dfs_array = []
 	counter = 1
@@ -88,8 +88,9 @@ def read_from_sql_recombine_dfs(df_name_array, database):
 		title = pd.read_sql_query('SELECT * FROM %s' % (name), conn)
 		dfs_array.append(title)
 		counter += 1
-	combined = pd.concat(dfs_array, axis=1)
-	return combined
+	df_name = final_df_name + '_combined'
+	df_name = pd.concat(dfs_array, axis=1)
+	return df_name
 
 combined_df = read_from_sql_recombine_dfs(db_name_array, database)
 print(combined_df.head(5))
