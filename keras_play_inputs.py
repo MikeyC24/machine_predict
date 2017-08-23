@@ -17,6 +17,16 @@ df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 arrange_data_for_df_timeframe = ArrangeData(df)
 df_by_hour = arrange_data_for_df_timeframe.group_by_time_with_vars('1H',reset_index='no')
 df = df_by_hour
+# I think this is the new way to format data
+# maybe make this a class to prep data for machine predict and all machine predict classes have no index
+data_instace  = ArrangeData(df)
+filled_df = data_instace.fill_in_data_full_range(start_date, end_date, '10Min',
+										index='date', interpolate='yes')
+print(filled_df.head(10), filled_df.shape)
+
+data_instace2  = ArrangeData(filled_df)
+hourly_df = data_instace2.group_by_time_with_vars('1H', reset_index='no', index='no'
+										, set_to_datetime='no')
 """
 drop_nan_rows = 'yes'
 #columns_to_drop = None

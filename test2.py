@@ -1,12 +1,13 @@
 from MachinePredictModelrefractored import *
 #from KerasClass import *
 import unittest
+from ArrangeData import *
 
 # may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
 
 
-file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
-file_location = '/home/mike/Downloads/coin_months_data'
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location1 = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
@@ -218,14 +219,101 @@ cols = ['date', 'amount_USDT_BTC', 'amount_USDT_ETH', 'amount_USDT_LTC',
  'trade_count_USDT_ETH', 'trade_count_USDT_LTC']
 
 print(df.head(10))
+start_date = '2017-01-01 00:00:00'
+end_date = '2017-08-07 12:40:00'
+"""
+drange = pd.date_range(start=start_date, end=end_date, freq='10Min')
+len_drange = len(drange)
+print(drange)
+#df.to_csv('test_csv')
+#df1 = pd.read_csv('test_csv', index_col='date')
+#print(df.head(10))
+print(df.shape)
+print(df['date'].dtype)
+df1= df.set_index('date')
+df1.index = pd.DatetimeIndex(df1.index)
+print(df1.head(10))
+print(df1.index.dtype)
+print(df1[df1.index.duplicated()])
+print('__________')
+df1 = df1.groupby(df1.index).first()
+print(df1.head(10))
+print(df1.shape)
+print(df1[df1.index.duplicated()])
+df1 = df1.reindex(drange)
+print(df1.head(10))
+print(df1.shape)
+print(df1.isnull().sum())
+df1 = df1.interpolate()
+print(df1.head(10))
+print(df1.shape)
+print(df1.isnull().sum())
+"""
+#df.set_index('date', inplace=True)
+#print(df.head(10))
+#print('____________')
+#print(df.index[0])
+#print(df.index[-1])
+
+
+
+def fill_in_data_full_range(dataframe, index, start_date, end_date, freq, interpolate):
+	if index != 'no':
+		df = dataframe.set_index(index)
+	else:
+		df = dataframe
+	#print(df.head(10))
+	# make datetime
+	df.index = pd.DatetimeIndex(df.index)
+	# get rid of dups
+	df = df.groupby(df.index).first()
+	# set new range 
+	drange = pd.date_range(start=start_date, end=end_date, freq=freq)
+	#print(len(drange))
+	df = df.reindex(drange)
+	if interpolate == 'yes':
+		df = df.interpolate()
+	return df
+new_df = fill_in_data_full_range(df, 'date', start_date, end_date, '10Min', 'no' )
+print(new_df.head(10), new_df.shape)
+
+
+
+data_instace  = ArrangeData(df)
+filled_df = data_instace.fill_in_data_full_range(start_date, end_date, '10Min',
+										index='date', interpolate='yes')
+print(filled_df.head(10), filled_df.shape)
+
+data_instace2  = ArrangeData(filled_df)
+hourly_df = data_instace2.group_by_time_with_vars('1H', reset_index='no', index='no'
+										, set_to_datetime='no')
+#print(hourly_df.head(10))
+print(hourly_df.head(-10))
+print(hourly_df.shape)
+
 start_date = '2017-01-01 13:50:00'
 end_date = '2017-08-07 12:40:00'
 
 drange = pd.date_range(start=start_date, end=end_date, freq='10Min')
-len_drange = len(drange)
-#df.to_csv('test_csv')
-df1 = pd.read_csv('test_csv', index_col='date')
-print(df1.head(10))
-#df1.index = pd.DatetimeIndex(df.index)
+#print(len(drange))
+
+# formula to fill out index...... set index to date, make it unqiue, remove duplicates,
+# crafting way to do this = df1 = df1.groupby(df1.index).first()
+# then reindex on new date range, then interpolate
+
+"""
+df1.drop_duplicates(['min_rate_USDT_BTC'], inplace=True, keep='last')
+#df1 = df1.drop(df1.loc['2017-07-17 01:00:00'])
+print(df1[df1.index.duplicated()])
+df1.drop(df1.loc['2017-07-17 01:00:00'], axis=0)
+print(df1.loc['2017-07-20 12:00:00'])
+print('_________')
+"""
+
+
+#df1 = df1.reindex(drange, fill_value='NaN')
+"""
+df1.index = pd.DatetimeIndex(df1.index)
 df1 = df1.reindex(drange, fill_value='NaN')
 df1.head(10)
+"""
