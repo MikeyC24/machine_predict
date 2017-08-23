@@ -11,7 +11,7 @@ file_location = '/home/mike/Downloads/coin_months_data'
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
 table = 'top_3_jan_mid_aug_final'
-df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
+df = pd.read_sql('SELECT * FROM %s' % (table), con)
 drop_nan_rows = 'yes'
 #columns_to_drop = None
 #columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
@@ -108,7 +108,7 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 					rolling_averages_dict=rolling_averages_dict,
 					rolling_std_dict=rolling_std_dict,
 					group_by_time_with_vars=group_by_time_with_vars)
-
+"""
 result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print('_______________')
@@ -119,10 +119,12 @@ print(df.iloc[0])
 print(df.iloc[-1])
 #print(df.columns.values)
 """
+"""
 print('___________')
 df = df.reindex()
 print(df.head(10))
 print(df.shape)
+"""
 """
 start_date = '2017-01-01 13:50:00'
 end_date = '2017-08-07 12:40:00'
@@ -141,12 +143,48 @@ cols = ['max_rate_USDT_BTC' 'max_rate_USDT_ETH' 'max_rate_USDT_LTC'
  # https://stackoverflow.com/questions/25909984/missing-data-insert-rows-in-pandas-and-fill-with-nan
 #df = df.drop('date', axis=1)
 #print(df.columns.values)
-dseries = df['date']
+dseries = df['date'].values
 df = df.drop('date', axis=1)
 df.reset_index(drop=True, inplace=True)
 print(df.index.is_unique)
+print(df.head(10))
+df['date_col'] = dseries
+print(df.index.is_unique)
+print(df.head(10))
+#df.set_index('date_col',inplace=True, drop=True)
+#print(df.index.is_unique)
+df.reset_index(drop=True, inplace=True)
+print('________________one')
+print(df.head(10))
+print(df.index.is_unique)
+print(df.shape)
+len_drange = len(drange)
+print('____________ two')
+df = df.reindex(range(len_drange))
+print(df.head(10))
+print(df.isnull().sum())
+df['new_date'] = drange
+print('_________________three')
+print(df.head(10))
+print(df.shape)
+df.set_index('new_date', inplace=True)
+print(df.head(10))
+print(df.shape)
+print(df.isnull().sum())
+print(df)
 
-
+#print(len_drange)
+#print(df.head(10))
+"""
+"""
+print('____________________')
+print(df.head(10))
+print(df.index.is_unique)
+print('___________________')
+df.reindex(drange)
+print(df.head(10))
+#print(dseries)
+"""
 """
 df = df.set_index('date', drop=True)
 print(df.head(10))
@@ -171,3 +209,23 @@ print(df.index.unique)
 #print(df.head(10))
 
 #print(df.head(10), df.shape)
+
+cols = ['date', 'amount_USDT_BTC', 'amount_USDT_ETH', 'amount_USDT_LTC',
+ 'max_rate_USDT_BTC', 'max_rate_USDT_ETH', 'max_rate_USDT_LTC',
+ 'min_rate_USDT_BTC', 'min_rate_USDT_ETH', 'min_rate_USDT_LTC',
+ 'rate_USDT_BTC', 'rate_USDT_ETH', 'rate_USDT_LTC', 'total_USDT_BTC',
+ 'total_USDT_ETH', 'total_USDT_LTC', 'trade_count_USDT_BTC',
+ 'trade_count_USDT_ETH', 'trade_count_USDT_LTC']
+
+print(df.head(10))
+start_date = '2017-01-01 13:50:00'
+end_date = '2017-08-07 12:40:00'
+
+drange = pd.date_range(start=start_date, end=end_date, freq='10Min')
+len_drange = len(drange)
+#df.to_csv('test_csv')
+df1 = pd.read_csv('test_csv', index_col='date')
+print(df1.head(10))
+#df1.index = pd.DatetimeIndex(df.index)
+df1 = df1.reindex(drange, fill_value='NaN')
+df1.head(10)
