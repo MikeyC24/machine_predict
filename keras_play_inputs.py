@@ -5,8 +5,8 @@ import unittest
 # may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
 
 
-file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
-file_location1 = '/home/mike/Downloads/coin_months_data'
+file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
@@ -112,7 +112,7 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = { 'rate_USDT_ETH':[24,48],'rate_USDT_BTC':[24,48],'rate_USDT_LTC':[24,48]}
+rolling_averages_dict = { 'rate_USDT_ETH':[24],'rate_USDT_BTC':[24,48,72],'rate_USDT_LTC':[24]}
 #rolling_std_dict = {'rate_USDT_ETH':[24,48],'rate_USDT_BTC':[24],'rate_USDT_LTC':[24]}
 rolling_std_dict = {'rate_USDT_BTC':[24,48]}
 # sample instance has all vars above in it 
@@ -170,17 +170,17 @@ train_percent = .8
 dataframe = df
 window = 30
 step = 1
-forecast = 12
+forecast = 24
 plot = 'yes'
 feature_wanted = 'rate_USDT_ETH'
 percent_change = 1.005
-database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_BTC_pred_last_3_months'
+database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_BTC_pred_last_3_months_1_day_forecast'
 #write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
 #'y_test':'y_test_table_1'}
 write_to_sql = None
 #read_from_sql_for_model = None
-x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6', 'x_train7']
-x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6', 'x_test7']
+x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
+x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6']
 read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
 'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
 """

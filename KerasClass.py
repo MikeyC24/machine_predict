@@ -281,7 +281,7 @@ class KerasClass:
 
 
 		model.add(Dense(2))
-		model.add(Activation('sigmoid'))
+		model.add(Activation('softmax'))
 
 		opt = Nadam(lr=0.001)
 
@@ -290,7 +290,7 @@ class KerasClass:
 
 
 		model.compile(optimizer=opt, 
-		              loss='binary_crossentropy',
+		              loss='categorical_crossentropy',
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
