@@ -5,8 +5,8 @@ import unittest
 # may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
 
 
-file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
-file_location = '/home/mike/Downloads/coin_months_data'
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location1 = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
@@ -28,6 +28,23 @@ data_instace2  = ArrangeData(filled_df)
 hourly_df = data_instace2.group_by_time_with_vars('1H', reset_index='no', index='no'
 										, set_to_datetime='no')
 """
+# selecting new df to accomade for all timeslots since jan and make hourly
+start_date = '2017-01-01 13:50:00'
+end_date = '2017-08-07 12:40:00'
+data_instace  = ArrangeData(df)
+filled_df = data_instace.fill_in_data_full_range(start_date, end_date, '10Min',
+										index='date', interpolate='yes')
+print(filled_df.head(10), filled_df.shape)
+
+data_instace2  = ArrangeData(filled_df)
+hourly_df = data_instace2.group_by_time_with_vars('1H', reset_index='no', index='no'
+										, set_to_datetime='no')
+print(hourly_df.head(10), hourly_df.shape)
+print('___________')
+print(hourly_df.index[0])
+print(hourly_df.index[-1])
+df= hourly_df
+
 drop_nan_rows = 'yes'
 #columns_to_drop = None
 #columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
@@ -35,11 +52,11 @@ drop_nan_rows = 'yes'
 columns_to_drop1 = ['amount_USDT_ETH','total_USDT_ETH',
  'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'date',
  'trade_count_USDT_LTC', 'max_rate_USDT_LTC','rate_USDT_BTC',
- 'trade_count_USDT_BTC', 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'rate_USDT_LTC',
+ 'trade_count_USDT_BTC',  'rate_USDT_LTC',
  'min_rate_USDT_LTC', ]
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH',
- 'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'date',
-]
+ 'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC',
+ 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'max_rate_USDT_LTC', 'min_rate_USDT_LTC']
 # columns all before any editing 
 columns_all_init = ['date']
 # took date out of colums_all
@@ -61,8 +78,8 @@ create_target_dict = None
 create_target_in_one = None
 target = 'rate_USDT_ETH'
 array_for_format_non_unix_date = ['date','%Y-%m-%d %H:%M:%S', 'UTC']
-format_human_date = ['date', '%Y-%m-%d %H:%M:%S', 'UTC'] 
-#format_human_date = None
+#format_human_date = ['date', '%Y-%m-%d %H:%M:%S', 'UTC'] 
+format_human_date = None
 convert_date_to_cats_for_class = None
 convert_all_to_numeric = 'no'
 columns_to_convert_to_dummy = None
@@ -95,8 +112,9 @@ table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
 #rolling_averages_dict = None
-rolling_averages_dict = { 'rate_USDT_ETH':[432,1296,1728],'rate_USDT_ETH':[432,1296,1728],'rate_USDT_ETH':[432,1296,1728]}
-rolling_std_dict = {'rate_USDT_ETH':[432,1296,1728],'rate_USDT_ETH':[432,1296,1728],'rate_USDT_ETH':[432,1296,1728]}
+rolling_averages_dict = { 'rate_USDT_ETH':[24,48],'rate_USDT_BTC':[24,48],'rate_USDT_LTC':[24,48]}
+#rolling_std_dict = {'rate_USDT_ETH':[24,48],'rate_USDT_BTC':[24],'rate_USDT_LTC':[24]}
+rolling_std_dict = {'rate_USDT_BTC':[24,48]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -127,10 +145,24 @@ sample_instance = MachinePredictModel(df, columns_all, random_state,
 result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print(df.columns.values)
-feature_wanted = 'rate_USDT_ETH'
-df = df.loc[29425:,]
+feature_wanted = 'rate_USDT_BTC'
+df = df.iloc[2900:,]
+print(df.head(10))
 print(df.shape)
-
+print(df.columns.values)
+# https://machinelearningmastery.com/time-series-data-visualization-with-python/
+"""
+import matplotlib.pyplot as plt
+series = df['rate_USDT_ETH']
+series.plot()
+plt.show()
+col_graphs = df.columns.values
+for col in col_graphs:
+	data = df[col]
+	data.plot()
+	plt.ylabel(col)
+	plt.show()
+"""	
 
 model_type = 'classification'
 parameter_type = 'constant'
@@ -138,23 +170,19 @@ train_percent = .8
 dataframe = df
 window = 30
 step = 1
-forecast = 1
+forecast = 12
 plot = 'yes'
 feature_wanted = 'rate_USDT_ETH'
-percent_change = 1
-database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_array_rearrange_four'
+percent_change = 1.005
+database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_BTC_pred_last_3_months'
 #write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
 #'y_test':'y_test_table_1'}
-#write_to_sql = {'database':database_arrange, 'x_train':'x_train_table_1',
-#'x_test':'x_test_table_1', 'y_train':'y_train_table_1', 'y_test':'y_test_table_1'}
 write_to_sql = None
 #read_from_sql_for_model = None
-x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
-x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6']
+x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6', 'x_train7']
+x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6', 'x_test7']
 read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
 'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
-#read_from_sql_for_model = {'database':database_arrange, 'x_train':'x_train_table_1',
-#'x_test':'x_test_table_1', 'y_train':'y_train_table_1', 'y_test':'y_test_table_1'}
 """
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)

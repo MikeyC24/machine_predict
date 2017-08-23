@@ -26,6 +26,7 @@ from keras import losses
 import seaborn as sns
 sns.despine()
 
+# readings https://github.com/FrancisArgnR/Time-series---deep-learning---state-of-the-art
 
 # for now this class is only taking a dataframe from main model that has been
 # worked on from the arrange data class, traing/test and all keras model vars
@@ -167,24 +168,24 @@ class KerasClass:
 		Y_test = y[p:]
 		if self.write_to_sql is not None:
 			print('writing to sql')
-			#try:
-			X_array_dfs = []
-			conn  = sqlite3.connect(self.write_to_sql['database'])
-			df_x_train = pd.Panel(X_train).to_frame()
-			df_x_test = pd.Panel(X_test).to_frame()
-			df_y_train = pd.DataFrame(Y_train)
-			df_y_test = pd.DataFrame(Y_test)
-			separated_dfs = self.separate_dfs_by_cols_even(df_x_train, 6)
-			self.write_array_dbs_to_tables(separated_dfs, 'x_train', self.write_to_sql['database'])
-			separated_dfs = self.separate_dfs_by_cols_even(df_x_test, 6)
-			self.write_array_dbs_to_tables(separated_dfs, 'x_test', self.write_to_sql['database'])
-			#df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail')
-			#df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail')
-			df_y_train.to_sql(name=self.write_to_sql['y_train'], con=conn, if_exists='fail')
-			df_y_test.to_sql(name=self.write_to_sql['y_test'], con=conn, if_exists='fail')
-			#except Exception as e:
-				#print('could not write to sql')
-				#print('error is ', e)
+			try:
+				X_array_dfs = []
+				conn  = sqlite3.connect(self.write_to_sql['database'])
+				df_x_train = pd.Panel(X_train).to_frame()
+				df_x_test = pd.Panel(X_test).to_frame()
+				df_y_train = pd.DataFrame(Y_train)
+				df_y_test = pd.DataFrame(Y_test)
+				separated_dfs = self.separate_dfs_by_cols_even(df_x_train, 6)
+				self.write_array_dbs_to_tables(separated_dfs, 'x_train', self.write_to_sql['database'])
+				separated_dfs = self.separate_dfs_by_cols_even(df_x_test, 6)
+				self.write_array_dbs_to_tables(separated_dfs, 'x_test', self.write_to_sql['database'])
+				#df_x_train.to_sql(name=self.write_to_sql['x_train'], con=conn, if_exists='fail')
+				#df_x_test.to_sql(name=self.write_to_sql['x_test'], con=conn, if_exists='fail')
+				df_y_train.to_sql(name=self.write_to_sql['y_train'], con=conn, if_exists='fail')
+				df_y_test.to_sql(name=self.write_to_sql['y_test'], con=conn, if_exists='fail')
+			except Exception as e:
+				print('could not write to sql')
+				print('error is ', e)
 		return X_train, X_test, Y_train, Y_test
 
 	def read_from_sql_recombine_dfs(self, df_name_array, database):
@@ -280,20 +281,20 @@ class KerasClass:
 
 
 		model.add(Dense(2))
-		model.add(Activation('softmax'))
+		model.add(Activation('sigmoid'))
 
-		opt = Nadam(lr=0.002)
+		opt = Nadam(lr=0.001)
 
 		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
 		checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
 
 
 		model.compile(optimizer=opt, 
-		              loss='categorical_crossentropy',
+		              loss='binary_crossentropy',
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 10, 
+		          nb_epoch = 100, 
 		          batch_size = 128, 
 		          verbose=1, 
 		          validation_data=(X_test, Y_test),
