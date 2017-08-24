@@ -45,6 +45,8 @@ print(hourly_df.index[0])
 print(hourly_df.index[-1])
 df= hourly_df
 
+
+
 drop_nan_rows = 'yes'
 #columns_to_drop = None
 #columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH', 'trade_count_USDT_ETH',
@@ -56,7 +58,7 @@ columns_to_drop1 = ['amount_USDT_ETH','total_USDT_ETH',
  'min_rate_USDT_LTC', ]
 columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH',
  'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC',
- 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'max_rate_USDT_LTC', 'min_rate_USDT_LTC']
+ 'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'max_rate_USDT_LTC', 'min_rate_USDT_LTC', ]
 # columns all before any editing 
 columns_all_init = ['date']
 # took date out of colums_all
@@ -111,10 +113,13 @@ database_name = 'machine_predict_test_db'
 table_name = 'coins_table1'
 db_location_base = '/home/mike/Documents/coding_all/machine_predict/'
 write_to_db = 'no'
-#rolling_averages_dict = None
-rolling_averages_dict = { 'rate_USDT_ETH':[24],'rate_USDT_BTC':[24,48,72],'rate_USDT_LTC':[24]}
+# need to add a shift for the rolling averages to accomadte window size
+rolling_averages_dict = None
+#rolling_averages_dict = { 'rate_USDT_ETH':[720],'rate_USDT_BTC':[24,360,720],'rate_USDT_LTC':[720]}
+#rolling_averages_dict = { 'rate_USDT_BTC':[ 24, 360, 720]}
+rolling_std_dict = None
 #rolling_std_dict = {'rate_USDT_ETH':[24,48],'rate_USDT_BTC':[24],'rate_USDT_LTC':[24]}
-rolling_std_dict = {'rate_USDT_BTC':[24,48]}
+#rolling_std_dict = {'rate_USDT_BTC':[24,720 ]}
 # sample instance has all vars above in it 
 sample_instance = MachinePredictModel(df, columns_all, random_state, 
 					training_percent, kfold_number, target, drop_nan_rows=drop_nan_rows,
@@ -147,6 +152,7 @@ df =result.dataframe
 print(df.columns.values)
 feature_wanted = 'rate_USDT_BTC'
 df = df.iloc[2900:,]
+print('______________________')
 print(df.head(10))
 print(df.shape)
 print(df.columns.values)
@@ -168,21 +174,21 @@ model_type = 'classification'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
-window = 30
+window = 720
 step = 1
 forecast = 24
 plot = 'yes'
-feature_wanted = 'rate_USDT_ETH'
+feature_wanted = 'rate_USDT_BTC'
 percent_change = 1.005
-database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/db_BTC_pred_last_3_months_1_day_forecast'
-#write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
-#'y_test':'y_test_table_1'}
-write_to_sql = None
-#read_from_sql_for_model = None
+database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/BTC_for_days_data_pred_last_3_months_1_day_forecast'
+write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
+'y_test':'y_test_table_1'}
+#write_to_sql = None
+read_from_sql_for_model = None
 x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
 x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6']
-read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
-'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
+#read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
+#'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
 """
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)

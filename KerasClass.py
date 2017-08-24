@@ -57,6 +57,7 @@ class KerasClass:
 		feature_vars_dict = {}
 		for column in df.columns.values:
 			feature = df.ix[:,column].tolist()
+			# prob add a percent change step here for linear
 			feature_vars_dict[str(column)] = feature
 		return feature_vars_dict
 
@@ -67,6 +68,7 @@ class KerasClass:
 		X, Y = [], []
 		for i in range(0, self.dataframe.shape[0], self.step):
 			print('i', i)
+			# for statement here for class or regression
 			dict_features = {}
 			try:
 				for feature, feature_data in feature_vars_dict.items():
@@ -285,7 +287,7 @@ class KerasClass:
 
 		model.add(Dense(2))
 		model.add(Activation('softmax'))
-		model.add(Dense(output_dim=1))
+
 		opt = Nadam(lr=0.001)
 
 		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
@@ -297,7 +299,7 @@ class KerasClass:
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 10, 
+		          nb_epoch = 100, 
 		          batch_size = 128, 
 		          verbose=1, 
 		          validation_data=(X_test, Y_test),
@@ -308,9 +310,13 @@ class KerasClass:
 		pred = model.predict(np.array(X_test))
 		roc = roc_auc_score(Y_test, pred)
 		print('ROC: ', roc)
-		print(pred)
-		loss = losses.categorical_crossentropy(Y_test, pred)
-		print('loss: ', loss)
+		#print(pred)
+		#'___________________'
+		#print(Y_test)
+		#print('_______________')
+
+		#urceloss = losses.categorical_crossentropy(Y_test, pred)
+		#print('loss: ', loss)
 		#try:
 			#precision = precision_score(Y_test, pred)
 			#print('Precision: ', precision)
@@ -440,7 +446,7 @@ class KerasClass:
 			#print('c', C)
 			#print(C / C.astype(np.float).sum(axis=1))
 		sys.stdout.flush()
-		return {'loss':loss, 'status':STATUS_OK}
+		return {'loss':-acc, 'status':STATUS_OK}
 
 	def best_params(self, space):
 
@@ -462,4 +468,16 @@ https://github.com/maxpumperla/hyperas
 https://gist.github.com/jkleint/1d878d0401b28b281eb75016ed29f2ee
 4. more on keras vars 
 https://github.com/fchollet/keras/issues/2483
+5. for getting amount of percent change 
+https://github.com/Rachnog/Deep-Trading/blob/master/volatility/volatility.py#L133
+6. battle overfitting a. make sure no data leak b. overfitting, find ways to reduce this
+3. kfold
+"""
+
+"""
+road map in no order
+1. linear regression 
+2. kfold option
+3. ways to reduce over fitting
+4. param optimize 
 """
