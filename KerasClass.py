@@ -1,6 +1,6 @@
 from MachinePredictModelrefractored import *
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, roc_auc_score
 import matplotlib.pyplot as plt
 #from utils import *
 import pandas as pd
@@ -25,6 +25,7 @@ from keras.initializers import *
 from keras import losses
 import seaborn as sns
 sns.despine()
+import sys
 
 # readings https://github.com/FrancisArgnR/Time-series---deep-learning---state-of-the-art
 
@@ -294,7 +295,7 @@ class KerasClass:
 		              metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 100, 
+		          nb_epoch = 10, 
 		          batch_size = 128, 
 		          verbose=1, 
 		          validation_data=(X_test, Y_test),
@@ -303,6 +304,10 @@ class KerasClass:
 
 		model.load_weights("lolkek.hdf5")
 		pred = model.predict(np.array(X_test))
+		acc = roc_auc_score(Y_test, pred)
+		print('AUC: ', acc)
+		#class_report = classification_report(Y_test, pred)
+		#print(class_report)
 
 		
 		C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
@@ -329,77 +334,114 @@ class KerasClass:
 
 
 #https://github.com/Rachnog/Deep-Trading/blob/master/hyperparameters/hyper.py
+# https://github.com/fchollet/keras/issues/1591
 	def optimize_experiment_classification(self, params):
-		X, Y = self.create_X_Y_values(params['window'])
-		X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
-		X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
-		X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
-		try: 
+		if self.read_from_sql_for_model is None:
+			X, Y = self.create_X_Y_values(params['window'])
+			X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y)
+			X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
+			X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
+			window = params['window']
+		else:
+			print('using train and test data from sql db')
+			con = sqlite3.connect(self.read_from_sql_for_model['database'])
+			df_x_train_from_sql = self.read_from_sql_recombine_dfs(self.read_from_sql_for_model['x_train_array'],
+				self.read_from_sql_for_model['database'])
+			df_x_test_from_sql = self.read_from_sql_recombine_dfs(self.read_from_sql_for_model['x_test_array'],
+				self.read_from_sql_for_model['database'])
+			df_y_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_train']), con)
+			df_y_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_test']), con)
+			df_y_train_from_sql = df_y_train_from_sql.drop('index', axis=1)
+			df_y_test_from_sql = df_y_test_from_sql.drop('index', axis=1)
+			X_train = np.reshape(df_x_train_from_sql.values, (df_x_train_from_sql.shape[1], int((df_x_train_from_sql.shape[0])/(self.EMB_SIZE)), self.EMB_SIZE))
+			X_test = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(self.EMB_SIZE)),  self.EMB_SIZE))
+			Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
+			Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+			print(' shapes in order', X_train.shape, X_test.shape,
+				Y_train.shape, Y_test.shape)
+			window = self.window
+		#try: 
 
-			print('params set up')
+		print('params set up')
 
-			model = Sequential()
-			model.add(Convolution1D(input_shape = (params['window'], self.EMB_SIZE),
-			                        nb_filter=16,
-			                        filter_length=4,
-			                        border_mode='same'))
-			model.add(BatchNormalization())
-			model.add(LeakyReLU())
-			model.add(Dropout(0.5))
+		model = Sequential()
+		model.add(Convolution1D(input_shape = (window, self.EMB_SIZE),
+		                        nb_filter=16,
+		                        filter_length=4,
+		                        border_mode='same'))
+		model.add(BatchNormalization())
+		model.add(LeakyReLU())
+		model.add(Dropout(0.5))
 
-			model.add(Convolution1D(nb_filter=8,
-			                        filter_length=4,
-			                        border_mode='same'))
-			model.add(BatchNormalization())
-			model.add(LeakyReLU())
-			model.add(Dropout(0.5))
+		model.add(Convolution1D(nb_filter=8,
+		                        filter_length=4,
+		                        border_mode='same'))
+		model.add(BatchNormalization())
+		model.add(LeakyReLU())
+		model.add(Dropout(0.5))
 
-			model.add(Flatten())
+		model.add(Flatten())
 
-			model.add(Dense(64))
-			model.add(BatchNormalization())
-			model.add(LeakyReLU())
-
-
-			model.add(Dense(2))
-			model.add(Activation('softmax'))
-
-			opt = Nadam(lr=0.002)
-
-			reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
-			checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+		model.add(Dense(64))
+		model.add(BatchNormalization())
+		model.add(LeakyReLU())
 
 
-			model.compile(optimizer=opt, 
-			              loss=params['loss'],
-			              metrics=['accuracy'])
+		model.add(Dense(2))
+		model.add(Activation('sigmoid'))
 
-			history = model.fit(X_train, Y_train, 
-			          nb_epoch = 10, 
-			          batch_size = 128, 
-			          verbose=1, 
-			          validation_data=(X_test, Y_test),
-			          callbacks=[reduce_lr, checkpointer],
-			          shuffle=True)
+		opt_use = params['optimizer']
+		print(opt_use)
+		#opt = opt_use(lr=0.001)
 
-			model.load_weights("lolkek.hdf5")
-			pred = model.predict(np.array(X_test))
+		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+		checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
 
-		except:
-			print('somthing happened')
-			return {'loss':9999999, 'status':STATUS_OK}
+
+		model.compile(optimizer=opt_use, 
+		              loss='binary_crossentropy',
+		              metrics=['accuracy'])
+
+		history = model.fit(X_train, Y_train, 
+		          nb_epoch = 10, 
+		          batch_size = 128, 
+		          verbose=1, 
+		          validation_data=(X_test, Y_test),
+		          callbacks=[reduce_lr, checkpointer],
+		          shuffle=True)
+
+		model.load_weights("lolkek.hdf5")
+		pred = model.predict(np.array(X_test))
+		acc = roc_auc_score(Y_test, pred)
+		print('AUC: ', acc)
+		loss = losses.binary_crossentropy(Y_test, pred)
+		print('loss: ', loss)
+
+		#except Exception as e:
+		#	print('got error: ', e)
+		#	return {'loss':9999999, 'status':STATUS_OK}
 
 	
 			#C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
 			#print('c', C)
 			#print(C / C.astype(np.float).sum(axis=1))
 		sys.stdout.flush()
-		return {'loss':'categorical_crossentropy', 'status':STATUS_OK}
+		return {'loss':loss, 'status':STATUS_OK}
 
 	def best_params(self, space):
 
 		trials = Trials()
 		best = fmin(self.optimize_experiment_classification, space, algo=tpe.suggest,
 			max_evals=5, trials=trials)
+		print('best: ')
 		print(best)
 
+
+"""
+1.
+model predict v evaluate 
+https://github.com/fchollet/keras/issues/5140
+2.
+hyperopt wrapper for keras
+https://github.com/maxpumperla/hyperas
+"""

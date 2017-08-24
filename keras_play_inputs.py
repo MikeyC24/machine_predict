@@ -206,8 +206,9 @@ space ={'window':hp.choice('window', [30]),
 		'loss':hp.choice('loss', ['binary_crossentropy', 'categorical_crossentropy']),
 		}
 space ={'window':hp.choice('window', [6,30,72]),}
-#keras_instance.best_params(space)
-keras_instance.binary_classification_model()
+space1 ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop'])}
+keras_instance.best_params(space1)
+#keras_instance.binary_classification_model()
 
 # seeing how prepared ata may be written to database
 
