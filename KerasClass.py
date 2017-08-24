@@ -52,12 +52,21 @@ class KerasClass:
 		self.write_to_sql = kwargs.get('write_to_sql', None)
 		self.read_from_sql_for_model = kwargs.get('read_from_sql_for_model', None)
 
+	def data2change(self, data):
+		change = pd.DataFrame(data).pct_change()
+		change = change.replace([np.inf, -np.inf], np.nan)
+		change = change.fillna(0.).values.tolist()
+		change = [c[0] for c in change]
+		return change
+
 	def create_feature_var_dict(self):
 		df = self.dataframe
 		feature_vars_dict = {}
 		for column in df.columns.values:
 			feature = df.ix[:,column].tolist()
-			# prob add a percent change step here for linear
+			if self.model_type == 'linear':
+				# prob add a percent change step here for linear
+				feature = self.data2change(feature)
 			feature_vars_dict[str(column)] = feature
 		return feature_vars_dict
 
@@ -69,48 +78,74 @@ class KerasClass:
 		for i in range(0, self.dataframe.shape[0], self.step):
 			print('i', i)
 			# for statement here for class or regression
-			dict_features = {}
-			try:
-				for feature, feature_data in feature_vars_dict.items():
-					# normalize feature this would be cheating for regression
-					# but for classification works ok since prediction
-					#doesnt need to be exact (cheating bc mean and variance
-					# change over time )
-					print('feature', feature)
-					#print('feature_data', feature_data)
-					f = feature_data[i:i+window]
-					print('i', i)
-					print('window', self.window)
-					print('f', f)
-					name = str(feature) + '_normalized'
-					print('name1', name)
-					print('np array', np.array(f))
-					print('np mean', np.mean(f))
-					print('np std', np.std(f))
-					name = (np.array(f) - np.mean(f)) / np.std(f)
-					print(name)
-					dict_features[str(feature)] = (name)
+			if self.model_type == 'classification':
+				print('buidling data for classificaiton')
+				dict_features = {}
+				try:
+					for feature, feature_data in feature_vars_dict.items():
+						# normalize feature this would be cheating for regression
+						# but for classification works ok since prediction
+						#doesnt need to be exact (cheating bc mean and variance
+						# change over time )
+						print('feature', feature)
+						#print('feature_data', feature_data)
+						f = feature_data[i:i+window]
+						print('i', i)
+						print('window', self.window)
+						print('f', f)
+						name = str(feature) + '_normalized'
+						print('name1', name)
+						print('np array', np.array(f))
+						print('np mean', np.mean(f))
+						print('np std', np.std(f))
+						name = (np.array(f) - np.mean(f)) / np.std(f)
+						print(name)
+						dict_features[str(feature)] = (name)
 
-				# set binary target
-				feature_wanted_data = feature_vars_dict[self.feature_wanted]
-				x_i = feature_wanted_data[i:i+self.window]
-				y_i = feature_wanted_data[i+self.window+self.forecast]
-				last_close = x_i[-1]
-				next_close = y_i
-				if (last_close* self.percent_change) < next_close:
-					y_i = [1, 0]
-				else:
-					y_i = [0, 1]
-				# turn x_i into 1d array
-				x_i = np.column_stack((dict_features.values()))
-				print('x_i', x_i)
+					# set binary target
+					feature_wanted_data = feature_vars_dict[self.feature_wanted]
+					x_i = feature_wanted_data[i:i+self.window]
+					y_i = feature_wanted_data[i+self.window+self.forecast]
+					last_close = x_i[-1]
+					next_close = y_i
+					if (last_close* self.percent_change) < next_close:
+						y_i = [1, 0]
+					else:
+						y_i = [0, 1]
+					# turn x_i into 1d array
+					x_i = np.column_stack((dict_features.values()))
+					print('x_i', x_i)
 
-			except Exception as e:
-				print('hit break')
-				break
+				except Exception as e:
+					print('hit break')
+					print('error: ', e)
+					break
 
-			X.append(x_i)
-			Y.append(y_i)
+				X.append(x_i)
+				Y.append(y_i)
+
+			elif self.model_type == 'linear':
+				print('building data for linear')
+				dict_features = {}
+				try:
+					for feature, feature_data in feature_vars_dict.items():
+						print('feature', feature)
+						f = feature_data[i:i+window]
+						name = f
+						dict_features[str(feature)] =(name)
+					feature_wanted_data = feature_vars_dict[self.feature_wanted]
+					x_i = np.column_stack((dict_features.values()))
+					y_i = y_i = feature_wanted_data[i+self.window+self.forecast]
+				except Exception as e:
+						print('hit break')
+						break
+
+				X.append(x_i)
+				Y.append(y_i)
+
+			else:
+				print('model type not supported ')
+
 		X, Y = np.array(X), np.array(Y)
 
 		return X, Y
@@ -206,6 +241,7 @@ class KerasClass:
 
 	def binary_classification_model(self):
 
+
 		# get x,y values, create train/test/set then reshape them
 		if self.read_from_sql_for_model is None:
 			X, Y = self.create_X_Y_values(self.window)
@@ -214,6 +250,10 @@ class KerasClass:
 			X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
 			X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
 			print('X_train shape after reshape', X_train.shape)
+			print(self.window)
+			print(self.EMB_SIZE)
+			print(X_train.shape)
+			print(X_test.shape)
 		else:
 			print('using train and test data from sql db')
 			con = sqlite3.connect(self.read_from_sql_for_model['database'])
@@ -262,16 +302,16 @@ class KerasClass:
 
 		model = Sequential()
 		model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
-		                        nb_filter=16,
-		                        filter_length=4,
-		                        border_mode='same'))
+								nb_filter=16,
+								filter_length=4,
+								border_mode='same'))
 		model.add(BatchNormalization())
 		model.add(LeakyReLU())
 		model.add(Dropout(0.5))
 
 		model.add(Convolution1D(nb_filter=8,
-		                        filter_length=4,
-		                        border_mode='same'))
+								filter_length=4,
+								border_mode='same'))
 		model.add(BatchNormalization())
 		model.add(LeakyReLU())
 		model.add(Dropout(0.5))
@@ -286,30 +326,29 @@ class KerasClass:
 
 
 		model.add(Dense(2))
-		model.add(Activation('softmax'))
+		model.add(Activation('linear'))
 
 		opt = Nadam(lr=0.001)
 
-		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+		reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
 		checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
 
 
 		model.compile(optimizer=opt, 
-		              loss='categorical_crossentropy',
-		              metrics=['accuracy'])
+					  loss='mean_squared_error',
+					  metrics=['accuracy'])
 
 		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 100, 
-		          batch_size = 128, 
-		          verbose=1, 
-		          validation_data=(X_test, Y_test),
-		          callbacks=[reduce_lr, checkpointer],
-		          shuffle=True)
+				  nb_epoch = 10, 
+				  batch_size = 128, 
+				  verbose=1, 
+				  validation_data=(X_test, Y_test),
+				  callbacks=[reduce_lr, checkpointer],
+				  shuffle=True)
 
 		model.load_weights("lolkek.hdf5")
 		pred = model.predict(np.array(X_test))
-		roc = roc_auc_score(Y_test, pred)
-		print('ROC: ', roc)
+
 		#print(pred)
 		#'___________________'
 		#print(Y_test)
@@ -329,28 +368,39 @@ class KerasClass:
 		#class_report = classification_report(Y_test, pred)
 		#print(class_report)
 
-		
-		C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
-		print(C / C.astype(np.float).sum(axis=1))
+		if self.model_type == 'classification':
 
-		if self.plot == 'yes':
-			plt.figure()
-			plt.plot(history.history['loss'])
-			plt.plot(history.history['val_loss'])
-			plt.title('model loss')
-			plt.ylabel('loss')
-			plt.xlabel('epoch')
-			plt.legend(['train', 'test'], loc='best')
-			plt.show()
+			roc = roc_auc_score(Y_test, pred)
+			print('ROC: ', roc)
+			
+			C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
+			print(C / C.astype(np.float).sum(axis=1))
 
-			plt.figure()
-			plt.plot(history.history['acc'])
-			plt.plot(history.history['val_acc'])
-			plt.title('model accuracy')
-			plt.ylabel('accuracy')
-			plt.xlabel('epoch')
-			plt.legend(['train', 'test'], loc='best')
-			plt.show()
+			if self.plot == 'yes':
+				plt.figure()
+				plt.plot(history.history['loss'])
+				plt.plot(history.history['val_loss'])
+				plt.title('model loss')
+				plt.ylabel('loss')
+				plt.xlabel('epoch')
+				plt.legend(['train', 'test'], loc='best')
+				plt.show()
+
+				plt.figure()
+				plt.plot(history.history['acc'])
+				plt.plot(history.history['val_acc'])
+				plt.title('model accuracy')
+				plt.ylabel('accuracy')
+				plt.xlabel('epoch')
+				plt.legend(['train', 'test'], loc='best')
+				plt.show()
+
+		elif self.model_type == 'linear':
+			original = Y_test
+			print(np.mean(np.square(predicted - original)))
+			print(np.mean(np.abs(predicted - original)))
+			print(np.mean(np.abs((original - predicted) / original)))
+
 
 
 #https://github.com/Rachnog/Deep-Trading/blob/master/hyperparameters/hyper.py
@@ -386,16 +436,16 @@ class KerasClass:
 
 			model = Sequential()
 			model.add(Convolution1D(input_shape = (window, self.EMB_SIZE),
-			                        nb_filter=16,
-			                        filter_length=4,
-			                        border_mode='same'))
+									nb_filter=16,
+									filter_length=4,
+									border_mode='same'))
 			model.add(BatchNormalization())
 			model.add(LeakyReLU())
 			model.add(Dropout(0.5))
 
 			model.add(Convolution1D(nb_filter=8,
-			                        filter_length=4,
-			                        border_mode='same'))
+									filter_length=4,
+									border_mode='same'))
 			model.add(BatchNormalization())
 			model.add(LeakyReLU())
 			model.add(Dropout(0.5))
@@ -419,16 +469,16 @@ class KerasClass:
 
 
 			model.compile(optimizer=opt_use, 
-			              loss='categorical_crossentropy',
-			              metrics=['accuracy'])
+						  loss='categorical_crossentropy',
+						  metrics=['accuracy'])
 
 			history = model.fit(X_train, Y_train, 
-			          nb_epoch = 10, 
-			          batch_size = 128, 
-			          verbose=1, 
-			          validation_data=(X_test, Y_test),
-			          callbacks=[reduce_lr, checkpointer],
-			          shuffle=True)
+					  nb_epoch = 10, 
+					  batch_size = 128, 
+					  verbose=1, 
+					  validation_data=(X_test, Y_test),
+					  callbacks=[reduce_lr, checkpointer],
+					  shuffle=True)
 
 			model.load_weights("lolkek.hdf5")
 			pred = model.predict(np.array(X_test))

@@ -5,8 +5,8 @@ import unittest
 # may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
 
 
-file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
-file_location1 = '/home/mike/Downloads/coin_months_data'
+file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
@@ -151,7 +151,9 @@ result = sample_instance._set_up_data_for_prob_predict()
 df =result.dataframe
 print(df.columns.values)
 feature_wanted = 'rate_USDT_BTC'
-df = df.iloc[2900:,]
+
+
+df = df.iloc[4800:,]
 print('______________________')
 print(df.head(10))
 print(df.shape)
@@ -170,20 +172,21 @@ for col in col_graphs:
 	plt.show()
 """	
 
-model_type = 'classification'
+#model_type = 'classification'
+model_type = 'linear'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
-window = 720
+window = 30
 step = 1
-forecast = 24
+forecast = 1
 plot = 'yes'
 feature_wanted = 'rate_USDT_BTC'
 percent_change = 1.005
 database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/BTC_for_days_data_pred_last_3_months_1_day_forecast'
-write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
-'y_test':'y_test_table_1'}
-#write_to_sql = None
+#write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
+#'y_test':'y_test_table_1'}
+write_to_sql = None
 read_from_sql_for_model = None
 x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
 x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6']
@@ -217,6 +220,15 @@ space1 ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop']),
 #keras_instance.best_params(space1)
 keras_instance.binary_classification_model()
 
+"""
+data = keras_instance.create_X_Y_values()
+print(data[0], len(data[0]))
+print('__________________')
+print(data[1], len(data[1]))
+train_data = keras_instance.create_Xt_Yt(data[0], data[1])
+for x in train_data:
+	print(x.shape)
+"""
 # seeing how prepared ata may be written to database
 
 
