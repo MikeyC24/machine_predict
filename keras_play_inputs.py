@@ -5,8 +5,8 @@ import unittest
 # may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
 
 
-file_location1 = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
-file_location = '/home/mike/Downloads/coin_months_data'
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/coin_months_data'
+file_location1 = '/home/mike/Downloads/coin_months_data'
 #df = pd.read_csv(file_location)
 con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
@@ -206,9 +206,10 @@ space ={'window':hp.choice('window', [30]),
 		'loss':hp.choice('loss', ['binary_crossentropy', 'categorical_crossentropy']),
 		}
 space ={'window':hp.choice('window', [6,30,72]),}
-space1 ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop'])}
-keras_instance.best_params(space1)
-#keras_instance.binary_classification_model()
+space1 ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop']),
+		'activation': hp.choice('activation', ['softmax', 'sigmoid', 'relu'])}
+#keras_instance.best_params(space1)
+keras_instance.binary_classification_model()
 
 # seeing how prepared ata may be written to database
 

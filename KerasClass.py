@@ -1,6 +1,6 @@
 from MachinePredictModelrefractored import *
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error, roc_auc_score
+from sklearn.metrics import mean_squared_error, roc_auc_score, recall_score, f1_score, precision_score
 import matplotlib.pyplot as plt
 #from utils import *
 import pandas as pd
@@ -274,6 +274,8 @@ class KerasClass:
 		model.add(LeakyReLU())
 		model.add(Dropout(0.5))
 
+		#model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+
 		model.add(Flatten())
 
 		model.add(Dense(64))
@@ -283,7 +285,7 @@ class KerasClass:
 
 		model.add(Dense(2))
 		model.add(Activation('softmax'))
-
+		model.add(Dense(output_dim=1))
 		opt = Nadam(lr=0.001)
 
 		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
@@ -304,8 +306,20 @@ class KerasClass:
 
 		model.load_weights("lolkek.hdf5")
 		pred = model.predict(np.array(X_test))
-		acc = roc_auc_score(Y_test, pred)
-		print('AUC: ', acc)
+		roc = roc_auc_score(Y_test, pred)
+		print('ROC: ', roc)
+		print(pred)
+		loss = losses.categorical_crossentropy(Y_test, pred)
+		print('loss: ', loss)
+		#try:
+			#precision = precision_score(Y_test, pred)
+			#print('Precision: ', precision)
+			#f1_score = f1_score(Y_test, pred)
+			#print('f1 score: ', f1_score)
+			#recall_score = recall_score(Y_test, pred)
+			#print('recall score: ', recall_score)
+		#except Exception as e:
+			#print('one of scores didnt work', e)
 		#class_report = classification_report(Y_test, pred)
 		#print(class_report)
 
@@ -360,66 +374,66 @@ class KerasClass:
 			print(' shapes in order', X_train.shape, X_test.shape,
 				Y_train.shape, Y_test.shape)
 			window = self.window
-		#try: 
+		try: 
 
-		print('params set up')
+			print('params set up')
 
-		model = Sequential()
-		model.add(Convolution1D(input_shape = (window, self.EMB_SIZE),
-		                        nb_filter=16,
-		                        filter_length=4,
-		                        border_mode='same'))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-		model.add(Dropout(0.5))
+			model = Sequential()
+			model.add(Convolution1D(input_shape = (window, self.EMB_SIZE),
+			                        nb_filter=16,
+			                        filter_length=4,
+			                        border_mode='same'))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
+			model.add(Dropout(0.5))
 
-		model.add(Convolution1D(nb_filter=8,
-		                        filter_length=4,
-		                        border_mode='same'))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-		model.add(Dropout(0.5))
+			model.add(Convolution1D(nb_filter=8,
+			                        filter_length=4,
+			                        border_mode='same'))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
+			model.add(Dropout(0.5))
 
-		model.add(Flatten())
+			model.add(Flatten())
 
-		model.add(Dense(64))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-
-
-		model.add(Dense(2))
-		model.add(Activation('sigmoid'))
-
-		opt_use = params['optimizer']
-		print(opt_use)
-		#opt = opt_use(lr=0.001)
-
-		reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
-		checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+			model.add(Dense(64))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
 
 
-		model.compile(optimizer=opt_use, 
-		              loss='binary_crossentropy',
-		              metrics=['accuracy'])
+			model.add(Dense(2))
+			model.add(Activation(params['activation']))
 
-		history = model.fit(X_train, Y_train, 
-		          nb_epoch = 10, 
-		          batch_size = 128, 
-		          verbose=1, 
-		          validation_data=(X_test, Y_test),
-		          callbacks=[reduce_lr, checkpointer],
-		          shuffle=True)
+			opt_use = params['optimizer']
+			print(opt_use)
+			#opt = opt_use(lr=0.001)
 
-		model.load_weights("lolkek.hdf5")
-		pred = model.predict(np.array(X_test))
-		acc = roc_auc_score(Y_test, pred)
-		print('AUC: ', acc)
-		loss = losses.binary_crossentropy(Y_test, pred)
-		print('loss: ', loss)
+			reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+			checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
 
-		#except Exception as e:
-		#	print('got error: ', e)
-		#	return {'loss':9999999, 'status':STATUS_OK}
+
+			model.compile(optimizer=opt_use, 
+			              loss='categorical_crossentropy',
+			              metrics=['accuracy'])
+
+			history = model.fit(X_train, Y_train, 
+			          nb_epoch = 10, 
+			          batch_size = 128, 
+			          verbose=1, 
+			          validation_data=(X_test, Y_test),
+			          callbacks=[reduce_lr, checkpointer],
+			          shuffle=True)
+
+			model.load_weights("lolkek.hdf5")
+			pred = model.predict(np.array(X_test))
+			acc = roc_auc_score(Y_test, pred)
+			print('AUC: ', acc)
+			loss = losses.categorical_crossentropy(Y_test, pred)
+			print('loss: ', loss)
+
+		except Exception as e:
+			print('got error: ', e)
+			return {'loss':9999999, 'status':STATUS_OK}
 
 	
 			#C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
@@ -444,4 +458,8 @@ https://github.com/fchollet/keras/issues/5140
 2.
 hyperopt wrapper for keras
 https://github.com/maxpumperla/hyperas
+3. another time series example
+https://gist.github.com/jkleint/1d878d0401b28b281eb75016ed29f2ee
+4. more on keras vars 
+https://github.com/fchollet/keras/issues/2483
 """
