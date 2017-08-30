@@ -136,6 +136,7 @@ class KerasClass:
 					feature_wanted_data = feature_vars_dict[self.feature_wanted]
 					x_i = np.column_stack((dict_features.values()))
 					y_i = y_i = feature_wanted_data[i+self.window+self.forecast]
+					print(x_i)
 				except Exception as e:
 						print('hit break')
 						break
@@ -267,8 +268,14 @@ class KerasClass:
 			df_y_test_from_sql = df_y_test_from_sql.drop('index', axis=1)
 			X_train = np.reshape(df_x_train_from_sql.values, (df_x_train_from_sql.shape[1], int((df_x_train_from_sql.shape[0])/(self.EMB_SIZE)), self.EMB_SIZE))
 			X_test = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(self.EMB_SIZE)),  self.EMB_SIZE))
-			Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
-			Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+			if self.model_type == 'classification':
+				Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
+				Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+			elif self.model_type == 'linear':
+				Y_train = df_y_train_from_sql.values
+				Y_test = df_y_test_from_sql.values
+			else:
+				print('no data found for that model type')
 			print(' shapes in order', X_train.shape, X_test.shape,
 				Y_train.shape, Y_test.shape)
 
@@ -378,17 +385,18 @@ class KerasClass:
 			model.add(Dense(1))
 			model.add(Activation('linear'))
 
-			opt = Nadam(lr=0.001)
+			#opt = Adam(lr=params['lr'])
+			#opt = Nadam
 
 			reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
 			checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
 
 
-			model.compile(optimizer=opt, 
+			model.compile(optimizer='Nadam', 
 						  loss='mean_squared_error')
 
 			history = model.fit(X_train, Y_train, 
-					  nb_epoch = 10, 
+					  nb_epoch = 100, 
 					  batch_size = 256, 
 					  verbose=1, 
 					  validation_data=(X_test, Y_test),
@@ -450,7 +458,7 @@ class KerasClass:
 		elif self.model_type == 'linear':
 			original = Y_test
 			predicted = pred
-			plt.title('Actual and predicted')
+			plt.title('Actual(black) and predicted')
 			plt.legend(loc='best')
 			plt.plot(original, color='black', label = 'Original data')
 			plt.plot(predicted, color='blue', label = 'Predicted data')
@@ -483,8 +491,14 @@ class KerasClass:
 			df_y_test_from_sql = df_y_test_from_sql.drop('index', axis=1)
 			X_train = np.reshape(df_x_train_from_sql.values, (df_x_train_from_sql.shape[1], int((df_x_train_from_sql.shape[0])/(self.EMB_SIZE)), self.EMB_SIZE))
 			X_test = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(self.EMB_SIZE)),  self.EMB_SIZE))
-			Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
-			Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+			if self.model_type == 'classification':
+				Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
+				Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+			elif self.model_type == 'linear':
+				Y_train = df_y_train_from_sql.values
+				Y_test = df_y_test_from_sql.values
+			else:
+				print('no data found for that model type')
 			print(' shapes in order', X_train.shape, X_test.shape,
 				Y_train.shape, Y_test.shape)
 			window = self.window
@@ -584,19 +598,19 @@ class KerasClass:
 
 
 				model.add(Dense(1))
-				model.add(Activation('linear'))
+				model.add(Activation(params['activation']))
 
-				opt = Nadam(lr=0.001)
+				opt = params['optimizer']
 
 				reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
 				checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
 
 
 				model.compile(optimizer=opt, 
-							  loss='mean_squared_error')
+							  loss=params['loss'])
 
 				history = model.fit(X_train, Y_train, 
-						  nb_epoch = 10, 
+						  nb_epoch = 100, 
 						  batch_size = 256, 
 						  verbose=1, 
 						  validation_data=(X_test, Y_test),
@@ -610,7 +624,7 @@ class KerasClass:
 				return {'loss':9999999, 'status':STATUS_OK}
 
 
-			mse = np.mean(np.square(predicted - original))    
+			mse = np.mean(np.square(pred - Y_test))    
 
 			if np.isnan(mse):
 				print('NaN happened')
@@ -659,6 +673,6 @@ road map in no order
 1. linear regression - seems to be working and generating values/predictions
 2. kfold option
 3. ways to reduce over fitting
-4. param optimize for class
-5. param optimize for linear 
+4. param optimize for class - getting values from this but dont know if they are right
+5. param optimize for linear - getting values from this but they seem to be wrong
 """

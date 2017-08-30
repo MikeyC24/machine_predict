@@ -153,7 +153,8 @@ print(df.columns.values)
 feature_wanted = 'rate_USDT_BTC'
 
 
-df = df.iloc[4800:,]
+#df = df.iloc[4800:,]
+df = df.iloc[2300:,]
 print('______________________')
 print(df.head(10))
 print(df.shape)
@@ -177,13 +178,13 @@ model_type = 'linear'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
-window = 30
+window = 168
 step = 1
-forecast = 1
+forecast = 24
 plot = 'yes'
 feature_wanted = 'rate_USDT_BTC'
 percent_change = 1.005
-database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/BTC_small_sample_data_for_class_optimize'
+database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/BTC_data_2500_pts_linear_right'
 #write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
 #'y_test':'y_test_table_1'}
 write_to_sql = None
@@ -220,8 +221,11 @@ space_classification ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMS
 space_linear ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam']),
 		'activation': hp.choice('activation', ['tanh', 'linear', 'relu']),
 		'window':hp.choice('window', [30])}
-keras_instance.best_params(space_linear)
-#keras_instance.binary_classification_model()
+space_linear_no_win ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam']),
+		'activation': hp.choice('activation', ['tanh', 'linear', 'relu']),
+		'loss':hp.choice('loss', ['mean_squared_error', 'mean_absolute_error', 'mean_absolute_percentage_error'])}
+#keras_instance.best_params(space_linear_no_win)
+keras_instance.binary_classification_model()
 
 """
 data = keras_instance.create_X_Y_values()
