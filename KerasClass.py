@@ -542,8 +542,8 @@ class KerasClass:
 				pred = model.predict(np.array(X_test))
 				acc = roc_auc_score(Y_test, pred)
 				print('AUC: ', acc)
-				loss = losses.categorical_crossentropy(Y_test, pred)
-				print('loss: ', loss)
+				#loss = losses.categorical_crossentropy(Y_test, pred)
+				#print('loss: ', loss)
 
 			except Exception as e:
 				print('got error: ', e)
