@@ -172,8 +172,8 @@ for col in col_graphs:
 	plt.show()
 """	
 
-model_type = 'classification'
-#model_type = 'linear'
+#model_type = 'classification'
+model_type = 'linear'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
@@ -187,11 +187,11 @@ database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/BT
 #write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
 #'y_test':'y_test_table_1'}
 write_to_sql = None
-#read_from_sql_for_model = None
+read_from_sql_for_model = None
 x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
 x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6']
-read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
-'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
+#read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
+#'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
 """
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)
@@ -217,9 +217,10 @@ space ={'window':hp.choice('window', [30]),
 space2 ={'window':hp.choice('window', [6,30,72]),}
 space_classification ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop']),
 		'activation': hp.choice('activation', ['softmax', 'sigmoid', 'relu'])}
-space_linear ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop']),
-		'activation': hp.choice('activation', ['softmax', 'sigmoid', 'relu'])}
-keras_instance.best_params(space_classification)
+space_linear ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam']),
+		'activation': hp.choice('activation', ['tanh', 'linear', 'relu']),
+		'window':hp.choice('window', [30])}
+keras_instance.best_params(space_linear)
 #keras_instance.binary_classification_model()
 
 """
