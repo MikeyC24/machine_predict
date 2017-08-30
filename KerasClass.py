@@ -250,10 +250,10 @@ class KerasClass:
 			X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
 			X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
 			print('X_train shape after reshape', X_train.shape)
-			print(self.window)
-			print(self.EMB_SIZE)
 			print(X_train.shape)
 			print(X_test.shape)
+			print(Y_train.shape)
+			print(Y_test.shape)
 		else:
 			print('using train and test data from sql db')
 			con = sqlite3.connect(self.read_from_sql_for_model['database'])
@@ -300,54 +300,106 @@ class KerasClass:
 			Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
 			"""
 
-		model = Sequential()
-		model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
-								nb_filter=16,
-								filter_length=4,
-								border_mode='same'))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-		model.add(Dropout(0.5))
+		if self.model_type == 'classification':
+			model = Sequential()
+			model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
+									nb_filter=16,
+									filter_length=4,
+									border_mode='same'))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
+			model.add(Dropout(0.5))
 
-		model.add(Convolution1D(nb_filter=8,
-								filter_length=4,
-								border_mode='same'))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-		model.add(Dropout(0.5))
+			model.add(Convolution1D(nb_filter=8,
+									filter_length=4,
+									border_mode='same'))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
+			model.add(Dropout(0.5))
 
-		#model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+			#model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
 
-		model.add(Flatten())
+			model.add(Flatten())
 
-		model.add(Dense(64))
-		model.add(BatchNormalization())
-		model.add(LeakyReLU())
-
-
-		model.add(Dense(2))
-		model.add(Activation('linear'))
-
-		opt = Nadam(lr=0.001)
-
-		reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
-		checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+			model.add(Dense(64))
+			model.add(BatchNormalization())
+			model.add(LeakyReLU())
 
 
-		model.compile(optimizer=opt, 
-					  loss='mean_squared_error',
-					  metrics=['accuracy'])
+			model.add(Dense(2))
+			model.add(Activation('softmax'))
 
-		history = model.fit(X_train, Y_train, 
-				  nb_epoch = 10, 
-				  batch_size = 128, 
-				  verbose=1, 
-				  validation_data=(X_test, Y_test),
-				  callbacks=[reduce_lr, checkpointer],
-				  shuffle=True)
+			opt = Nadam(lr=0.001)
 
-		model.load_weights("lolkek.hdf5")
-		pred = model.predict(np.array(X_test))
+			reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+			checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+
+
+			model.compile(optimizer=opt, 
+						  loss='categorical_crossentropy',
+						  metrics=['accuracy'])
+
+			history = model.fit(X_train, Y_train, 
+					  nb_epoch = 10, 
+					  batch_size = 128, 
+					  verbose=1, 
+					  validation_data=(X_test, Y_test),
+					  callbacks=[reduce_lr, checkpointer],
+					  shuffle=True)
+
+			model.load_weights("lolkek.hdf5")
+			pred = model.predict(np.array(X_test))
+
+		elif self.model_type == 'linear':
+			model = Sequential()
+			model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
+									nb_filter=16,
+									filter_length=4,
+									border_mode='same'))
+			model.add(MaxPooling1D(2))
+			model.add(LeakyReLU())
+			#model.add(Dropout(0.5))
+
+			model.add(Convolution1D(nb_filter=32,
+									filter_length=4,
+									border_mode='same'))
+			model.add(MaxPooling1D(2))
+			model.add(LeakyReLU())
+			#model.add(Dropout(0.5))
+			model.add(Flatten())
+
+			#model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+
+			model.add(Dense(16))
+			#model.add(BatchNormalization())
+			model.add(LeakyReLU())
+
+
+			model.add(Dense(1))
+			model.add(Activation('linear'))
+
+			opt = Nadam(lr=0.001)
+
+			reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+			checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+
+
+			model.compile(optimizer=opt, 
+						  loss='mean_squared_error')
+
+			history = model.fit(X_train, Y_train, 
+					  nb_epoch = 10, 
+					  batch_size = 256, 
+					  verbose=1, 
+					  validation_data=(X_test, Y_test),
+					  callbacks=[reduce_lr, checkpointer],
+					  shuffle=True)
+
+			model.load_weights("lolkek.hdf5")
+			pred = model.predict(np.array(X_test))
+
+		else:
+			print('moel type not recongized')
 
 		#print(pred)
 		#'___________________'
@@ -397,6 +449,12 @@ class KerasClass:
 
 		elif self.model_type == 'linear':
 			original = Y_test
+			predicted = pred
+			plt.title('Actual and predicted')
+			plt.legend(loc='best')
+			plt.plot(original, color='black', label = 'Original data')
+			plt.plot(predicted, color='blue', label = 'Predicted data')
+			plt.show()
 			print(np.mean(np.square(predicted - original)))
 			print(np.mean(np.abs(predicted - original)))
 			print(np.mean(np.abs((original - predicted) / original)))
@@ -430,73 +488,143 @@ class KerasClass:
 			print(' shapes in order', X_train.shape, X_test.shape,
 				Y_train.shape, Y_test.shape)
 			window = self.window
-		try: 
+		#try: 
+		if self.model_type == 'classification':
+			print('params set up for classificaion optimize')
+			try:
+				model = Sequential()
+				model.add(Convolution1D(input_shape = (window, self.EMB_SIZE),
+										nb_filter=16,
+										filter_length=4,
+										border_mode='same'))
+				model.add(BatchNormalization())
+				model.add(LeakyReLU())
+				model.add(Dropout(0.5))
 
-			print('params set up')
+				model.add(Convolution1D(nb_filter=8,
+										filter_length=4,
+										border_mode='same'))
+				model.add(BatchNormalization())
+				model.add(LeakyReLU())
+				model.add(Dropout(0.5))
 
-			model = Sequential()
-			model.add(Convolution1D(input_shape = (window, self.EMB_SIZE),
-									nb_filter=16,
-									filter_length=4,
-									border_mode='same'))
-			model.add(BatchNormalization())
-			model.add(LeakyReLU())
-			model.add(Dropout(0.5))
+				model.add(Flatten())
 
-			model.add(Convolution1D(nb_filter=8,
-									filter_length=4,
-									border_mode='same'))
-			model.add(BatchNormalization())
-			model.add(LeakyReLU())
-			model.add(Dropout(0.5))
-
-			model.add(Flatten())
-
-			model.add(Dense(64))
-			model.add(BatchNormalization())
-			model.add(LeakyReLU())
-
-
-			model.add(Dense(2))
-			model.add(Activation(params['activation']))
-
-			opt_use = params['optimizer']
-			print(opt_use)
-			#opt = opt_use(lr=0.001)
-
-			reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
-			checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+				model.add(Dense(64))
+				model.add(BatchNormalization())
+				model.add(LeakyReLU())
 
 
-			model.compile(optimizer=opt_use, 
-						  loss='categorical_crossentropy',
-						  metrics=['accuracy'])
+				model.add(Dense(2))
+				model.add(Activation(params['activation']))
 
-			history = model.fit(X_train, Y_train, 
-					  nb_epoch = 10, 
-					  batch_size = 128, 
-					  verbose=1, 
-					  validation_data=(X_test, Y_test),
-					  callbacks=[reduce_lr, checkpointer],
-					  shuffle=True)
+				opt_use = params['optimizer']
+				print(opt_use)
+				#opt = opt_use(lr=0.001)
 
-			model.load_weights("lolkek.hdf5")
-			pred = model.predict(np.array(X_test))
-			acc = roc_auc_score(Y_test, pred)
-			print('AUC: ', acc)
-			loss = losses.categorical_crossentropy(Y_test, pred)
-			print('loss: ', loss)
+				reduce_lr = ReduceLROnPlateau(monitor='val_acc', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+				checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
 
-		except Exception as e:
-			print('got error: ', e)
-			return {'loss':9999999, 'status':STATUS_OK}
+
+				model.compile(optimizer=opt_use, 
+							  loss='categorical_crossentropy',
+							  metrics=['accuracy'])
+
+				history = model.fit(X_train, Y_train, 
+						  nb_epoch = 10, 
+						  batch_size = 128, 
+						  verbose=1, 
+						  validation_data=(X_test, Y_test),
+						  callbacks=[reduce_lr, checkpointer],
+						  shuffle=True)
+
+				model.load_weights("lolkek.hdf5")
+				pred = model.predict(np.array(X_test))
+				acc = roc_auc_score(Y_test, pred)
+				print('AUC: ', acc)
+				loss = losses.categorical_crossentropy(Y_test, pred)
+				print('loss: ', loss)
+
+			except Exception as e:
+				print('got error: ', e)
+				return {'loss':9999999, 'status':STATUS_OK}
 
 	
 			#C = confusion_matrix([np.argmax(y) for y in Y_test], [np.argmax(y) for y in pred])
 			#print('c', C)
 			#print(C / C.astype(np.float).sum(axis=1))
-		sys.stdout.flush()
-		return {'loss':-acc, 'status':STATUS_OK}
+			sys.stdout.flush()
+			return {'loss':-acc, 'status':STATUS_OK}
+
+		elif self.model_type == 'linear':
+			print('setting up params for linear optimize')
+			try:
+				model = Sequential()
+				model.add(Convolution1D(input_shape = (self.window, self.EMB_SIZE),
+										nb_filter=16,
+										filter_length=4,
+										border_mode='same'))
+				model.add(MaxPooling1D(2))
+				model.add(LeakyReLU())
+				#model.add(Dropout(0.5))
+
+				model.add(Convolution1D(nb_filter=32,
+										filter_length=4,
+										border_mode='same'))
+				model.add(MaxPooling1D(2))
+				model.add(LeakyReLU())
+				#model.add(Dropout(0.5))
+				model.add(Flatten())
+
+				#model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+
+				model.add(Dense(16))
+				#model.add(BatchNormalization())
+				model.add(LeakyReLU())
+
+
+				model.add(Dense(1))
+				model.add(Activation('linear'))
+
+				opt = Nadam(lr=0.001)
+
+				reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+				checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+
+
+				model.compile(optimizer=opt, 
+							  loss='mean_squared_error')
+
+				history = model.fit(X_train, Y_train, 
+						  nb_epoch = 10, 
+						  batch_size = 256, 
+						  verbose=1, 
+						  validation_data=(X_test, Y_test),
+						  callbacks=[reduce_lr, checkpointer],
+						  shuffle=True)
+
+				model.load_weights("lolkek.hdf5")
+				pred = model.predict(np.array(X_test))
+			except Exception as e:
+				print('something happened, error is : ', e)
+				return {'loss':9999999, 'status':STATUS_OK}
+
+
+			mse = np.mean(np.square(predicted - original))    
+
+			if np.isnan(mse):
+				print('NaN happened')
+				print('-' * 10)
+				return {'loss': 999999, 'status': STATUS_OK}
+
+			print(mse)
+			print('-' * 10)
+
+			sys.stdout.flush() 
+			return {'loss': mse, 'status': STATUS_OK}
+
+		else:
+			print('model type not recongized')
 
 	def best_params(self, space):
 
@@ -522,12 +650,15 @@ https://github.com/fchollet/keras/issues/2483
 https://github.com/Rachnog/Deep-Trading/blob/master/volatility/volatility.py#L133
 6. battle overfitting a. make sure no data leak b. overfitting, find ways to reduce this
 3. kfold
+7. more hyper opt and keras github
+https://github.com/fchollet/keras/issues/1591
 """
 
 """
 road map in no order
-1. linear regression 
+1. linear regression - seems to be working and generating values/predictions
 2. kfold option
 3. ways to reduce over fitting
-4. param optimize 
+4. param optimize for class
+5. param optimize for linear 
 """

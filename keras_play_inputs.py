@@ -172,8 +172,8 @@ for col in col_graphs:
 	plt.show()
 """	
 
-#model_type = 'classification'
-model_type = 'linear'
+model_type = 'classification'
+#model_type = 'linear'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
@@ -215,10 +215,12 @@ space ={'window':hp.choice('window', [30]),
 		'loss':hp.choice('loss', ['binary_crossentropy', 'categorical_crossentropy']),
 		}
 space ={'window':hp.choice('window', [6,30,72]),}
-space1 ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop']),
+space_classification ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop']),
 		'activation': hp.choice('activation', ['softmax', 'sigmoid', 'relu'])}
-#keras_instance.best_params(space1)
-keras_instance.binary_classification_model()
+space_linear ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam', 'RMSprop']),
+		'activation': hp.choice('activation', ['softmax', 'sigmoid', 'relu'])}
+keras_instance.best_params(space_classification)
+#keras_instance.binary_classification_model()
 
 """
 data = keras_instance.create_X_Y_values()
