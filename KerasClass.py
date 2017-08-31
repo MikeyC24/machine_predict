@@ -396,7 +396,7 @@ class KerasClass:
 						  loss='mean_squared_error')
 
 			history = model.fit(X_train, Y_train, 
-					  nb_epoch = 100, 
+					  nb_epoch = 10, 
 					  batch_size = 256, 
 					  verbose=1, 
 					  validation_data=(X_test, Y_test),
@@ -466,6 +466,17 @@ class KerasClass:
 			print(np.mean(np.square(predicted - original)))
 			print(np.mean(np.abs(predicted - original)))
 			print(np.mean(np.abs((original - predicted) / original)))
+			check_df = pd.DataFrame()
+			print(Y_test)
+			print(type(Y_test))
+			check_df['actaul'] = float(original.tolist())
+			check_df['pred'] = float(predicted.tolist())
+			print(check_df.head(10))
+			yes_array = []
+			for x in range(check_df.shape[0]):
+				if (check_df['pred'].iloc[x] + .01) > check_df['actaul'].iloc[x-1]:
+					yes_array.append(x)
+			print('yes_array', yes_array)
 
 
 
@@ -675,4 +686,10 @@ road map in no order
 3. ways to reduce over fitting
 4. param optimize for class - getting values from this but dont know if they are right
 5. param optimize for linear - getting values from this but they seem to be wrong
+other things to look into
+6. for rolling avg and std, do rows have to shift back to match window
+7. look into lstm and also shifting time series data
+links - https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/ 
+for saving to sql purposes, this way may be better, shift data before hand
+https://machinelearningmastery.com/convert-time-series-supervised-learning-problem-python/
 """

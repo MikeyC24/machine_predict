@@ -184,15 +184,15 @@ forecast = 24
 plot = 'yes'
 feature_wanted = 'rate_USDT_BTC'
 percent_change = 1.005
-database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/BTC_data_2500_pts_linear_right'
+database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/BTC_data_2500_pts_linear_day_pred'
 #write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
 #'y_test':'y_test_table_1'}
 write_to_sql = None
-read_from_sql_for_model = None
+#read_from_sql_for_model = None
 x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
 x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6']
-#read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
-#'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
+read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
+'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
 """
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)
