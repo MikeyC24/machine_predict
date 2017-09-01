@@ -1,6 +1,7 @@
 from MachinePredictModelrefractored import *
 from KerasClass import *
 import unittest
+from helper_methods import *
 
 # may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
 
@@ -159,6 +160,7 @@ print('______________________')
 print(df.head(10))
 print(df.shape)
 print(df.columns.values)
+
 # https://machinelearningmastery.com/time-series-data-visualization-with-python/
 """
 import matplotlib.pyplot as plt
@@ -225,7 +227,15 @@ space_linear_no_win ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam']),
 		'activation': hp.choice('activation', ['tanh', 'linear', 'relu']),
 		'loss':hp.choice('loss', ['mean_squared_error', 'mean_absolute_error', 'mean_absolute_percentage_error'])}
 #keras_instance.best_params(space_linear_no_win)
-keras_instance.binary_classification_model()
+values = keras_instance.binary_classification_model()
+for k,v in values[0].items():
+	print(k)
+	print(len(v))
+	print('_________________')
+for k,v in values[1].items():
+	print(k)
+	print(len(v))
+	print('_________________')
 
 """
 data = keras_instance.create_X_Y_values()

@@ -151,6 +151,30 @@ class KerasClass:
 
 		return X, Y
 
+	def count_out_ys_by_group(self, values_list, up_value=.02, down_value=-.02):
+		up_array = []
+		down_array = []
+		up_var_array = []
+		down_var_array = []
+		middle_var_array = []
+		for x in values_list:
+			up_array.append(x) if x > 0 else down_array.append(x)
+		for x in values_list:
+			if x > up_value:
+				up_var_array.append(x)
+			elif x < down_value:
+				down_var_array.append(x)
+			else:
+				middle_var_array.append(x)
+		dict_numbers = {}
+		dict_numbers['up_values'] = up_array
+		dict_numbers['down_values'] = down_array
+		dict_numbers['up' +str(up_value) + '_value'] = up_var_array
+		dict_numbers['down' +str(down_value) + '_value'] = down_var_array
+		dict_numbers['middle' +str(up_value) + str(down_value) + '_value'] = middle_var_array
+		return dict_numbers			
+
+
 	def chunkIt(self, seq, num):
 		avg = len(seq) / float(num)
 		out = []
@@ -279,33 +303,6 @@ class KerasClass:
 			print(' shapes in order', X_train.shape, X_test.shape,
 				Y_train.shape, Y_test.shape)
 
-			"""
-			con = sqlite3.connect(self.read_from_sql_for_model['database'])
-			df_x_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['x_train']), con)
-			df_x_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['x_test']), con)
-			df_y_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_train']), con)
-			df_y_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_test']), con)
-			#print('x train shape before tranpose', df_x_train_from_sql.shape)
-			#print('x test shape before tranpose', df_x_test_from_sql.shape)
-			#df_x_train_from_sql = df_x_train_from_sql.transpose()
-			#df_x_test_from_sql = df_x_test_from_sql.transpose()
-			#print('x train shape after tranpose', df_x_train_from_sql.shape)
-			#print('x test shape after tranpose', df_x_test_from_sql.shape)
-			#print( df_x_train_from_sql.head(10))
-			#print( df_x_test_from_sql.head(10))
-			df_x_train_from_sql = df_x_train_from_sql.drop('major', axis=1)
-			df_x_train_from_sql = df_x_train_from_sql.drop('minor',axis=1)
-			#df_x_train_from_sql = df_x_train_from_sql.iloc[1:,]
-			#df_x_test_from_sql = df_x_test_from_sql.iloc[1:,]
-			df_x_test_from_sql = df_x_test_from_sql.drop('major', axis=1)
-			df_x_test_from_sql = df_x_test_from_sql.drop('minor',axis=1)
-			df_y_train_from_sql = df_y_train_from_sql.drop('index', axis=1)
-			df_y_test_from_sql = df_y_test_from_sql.drop('index', axis=1)
-			X_train = np.reshape(df_x_train_from_sql.values, (df_x_train_from_sql.shape[1], int((df_x_train_from_sql.shape[0])/(self.EMB_SIZE)), self.EMB_SIZE))
-			X_test = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(self.EMB_SIZE)),  self.EMB_SIZE))
-			Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
-			Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
-			"""
 
 		if self.model_type == 'classification':
 			model = Sequential()
@@ -409,25 +406,6 @@ class KerasClass:
 		else:
 			print('moel type not recongized')
 
-		#print(pred)
-		#'___________________'
-		#print(Y_test)
-		#print('_______________')
-
-		#urceloss = losses.categorical_crossentropy(Y_test, pred)
-		#print('loss: ', loss)
-		#try:
-			#precision = precision_score(Y_test, pred)
-			#print('Precision: ', precision)
-			#f1_score = f1_score(Y_test, pred)
-			#print('f1 score: ', f1_score)
-			#recall_score = recall_score(Y_test, pred)
-			#print('recall score: ', recall_score)
-		#except Exception as e:
-			#print('one of scores didnt work', e)
-		#class_report = classification_report(Y_test, pred)
-		#print(class_report)
-
 		if self.model_type == 'classification':
 
 			roc = roc_auc_score(Y_test, pred)
@@ -467,36 +445,14 @@ class KerasClass:
 			print(np.mean(np.abs(predicted - original)))
 			print(np.mean(np.abs((original - predicted) / original)))
 			check_df = pd.DataFrame()
-			#print(Y_test)
-			#print(type(Y_test))
-			try:
-				pred_new = np.array(predicted, dtype=float)
-				print('pred_new', pred_new)
-			except Exception as e:
-				print('array didnt work', e)
-			#print(original.tolist())
-			#print(original.tolist()[0])
 			original = [float(i) for i in original]
 			predicted = [float(i) for i in predicted]
 			check_df['actaul'] = original
 			check_df['pred'] = predicted
-			print('y_test 0', Y_test[0])
-			print(check_df.head(10))
-			"""
-			try:
-				check_df = check_df.apply(lambda x: x.astype(float))
-				print(check_df.head(10))
-			except Exception as e:
-				print('apply didnt work', e)
-				"""
-			yes_array = []
 			up_array = []
 			down_array = []
 			up_2_percent_array = []
 			down_2_percent_array = []
-			for x in range(check_df.shape[0]):
-				if (check_df['pred'].iloc[x] + .01) > check_df['actaul'].iloc[x-1]:
-					yes_array.append(x)
 			for x in range(check_df.shape[0]):
 				if (check_df['pred'].iloc[x]) > check_df['actaul'].iloc[x-1]:
 					up_array.append(x)
@@ -509,11 +465,13 @@ class KerasClass:
 			for x in range(check_df.shape[0]):
 				if (check_df['pred'].iloc[x] - .02) < check_df['actaul'].iloc[x-1]:
 					down_2_percent_array.append(x)
-			print('yes_array count', len(yes_array))
 			print('up count', len(up_array))
 			print('down count', len(down_array))
 			print('2 up count', len(up_2_percent_array))
 			print('2 down', len(down_2_percent_array))
+			pred_group_count = self.count_out_ys_by_group(predicted)
+			original_group_count = self.count_out_ys_by_group(original)
+			return original_group_count, pred_group_count
 
 
 
