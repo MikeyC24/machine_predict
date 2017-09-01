@@ -467,16 +467,53 @@ class KerasClass:
 			print(np.mean(np.abs(predicted - original)))
 			print(np.mean(np.abs((original - predicted) / original)))
 			check_df = pd.DataFrame()
-			print(Y_test)
-			print(type(Y_test))
-			check_df['actaul'] = float(original.tolist())
-			check_df['pred'] = float(predicted.tolist())
+			#print(Y_test)
+			#print(type(Y_test))
+			try:
+				pred_new = np.array(predicted, dtype=float)
+				print('pred_new', pred_new)
+			except Exception as e:
+				print('array didnt work', e)
+			#print(original.tolist())
+			#print(original.tolist()[0])
+			original = [float(i) for i in original]
+			predicted = [float(i) for i in predicted]
+			check_df['actaul'] = original
+			check_df['pred'] = predicted
+			print('y_test 0', Y_test[0])
 			print(check_df.head(10))
+			"""
+			try:
+				check_df = check_df.apply(lambda x: x.astype(float))
+				print(check_df.head(10))
+			except Exception as e:
+				print('apply didnt work', e)
+				"""
 			yes_array = []
+			up_array = []
+			down_array = []
+			up_2_percent_array = []
+			down_2_percent_array = []
 			for x in range(check_df.shape[0]):
 				if (check_df['pred'].iloc[x] + .01) > check_df['actaul'].iloc[x-1]:
 					yes_array.append(x)
-			print('yes_array', yes_array)
+			for x in range(check_df.shape[0]):
+				if (check_df['pred'].iloc[x]) > check_df['actaul'].iloc[x-1]:
+					up_array.append(x)
+			for x in range(check_df.shape[0]):
+				if (check_df['pred'].iloc[x]) < check_df['actaul'].iloc[x-1]:
+					down_array.append(x)
+			for x in range(check_df.shape[0]):
+				if (check_df['pred'].iloc[x] + .02) > check_df['actaul'].iloc[x-1]:
+					up_2_percent_array.append(x)
+			for x in range(check_df.shape[0]):
+				if (check_df['pred'].iloc[x] - .02) < check_df['actaul'].iloc[x-1]:
+					down_2_percent_array.append(x)
+			print('yes_array count', len(yes_array))
+			print('up count', len(up_array))
+			print('down count', len(down_array))
+			print('2 up count', len(up_2_percent_array))
+			print('2 down', len(down_2_percent_array))
 
 
 
