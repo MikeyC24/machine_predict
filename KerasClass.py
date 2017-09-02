@@ -1,6 +1,6 @@
 from MachinePredictModelrefractored import *
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error, roc_auc_score, recall_score, f1_score, precision_score
+from sklearn.metrics import mean_squared_error, roc_auc_score, recall_score, f1_score, precision_score, r2_score, mean_absolute_error
 import matplotlib.pyplot as plt
 #from utils import *
 import pandas as pd
@@ -26,6 +26,7 @@ from keras import losses
 import seaborn as sns
 sns.despine()
 import sys
+from math import sqrt
 
 # readings https://github.com/FrancisArgnR/Time-series---deep-learning---state-of-the-art
 
@@ -219,13 +220,14 @@ class KerasClass:
 			shuffled_b[new_index] = b[old_index]
 		return shuffled_a, shuffled_b
 
-	def create_Xt_Yt(self, X, y):
+	def create_Xt_Yt(self, X, y, shuffle='yes'):
 		print('made it to create train')
 		p = int(len(X) * self.train_percent)
 		X_train = X[0:p]
 		Y_train = y[0:p]
 		 
-		X_train, Y_train = self.shuffle_in_unison(X_train, Y_train)
+		if shuffle == 'yes':
+			X_train, Y_train = self.shuffle_in_unison(X_train, Y_train)
 	
 		X_test = X[p:]
 		Y_test = y[p:]
@@ -344,7 +346,7 @@ class KerasClass:
 						  metrics=['accuracy'])
 
 			history = model.fit(X_train, Y_train, 
-					  nb_epoch = 10, 
+					  nb_epoch = 25, 
 					  batch_size = 128, 
 					  verbose=1, 
 					  validation_data=(X_test, Y_test),
@@ -441,9 +443,16 @@ class KerasClass:
 			plt.plot(original, color='black', label = 'Original data')
 			plt.plot(predicted, color='blue', label = 'Predicted data')
 			plt.show()
+			print(original)
+			print('_____________')
+			print(Y_test)
 			print(np.mean(np.square(predicted - original)))
 			print(np.mean(np.abs(predicted - original)))
 			print(np.mean(np.abs((original - predicted) / original)))
+			try:
+				print('r2 score', r2_score(original, predicted))
+			except Exception as e:
+				print(e)
 			check_df = pd.DataFrame()
 			original = [float(i) for i in original]
 			predicted = [float(i) for i in predicted]
@@ -654,6 +663,369 @@ class KerasClass:
 		print('best: ')
 		print(best)
 
+	def lstm_model(self, layers):
+		if self.read_from_sql_for_model is None:
+			X, Y = self.create_X_Y_values(self.window)
+			X_train, X_test, Y_train, Y_test = self.create_Xt_Yt(X, Y, shuffle=False)
+			print('X_train shape', X_train.shape)
+			X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], self.EMB_SIZE))
+			X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], self.EMB_SIZE))
+			print('X_train shape after reshape', X_train.shape)
+			print(X_train.shape)
+			print(X_test.shape)
+			print(Y_train.shape)
+			print(Y_test.shape)
+		else:
+			print('using train and test data from sql db')
+			con = sqlite3.connect(self.read_from_sql_for_model['database'])
+			df_x_train_from_sql = self.read_from_sql_recombine_dfs(self.read_from_sql_for_model['x_train_array'],
+				self.read_from_sql_for_model['database'])
+			df_x_test_from_sql = self.read_from_sql_recombine_dfs(self.read_from_sql_for_model['x_test_array'],
+				self.read_from_sql_for_model['database'])
+			df_y_train_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_train']), con)
+			df_y_test_from_sql = pd.read_sql_query('SELECT * FROM %s' % (self.read_from_sql_for_model['y_test']), con)
+			df_y_train_from_sql = df_y_train_from_sql.drop('index', axis=1)
+			df_y_test_from_sql = df_y_test_from_sql.drop('index', axis=1)
+			X_train = np.reshape(df_x_train_from_sql.values, (df_x_train_from_sql.shape[1], int((df_x_train_from_sql.shape[0])/(self.EMB_SIZE)), self.EMB_SIZE))
+			X_test = np.reshape(df_x_test_from_sql.values, (df_x_test_from_sql.shape[1], int((df_x_test_from_sql.shape[0])/(self.EMB_SIZE)),  self.EMB_SIZE))
+			if self.model_type == 'classification':
+				Y_train = np.reshape(df_y_train_from_sql.values, (df_y_train_from_sql.shape[0], 2))
+				Y_test = np.reshape(df_y_test_from_sql.values, (df_y_test_from_sql.shape[0], 2))
+			elif self.model_type == 'linear':
+				Y_train = df_y_train_from_sql.values
+				Y_test = df_y_test_from_sql.values
+			else:
+				print('no data found for that model type')
+			print(' shapes in order', X_train.shape, X_test.shape,
+				Y_train.shape, Y_test.shape)
+
+		if self.model_type == 'linear':
+			# network 
+			model = Sequential()
+			model.add(LSTM(50, input_shape=(self.window, self.EMB_SIZE), return_sequences=True))
+			if layers == 2:
+				model.add(LSTM(16))
+				model.add(Dropout(0.2))
+				model.add(LeakyReLU())
+				model.add(Activation("linear"))
+			if layers == 3:
+				model.add(LSTM(16, return_sequences=True))
+				model.add(Dropout(0.2))
+				model.add(LeakyReLU())
+				model.add(LSTM(8))
+				model.add(Dropout(0.2))
+				model.add(Activation("linear"))
+			model.add(Dense(1))
+			#compile model
+			model.compile(loss='mean_absolute_error', optimizer='adam')
+			# saving bast model
+			reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=30, min_lr=0.000001, verbose=1)
+			checkpointer = ModelCheckpoint(filepath="lolkek.hdf5", verbose=1, save_best_only=True)
+			# fit network
+			history = model.fit(X_train, Y_train, epochs=25, batch_size=72, 
+				validation_data=(X_test, Y_test), verbose=2, shuffle=False,
+				callbacks=[reduce_lr, checkpointer])
+			model.load_weights("lolkek.hdf5")
+			pred = model.predict(np.array(X_test))
+
+		else:
+			print('model type not supported')
+
+		if self.model_type =='linear':
+			original = Y_test
+			predicted = pred
+			#plot history
+			plt.figure()
+			plt.plot(history.history['loss'], label='train')
+			plt.plot(history.history['val_loss'], label='test')
+			plt.legend()
+			plt.show()
+			plt.figure()
+			plt.title('Actual(black) and predicted')
+			plt.legend(loc='best')
+			plt.plot(original, color='black', label = 'Original data')
+			plt.plot(predicted, color='blue', label = 'Predicted data')
+			plt.show()
+			# get error metrics
+			print(original)
+			print('_________')
+			print(Y_test)
+			print('mean squared error', np.mean(np.square(predicted - original)))
+			print('mean absolute error', np.mean(np.abs(predicted - original)))
+			print('mean percent error', np.mean(np.abs((original - predicted) / original)))
+			try:
+				print('r2 score', r2_score(original, predicted))
+			except Exception as e:
+				print(e)
+		else:
+			print('model type not supported')
+
+	def lstm_data_convert_from_example(self, i_range=1, o_range=1, dropna=True):
+		# need to convert data for time series analysis
+		# data needs to be list or array
+		df_names = self.dataframe
+		#n_vars = 1 if type(data) is list else data.shape[1]
+		scaler= MinMaxScaler(feature_range=(0,1))
+		scaled = scaler.fit_transform(self.dataframe.values)
+		#n_vars = df.shape[1]
+		#n_vars = 1 if type(data) is list else data.shape[1]
+		df = pd.DataFrame(scaled)
+		n_vars = df.shape[1]
+		print('n_vars', n_vars)
+		cols, names = list(), list()
+		# input sequence (t-n,.... t-1)
+		for i in range (i_range, 0, -1):
+			for col in df_names.columns:
+				names += [str(col) + ('var%d(t-%d)' % (j+1, i)) for j in range(i_range)]
+		for i in range (i_range, 0, -1):
+			#for col in df_names.columns:	
+			cols.append(df.shift(i))
+				#names += [str(col) + ('var%d(t-%d)' % (j+1, i)) for j in range(i_range)]
+			# forcast squence(t, t+1,....t+n)
+		for i in range(0, o_range):
+			for col in df_names.columns:
+				if i == 0:
+					names += [str(col) + ('var%d(t)' % (j+1)) for j in range(o_range)]
+				else:
+					names += [str(col) + ('var%d(t+%d)' % (j+1, i)) for j in range(o_range)]
+		for i in range(0, o_range):
+			#for col in df_names.columns:
+			cols.append(df.shift(-i))
+			"""
+				if i == 0:
+					names += [str(col) + ('var%d(t)' % (j+1)) for j in range(i_range)]
+				else:
+					names += [str(col) + ('var%d(t+%d)' % (j+1, i)) for j in range(i_range)]
+			"""
+		# combine
+		agg = pd.concat(cols, axis=1)
+		print(names)
+		agg.columns = names
+		# drop nan
+		if dropna:
+			agg.dropna(inplace=True)
+		return agg
+
+	def lstm_data_convert_from_example_test(self, vars_rows_not_wanted, i_range=1, o_range=1, dropna=True):
+		# need to convert data for time series analysis
+		# data needs to be list or array
+		df_names = self.dataframe
+		#n_vars = 1 if type(data) is list else data.shape[1]
+		scaler= MinMaxScaler(feature_range=(0,1))
+		scaled = scaler.fit_transform(self.dataframe.values)
+		#n_vars = df.shape[1]
+		#n_vars = 1 if type(data) is list else data.shape[1]
+		df = pd.DataFrame(scaled)
+		n_vars = df.shape[1]
+		print('n_vars', n_vars)
+		cols, names = list(), list()
+		# input sequence (t-n,.... t-1)
+		for i in range (i_range, 0, -1):	
+			cols.append(df.shift(i))
+			names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
+		# forcast squence(t, t+1,....t+n)
+		for i in range(0, o_range):
+			cols.append(df.shift(-i))
+			if i == 0:
+				names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
+			else:
+				names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
+		# combine
+		agg = pd.concat(cols, axis=1)
+		#print(names)
+		agg.columns = names
+		# drop nan
+		#for col in df_names.columns:
+		if dropna:
+			agg.dropna(inplace=True)
+		check = vars_rows_not_wanted
+		#for num in vars_rows_not_wanted:
+		agg.drop(agg.columns[check], axis=1, inplace=True)
+		return agg
+
+	def convert_lstm_example_to_train_data(self, data):
+		data = data.values
+		#split to train and test
+		p = int(data.shape[0] * self.train_percent)
+		train = data[0:p, :]
+		test = data[p:, :]
+		# split into input and outputs (output is always last one)
+		train_X, train_y = train[:, :-1], train[:, -1]
+		test_X, test_y = test[:, :-1], test[:, -1]
+		# reshape input to be 3D [samples, timesteps, features]
+		train_X = train_X.reshape((train_X.shape[0], 1, train_X.shape[1]))
+		test_X = test_X.reshape((test_X.shape[0], 1, test_X.shape[1]))
+		print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
+		return train_X, train_y, test_X, test_y
+
+	def neural_net_from_example(self):
+		data = self.lstm_data_convert_from_example_test([4,5,7], i_range=1, o_range=1, dropna=True)
+		train_X, train_y, test_X, test_y = self.convert_lstm_example_to_train_data(data)
+		#scaler = MinMaxScaler(feature_range=(0, 1))
+		# design network
+		model = Sequential()
+		model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2])))
+		model.add(Dense(1))
+		model.compile(loss='mae', optimizer='adam')
+		# fit network
+		history = model.fit(train_X, train_y, epochs=50, batch_size=72, validation_data=(test_X, test_y), verbose=2, shuffle=False)
+		# plot history
+		plt.figure()
+		plt.plot(history.history['loss'], label='train')
+		plt.plot(history.history['val_loss'], label='test')
+		plt.legend()
+		plt.show()
+		plt.figure()
+		plt.title('Actual(black) and predicted')		
+		# make a prediction
+		yhat = model.predict(test_X)
+		try:
+			plt.legend(loc='best')
+			plt.plot(test_y, color='black', label = 'Original data')
+			plt.plot(yhat, color='blue', label = 'Predicted data')
+			plt.show()
+		except Exception as e:
+			print(e)
+		test_X = test_X.reshape((test_X.shape[0], test_X.shape[2]))
+		# invert scaling for forecast
+		inv_yhat = np.concatenate((yhat, test_X[:, 1:]), axis=1)
+		inv_yhat = scaler.inverse_transform(inv_yhat)
+		inv_yhat = inv_yhat[:,0]
+		# invert scaling for actual
+		test_y = test_y.reshape((len(test_y), 1))
+		inv_y = np.concatenate((test_y, test_X[:, 1:]), axis=1)
+		inv_y = scaler.inverse_transform(inv_y)
+		inv_y = inv_y[:,0]
+		try:
+			plt.legend(loc='best')
+			plt.plot(inv_y, color='black', label = 'Original data')
+			plt.plot(inv_yhat, color='blue', label = 'Predicted data')
+			plt.show()
+		except Exception as e:
+			print(e)
+		# calculate RMSE
+		rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
+		print('Test RMSE: %.3f' % rmse)
+
+	def neural_net_from_example_all(self, vars_rows_not_wanted, i_range=1, o_range=1, dropna=True):
+		# data set up 
+		# need to convert data for time series analysis
+		# data needs to be list or array
+		df_names = self.dataframe
+		#n_vars = 1 if type(data) is list else data.shape[1]
+		scaler= MinMaxScaler(feature_range=(0,1))
+		scaled = scaler.fit_transform(self.dataframe.values)
+		#n_vars = df.shape[1]
+		#n_vars = 1 if type(data) is list else data.shape[1]
+		df = pd.DataFrame(scaled)
+		n_vars = df.shape[1]
+		print('n_vars', n_vars)
+		cols, names = list(), list()
+		# input sequence (t-n,.... t-1)
+		for i in range (i_range, 0, -1):
+			for col in df_names.columns:
+				names += [str(col) + ('var%d(t-%d)' % (j+1, i)) for j in range(i_range)]
+		for i in range (i_range, 0, -1):
+			#for col in df_names.columns:	
+			cols.append(df.shift(i))
+				#names += [str(col) + ('var%d(t-%d)' % (j+1, i)) for j in range(i_range)]
+			# forcast squence(t, t+1,....t+n)
+		for i in range(0, o_range):
+			for col in df_names.columns:
+				if i == 0:
+					names += [str(col) + ('var%d(t)' % (j+1)) for j in range(o_range)]
+				else:
+					names += [str(col) + ('var%d(t+%d)' % (j+1, i)) for j in range(o_range)]
+		for i in range(0, o_range):
+			#for col in df_names.columns:
+			cols.append(df.shift(-i))
+			"""
+				if i == 0:
+					names += [str(col) + ('var%d(t)' % (j+1)) for j in range(i_range)]
+				else:
+					names += [str(col) + ('var%d(t+%d)' % (j+1, i)) for j in range(i_range)]
+			"""
+		# combine
+		agg = pd.concat(cols, axis=1)
+		print(names)
+		agg.columns = names
+		# drop nan
+		if dropna:
+			agg.dropna(inplace=True)
+
+		# test data
+		data = agg.values
+		#split to train and test
+		p = int(data.shape[0] * self.train_percent)
+		train = data[0:p, :]
+		test = data[p:, :]
+		# split into input and outputs (output is always last one)
+		train_X, train_y = train[:, :-1], train[:, -1]
+		test_X, test_y = test[:, :-1], test[:, -1]
+		# reshape input to be 3D [samples, timesteps, features]
+		train_X = train_X.reshape((train_X.shape[0], 1, train_X.shape[1]))
+		test_X = test_X.reshape((test_X.shape[0], 1, test_X.shape[1]))
+		print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
+
+		#model
+		# design network
+		model = Sequential()
+		model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2])))
+		model.add(Dense(1))
+		model.compile(loss='mae', optimizer='adam')
+		# fit network
+		history = model.fit(train_X, train_y, epochs=50, batch_size=72, validation_data=(test_X, test_y), verbose=2, shuffle=False)
+		# plot history
+		plt.plot(history.history['loss'], label='train')
+		plt.plot(history.history['val_loss'], label='test')
+		plt.legend()
+		plt.show()		
+		# make a prediction
+		yhat = model.predict(test_X)
+		try:
+			plt.title('Actual(black) and predicted')
+			plt.legend(loc='best')
+			plt.plot(test_y, color='black', label = 'Original data')
+			plt.plot(yhat, color='blue', label = 'Predicted data')
+			plt.show()
+		except Exception as e:
+			print(e)
+		print(test_X.shape)
+		
+		try:
+			# invert scaling for forecast
+			test_X = test_X.reshape((test_X.shape[0], test_X.shape[2]))
+			inv_yhat = np.concatenate((yhat, test_X[:, 1:scaled.shape[1]]), axis=1)
+			inv_yhat = scaler.inverse_transform(inv_yhat)
+			inv_yhat = inv_yhat[:,0]
+		except Exception as e:
+			print('forecast scale error', e)
+		try:
+			# invert scaling for actual
+			test_y = test_y.reshape((len(test_y), 1))
+			inv_y = np.concatenate((test_y, test_X[:, 1:scaled.shape[1]]), axis=1)
+			inv_y = scaler.inverse_transform(inv_y)
+			inv_y = inv_y[:,0]
+		except Exception as e:
+			print('actual scale error', e)
+		# calculate RMSE
+		rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
+		print('Test RMSE: %.3f' % rmse)
+		try:
+			r2_score1 = r2_score(inv_y, inv_yhat)
+			print('Test r2_score: %.3f' % r2_score1)
+		except Exception as e:
+			print('score calc error', e)
+		try:
+			mae = mean_absolute_error(inv_y, inv_yhat)
+			print('Test MAE: %.3f' % mae)
+		except Exception as e:
+			print('score calc error', e)
+
+"""
+with the pivot what needs to be done, go over new lstm method and make it more class
+and repeat friendly, then create multi layers and hyper parm as well as kfold
+"""
 
 """
 1.
@@ -672,6 +1044,8 @@ https://github.com/Rachnog/Deep-Trading/blob/master/volatility/volatility.py#L13
 3. kfold
 7. more hyper opt and keras github
 https://github.com/fchollet/keras/issues/1591
+8. intese lstm recurrent layers
+https://github.com/fchollet/keras/blob/master/keras/layers/recurrent.py
 """
 
 """

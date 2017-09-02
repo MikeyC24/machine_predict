@@ -57,16 +57,21 @@ columns_to_drop1 = ['amount_USDT_ETH','total_USDT_ETH',
  'trade_count_USDT_LTC', 'max_rate_USDT_LTC','rate_USDT_BTC',
  'trade_count_USDT_BTC',  'rate_USDT_LTC',
  'min_rate_USDT_LTC', ]
-columns_to_drop = ['amount_USDT_ETH','total_USDT_ETH',
+columns_to_drop2 = ['amount_USDT_ETH','total_USDT_ETH',
  'amount_USDT_BTC', 'total_USDT_BTC', 'amount_USDT_LTC', 'total_USDT_LTC',
  'min_rate_USDT_ETH', 'max_rate_USDT_ETH', 'max_rate_USDT_LTC', 'min_rate_USDT_LTC', ]
 # columns all before any editing 
 columns_all_init = ['date']
 # took date out of colums_all
+columns_to_drop = [  'amount_USDT_BTC',  'total_USDT_BTC', 'rate_USDT_ETH', 
+'rate_USDT_LTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'trade_count_USDT_LTC', 
+'max_rate_USDT_LTC', 'min_rate_USDT_LTC','amount_USDT_ETH',
+'max_rate_USDT_ETH', 'min_rate_USDT_ETH', 'total_USDT_ETH',
+'trade_count_USDT_ETH']
 columns_all = [ 'rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 'trade_count_USDT_BTC', 'min_rate_USDT_BTC', 'max_rate_USDT_BTC', 'rate_USDT_ETH', 
 'rate_USDT_LTC', 'amount_USDT_LTC', 'total_USDT_LTC', 'trade_count_USDT_LTC', 
-'max_rate_USDT_LTC', 'max_rate_USDT_LTC', 'date']
+'max_rate_USDT_LTC', 'min_rate_USDT_LTC', 'date']
 #columns_all_test = ['workingday','temp', 'cnt_binary', 'hr_new']
 #normalize_columns_array = ['rate_USDT_BTC',  'amount_USDT_BTC',  'total_USDT_BTC', 
 #'trade_count_USDT_BTC', 'rate_USDT_LTC', 'amount_USDT_LTC',
@@ -160,6 +165,7 @@ print('______________________')
 print(df.head(10))
 print(df.shape)
 print(df.columns.values)
+print(df.index)
 
 # https://machinelearningmastery.com/time-series-data-visualization-with-python/
 """
@@ -175,14 +181,14 @@ for col in col_graphs:
 	plt.show()
 """	
 
-#model_type = 'classification'
-model_type = 'linear'
+model_type = 'classification'
+#model_type = 'linear'
 parameter_type = 'constant'
 train_percent = .8
 dataframe = df
-window = 168
+window = 30
 step = 1
-forecast = 24
+forecast = 5
 plot = 'yes'
 feature_wanted = 'rate_USDT_BTC'
 percent_change = 1.005
@@ -190,11 +196,11 @@ database_arrange = '/home/mike/Documents/coding_all/data_sets_machine_predict/BT
 #write_to_sql = {'database':database_arrange,'y_train':'y_train_table_1', 
 #'y_test':'y_test_table_1'}
 write_to_sql = None
-#read_from_sql_for_model = None
+read_from_sql_for_model = None
 x_train_array = ['x_train1','x_train2','x_train3','x_train4','x_train5','x_train6']
 x_test_array = ['x_test1','x_test2','x_test3','x_test4','x_test5','x_test6']
-read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
-'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
+#read_from_sql_for_model = {'database':database_arrange, 'x_train_array':x_train_array,
+#'x_test_array':x_test_array,'y_train':'y_train_table_1', 'y_test':'y_test_table_1' }
 """
 keras_instance = KerasClass(model_type, parameter_type, 
 	dataframe, window, step, forecast, feature_wanted, train_percent, plot)
@@ -227,7 +233,27 @@ space_linear_no_win ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam']),
 		'activation': hp.choice('activation', ['tanh', 'linear', 'relu']),
 		'loss':hp.choice('loss', ['mean_squared_error', 'mean_absolute_error', 'mean_absolute_percentage_error'])}
 #keras_instance.best_params(space_linear_no_win)
-values = keras_instance.binary_classification_model()
+#values = keras_instance.binary_classification_model()
+#keras_instance.lstm_model(2)
+#set_up_data = keras_instance.lstm_data_convert_from_example(30,1)
+#print(type(set_up_data))
+#print(set_up_data.head(10))
+#print(set_up_data.shape)
+set_up_data_test = keras_instance.lstm_data_convert_from_example_test([4,5,7],1,1)
+print(set_up_data_test.head(10))
+#X_train, Y_train, X_test, Y_test = keras_instance.convert_lstm_example_to_train_data(set_up_data_test)
+model = keras_instance.neural_net_from_example_all([4,5,7],1,1)
+
+#print(X_train, Y_train, X_test, Y_test)
+#print('true') if set_up_data.values.all() == set_up_data_test.values.all() else print('no')
+"""
+fts = keras_instance.create_feature_var_dict()
+for k,v in fts.items():
+	print(k)
+	print(v[:10])
+	print('_________________')
+"""
+"""
 for k,v in values[0].items():
 	print(k)
 	print(len(v))
@@ -236,7 +262,7 @@ for k,v in values[1].items():
 	print(k)
 	print(len(v))
 	print('_________________')
-
+"""
 """
 data = keras_instance.create_X_Y_values()
 print(data[0], len(data[0]))
