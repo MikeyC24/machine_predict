@@ -687,4 +687,9 @@ other things to look into
 links - https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/ 
 for saving to sql purposes, this way may be better, shift data before hand
 https://machinelearningmastery.com/convert-time-series-supervised-learning-problem-python/
+8. trading simulation, be able to keep indexes attached to predictino and apply
+logic to trad such up 2% make trade if not in, else stay in, down 2% exit,
+then find a way to run back tests
+9. ltsm multivarate model, start with one layer, then way to add layer optionally with hyperpam
+
 """
