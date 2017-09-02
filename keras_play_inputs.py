@@ -1,7 +1,7 @@
 from MachinePredictModelrefractored import *
 from KerasClass import *
 import unittest
-from helper_methods import *
+
 
 # may be worth looking into for storing large datasets https://github.com/fchollet/keras/issues/68
 
@@ -242,7 +242,8 @@ space_linear_no_win ={'optimizer':hp.choice('optimizer', ['Adam', 'Nadam']),
 set_up_data_test = keras_instance.lstm_data_convert_from_example_test([4,5,7],1,1)
 print(set_up_data_test.head(10))
 #X_train, Y_train, X_test, Y_test = keras_instance.convert_lstm_example_to_train_data(set_up_data_test)
-model = keras_instance.neural_net_from_example_all([4,5,7],1,1)
+model = keras_instance.neural_net_from_example_all('rate_USDT_BTC',2,2)
+print(model.head(10))
 
 #print(X_train, Y_train, X_test, Y_test)
 #print('true') if set_up_data.values.all() == set_up_data_test.values.all() else print('no')

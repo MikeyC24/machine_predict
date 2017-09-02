@@ -9,7 +9,7 @@ import matplotlib.pylab as plt
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-
+"""
 from keras.models import Sequential
 from keras.layers import LSTM
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -23,6 +23,7 @@ from keras.layers.advanced_activations import *
 from keras.optimizers import RMSprop, Adam, SGD, Nadam
 from keras.initializers import *
 from keras import losses
+"""
 import seaborn as sns
 sns.despine()
 import sys
@@ -764,6 +765,7 @@ class KerasClass:
 		# need to convert data for time series analysis
 		# data needs to be list or array
 		df_names = self.dataframe
+		vars_lenth = len(df_names)
 		#n_vars = 1 if type(data) is list else data.shape[1]
 		scaler= MinMaxScaler(feature_range=(0,1))
 		scaled = scaler.fit_transform(self.dataframe.values)
@@ -791,15 +793,11 @@ class KerasClass:
 		for i in range(0, o_range):
 			#for col in df_names.columns:
 			cols.append(df.shift(-i))
-			"""
-				if i == 0:
-					names += [str(col) + ('var%d(t)' % (j+1)) for j in range(i_range)]
-				else:
-					names += [str(col) + ('var%d(t+%d)' % (j+1, i)) for j in range(i_range)]
-			"""
 		# combine
 		agg = pd.concat(cols, axis=1)
 		print(names)
+		#for name in names:
+		#
 		agg.columns = names
 		# drop nan
 		if dropna:
@@ -907,11 +905,11 @@ class KerasClass:
 		rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
 		print('Test RMSE: %.3f' % rmse)
 
-	def neural_net_from_example_all(self, vars_rows_not_wanted, i_range=1, o_range=1, dropna=True):
+	def neural_net_from_example_all(self, feature_wanted, i_range=1, o_range=1, dropna=True):
 		# data set up 
 		# need to convert data for time series analysis
 		# data needs to be list or array
-		df_names = self.dataframe
+		df_names = self.dataframe.columns.values
 		#n_vars = 1 if type(data) is list else data.shape[1]
 		scaler= MinMaxScaler(feature_range=(0,1))
 		scaled = scaler.fit_transform(self.dataframe.values)
@@ -922,37 +920,40 @@ class KerasClass:
 		print('n_vars', n_vars)
 		cols, names = list(), list()
 		# input sequence (t-n,.... t-1)
-		for i in range (i_range, 0, -1):
-			for col in df_names.columns:
-				names += [str(col) + ('var%d(t-%d)' % (j+1, i)) for j in range(i_range)]
-		for i in range (i_range, 0, -1):
-			#for col in df_names.columns:	
+		for i in range (i_range, 0, -1):	
 			cols.append(df.shift(i))
-				#names += [str(col) + ('var%d(t-%d)' % (j+1, i)) for j in range(i_range)]
+			names += [('var%d(t-%d)' % (j, i)) for j in range(n_vars)]
 			# forcast squence(t, t+1,....t+n)
 		for i in range(0, o_range):
-			for col in df_names.columns:
-				if i == 0:
-					names += [str(col) + ('var%d(t)' % (j+1)) for j in range(o_range)]
-				else:
-					names += [str(col) + ('var%d(t+%d)' % (j+1, i)) for j in range(o_range)]
-		for i in range(0, o_range):
-			#for col in df_names.columns:
 			cols.append(df.shift(-i))
-			"""
-				if i == 0:
-					names += [str(col) + ('var%d(t)' % (j+1)) for j in range(i_range)]
-				else:
-					names += [str(col) + ('var%d(t+%d)' % (j+1, i)) for j in range(i_range)]
-			"""
+			if i == 0:
+				names += [('var%d(t)' % (j)) for j in range(n_vars)]
+			else:
+				names += [('var%d(t+%d)' % (j, i)) for j in range(n_vars)]
 		# combine
 		agg = pd.concat(cols, axis=1)
+		print(df_names)
+		print(type(df_names))
+		new_names = []
+		for name in names:
+			print('name', name)
+			for x in range(n_vars):
+				print('x', x)
+				var = 'var'+str(x)
+				print('var', var)
+				if var in name:
+					print('yes')
+					name = name.replace(var, df_names[x])
+					print(name)
+					new_names.append(name)
+		print(new_names)
+		agg.columns = new_names
 		print(names)
-		agg.columns = names
 		# drop nan
 		if dropna:
 			agg.dropna(inplace=True)
-
+		return agg
+		
 		# test data
 		data = agg.values
 		#split to train and test
@@ -1025,6 +1026,10 @@ class KerasClass:
 """
 with the pivot what needs to be done, go over new lstm method and make it more class
 and repeat friendly, then create multi layers and hyper parm as well as kfold
+more on time series
+https://machinelearningmastery.com/autoregression-models-time-series-forecasting-python/
+https://machinelearningmastery.com/suitability-long-short-term-memory-networks-time-series-forecasting/
+https://machinelearningmastery.com/multi-step-time-series-forecasting-long-short-term-memory-networks-python/
 """
 
 """

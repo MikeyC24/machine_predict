@@ -1,4 +1,5 @@
-value = 5
-array_+str(value)+_var = []
-array_+str(value)+_var.append(value)
-print(array_+str(value)+_var)
+name =  'trade_count_USDT_BTCvar1(t)'
+name1 =  'trade_count_USDT_BTCvar1(t)'
+array1 = ['btc', 'eth']
+new = name.replace('var1', array1[0])
+print(new)
