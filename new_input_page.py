@@ -1,9 +1,9 @@
-from MachinePredictModelrefractored import *
-from DatabaseFunctionality import *
+#from MachinePredictModelrefractored import *
+#from DatabaseFunctionality import *
 
-file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/cleaned_loans_2007.csv'
-df = pd.read_csv(file_location)
-
+#file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/cleaned_loans_2007.csv'
+#df = pd.read_csv(file_location)
+"""
 drop_nan_rows = 'yes'
 columns_to_drop = None
 columns_all = ['loan_amnt' 'int_rate' 'installment' 'emp_length' 'annual_inc'
@@ -107,3 +107,42 @@ for k,v in results.items():
 		print(kk)
 		print(vv)
 		print('_______________')
+"""
+from ArrangeDataInOrder import *
+import sqlite3
+
+file_location = '/home/mike/Documents/coding_all/data_sets_machine_predict/loans_2007.csv'
+df = pd.read_csv(file_location)
+print(df.head(2))
+print(df.shape)
+print(df.columns.values)
+print(df.isnull().sum())
+
+data_instace = ArrangeDataInOrder(df)
+# drop all columns missing a certain amount of data
+df = data_instace.drop_certain_percent_of_missing_data(.5)
+# drop unwanted columns 
+cols_to_drop = ['id', 'member_id', 'funded_amnt', 'funded_amnt_inv', 'grade', 'sub_grade', 'emp_title', 'issue_d',
+'zip_code', 'out_prncp', 'out_prncp_inv', 'total_pymnt', 'total_pymnt_inv', 'total_rec_prncp',
+'total_rec_int', 'total_rec_late_fee', 'recoveries', 'last_pymnt_d', 'last_pymnt_amnt', 'collection_recovery_fee']
+df = data_instace.drop_columns_array(cols_to_drop)
+# pick target and see all values
+target = 'loan_status'
+print(df[target].value_counts())
+# choose the 1 case, the 0 case and drop rest
+yes = 'Fully Paid'
+no = 'Charged Off'
+df = data_instace.map_target_for_binary(target, yes, no)
+# drop columns without enough unique values
+df =  data_instace.drop_cols_with_one_unique_value()
+print(df.isnull().sum())
+
+"""
+# drop rows missing values or are nan
+df = data_instace.drop_nan_values()
+# drop remain rows missing data
+df = data_instace.drop_nan_values()
+print(df.head(10))
+print(df.shape)
+print(df.columns.values)
+"""
