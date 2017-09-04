@@ -167,6 +167,7 @@ class ArrangeData:
 		return df
 
 	# this formula is more of astandalone for preping data before machine predict model
+	# this is mostly for time series
 	def group_by_time_with_vars(self, time_interval, reset_index='yes', interpolate='no', index='no',
 								set_to_datetime='no'):
 		df =self.dataframe
@@ -185,6 +186,7 @@ class ArrangeData:
 		return df
 
 	# this formula is more of astandalone for preping data before machine predict model
+	# this is mostly for time series
 	def fill_in_data_full_range(self, start_date, end_date, freq, index='no',
 	 						interpolate='yes'):
 		if index != 'no':
@@ -583,7 +585,7 @@ class ArrangeData:
 		return X_train, y_train, X_test, y_test
 
 	# y_target should be the series of the column, not just name
-	# 
+	# I dont think this is ever used here
 	def create_false_pos_and_false_neg(self,prediction_column, y_target, column_name_end):
 		df_filter = self.dataframe
 		tp_filter = (prediction_column == 1) & (y_target == 1)

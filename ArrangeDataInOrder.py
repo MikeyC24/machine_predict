@@ -105,17 +105,12 @@ class ArrangeDataInOrder:
 			print(x, len(self.dataframe[x].unique()))
 
 	# show the number of nan value sin each column
-	# this can return self or a df that is entered this is done
-	# bc if dataframe has been reassigned it needs to take in the new df
 	# cat = show
-	def show_nan_count(self, percent = 0, dataframe_new=None):
-		df = self.dataframe
-		if dataframe_new is not None:
-			df = dataframe_new
-		len_col = df.shape[0]
+	def show_nan_count(self, percent = 0):
+		len_col = self.dataframe.shape[0]
 		data_dict = {}
-		for x in list(df):
-			missing_col_values = df[x].isnull().sum()
+		for x in list(self.dataframe):
+			missing_col_values = self.dataframe[x].isnull().sum()
 			if missing_col_values > (len_col * percent):
 				data_dict[str(x)] = missing_col_values
 		for k,v in data_dict.items():

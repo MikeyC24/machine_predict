@@ -13,6 +13,7 @@ con = sqlite3.connect(file_location)
 table1 = 'second_coin_list_two'
 table = 'top_3_jan_mid_aug_final'
 df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
+
 """
 # to change time interval
 arrange_data_for_df_timeframe = ArrangeData(df)
