@@ -59,25 +59,25 @@ class ArrangeDataInOrder:
 	def drop_certain_percent_of_missing_data(self, percent):
 		#df = self.dataframe
 		count = len(self.dataframe)*percent
+		print(count)
 		self.dataframe.dropna(thresh=count, axis=1, inplace=True)
 		return self
 
 	# takes in a array of columns to drop from data
 	# cat = remove
 	def drop_columns_array(self, column_array):
-		df = self.dataframe
-		df.drop(column_array, axis = 1, inplace=True)
-		return df
+		self.dataframe.drop(column_array, axis = 1, inplace=True)
+		return self
 
 	# user inputs target feature and what they want for the 1 and o 
 	# value then drops everything else in column
 	#cat = change
 	def map_target_for_binary(self, target, yes, no):
 		df =self.dataframe
-		df = df[(df[target] == yes) | (df[target] == no)]
+		self.dataframe = self.dataframe[(self.dataframe[target] == yes) | (self.dataframe[target] == no)]
 		dict_map = {target: {yes:1, no:2}}
-		df = df.replace(dict_map)
-		return df
+		self.dataframe = self.dataframe.replace(dict_map)
+		return self
 
 	# drop all missing data leaving a dataframe with no missing data
 	# CAT = REMOVE
@@ -89,26 +89,20 @@ class ArrangeDataInOrder:
 	# drops all columns with only one unique value
 	# CAT = remove
 	def drop_cols_with_one_unique_value(self):
-		df = self.dataframe
 		cols_to_drop = []
-		for x in df:
-			non_null = df[x].dropna()
+		for x in self.dataframe:
+			non_null = self.dataframe[x].dropna()
 			unique_non_null = non_null.unique()
 			num_true_unique = len(unique_non_null)
 			cols_to_drop.append(x) if num_true_unique == 1 else False
-		df.drop(cols_to_drop, axis=1, inplace=True)
-		return df
+		self.dataframe.drop(cols_to_drop, axis=1, inplace=True)
+		return self
 
 	# show count of each columns unique values 
-	# this can return self or a df that is entered this is done
-	# bc if dataframe has been reassigned it needs to take in the new df
 	# cat = show
-	def show_unique_count_each_col(self, dataframe=None):
-		df = self.dataframe
-		if dataframe is not None:
-			df = df1
-		for x in list(df):
-			print(x, len(df[x].unique()))
+	def show_unique_count_each_col(self):
+		for x in list(self.dataframe):
+			print(x, len(self.dataframe[x].unique()))
 
 	# show the number of nan value sin each column
 	# this can return self or a df that is entered this is done

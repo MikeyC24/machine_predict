@@ -119,35 +119,40 @@ print(df.columns.values)
 print(df.isnull().sum())
 
 data_instace = ArrangeDataInOrder(df)
-# redoing, lets get methods to return classs itself to 
-# later avoid having to desginate what df is being used
-print(data_instace.dataframe.shape)
-print(data_instace.dataframe.columns.values)
+
 # drop all columns missing a certain amount of data
-df = data_instace.drop_certain_percent_of_missing_data(.5)
-print(data_instace.dataframe.shape)
-print(data_instace.dataframe.columns.values)
-print(type(df.dataframe))
-print(df.dataframe.shape)
-
-
-
-
-"""
-# drop unwanted columns 
+# this was alrdy done pre data
+data_instace.drop_certain_percent_of_missing_data(.5)
+# drop unwanted columns
 cols_to_drop = ['id', 'member_id', 'funded_amnt', 'funded_amnt_inv', 'grade', 'sub_grade', 'emp_title', 'issue_d',
 'zip_code', 'out_prncp', 'out_prncp_inv', 'total_pymnt', 'total_pymnt_inv', 'total_rec_prncp',
 'total_rec_int', 'total_rec_late_fee', 'recoveries', 'last_pymnt_d', 'last_pymnt_amnt', 'collection_recovery_fee']
-df = data_instace.drop_columns_array(cols_to_drop)
+data_instace.drop_columns_array(cols_to_drop)
 # pick target and see all values
 target = 'loan_status'
 print(df[target].value_counts())
 # choose the 1 case, the 0 case and drop rest
 yes = 'Fully Paid'
 no = 'Charged Off'
-df = data_instace.map_target_for_binary(target, yes, no)
+data_instace.map_target_for_binary(target, yes, no)
+print(data_instace.dataframe[target].value_counts())
+print(data_instace.dataframe.shape)
+
 # drop columns without enough unique values
-df =  data_instace.drop_cols_with_one_unique_value()
+data_instace.drop_cols_with_one_unique_value()
+print(data_instace.dataframe.shape)
+# next task is to remove missing data, convert all to numerical, remove
+# extra columns
+# show number of unique columns
+data_instace.show_unique_count_each_col()
+# show number of nan columns based on perecent, 0 is all
+print('showing nan counts')
+data_instace.show_nan_count(.01)
+print(data_instace.dataframe.shape)
+
+"""
+
+
 # next task is to remove missing data, convert all to numerical, remove
 # extra columns
 print('show unique from class')
