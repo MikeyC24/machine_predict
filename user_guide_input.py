@@ -12,6 +12,11 @@ df = pd.read_sql_query('SELECT * FROM %s' % (table), con)
 data_instace = ArrangeDataInOrder(df)
 #df = pd.read_csv(file_location)
 
+# maybe set this up like the to d lust where it runs a loop and gives you option
+# to keep manioulating as you go enter ready
+# options could be see data, add columns (moving avg), remove (columns, missing rows)
+# graphs/charts/story, calculate (avg, std) then rdy for models 
+
 time_series_input = []
 #. 1. is the data a time series or not
 time_series_question0 = ' Is this data a time series? This means, order and time matter \

@@ -119,8 +119,21 @@ print(df.columns.values)
 print(df.isnull().sum())
 
 data_instace = ArrangeDataInOrder(df)
+# redoing, lets get methods to return classs itself to 
+# later avoid having to desginate what df is being used
+print(data_instace.dataframe.shape)
+print(data_instace.dataframe.columns.values)
 # drop all columns missing a certain amount of data
 df = data_instace.drop_certain_percent_of_missing_data(.5)
+print(data_instace.dataframe.shape)
+print(data_instace.dataframe.columns.values)
+print(type(df.dataframe))
+print(df.dataframe.shape)
+
+
+
+
+"""
 # drop unwanted columns 
 cols_to_drop = ['id', 'member_id', 'funded_amnt', 'funded_amnt_inv', 'grade', 'sub_grade', 'emp_title', 'issue_d',
 'zip_code', 'out_prncp', 'out_prncp_inv', 'total_pymnt', 'total_pymnt_inv', 'total_rec_prncp',
@@ -135,7 +148,22 @@ no = 'Charged Off'
 df = data_instace.map_target_for_binary(target, yes, no)
 # drop columns without enough unique values
 df =  data_instace.drop_cols_with_one_unique_value()
-print(df.isnull().sum())
+# next task is to remove missing data, convert all to numerical, remove
+# extra columns
+print('show unique from class')
+data_instace.show_unique_count_each_col()
+print('null count no in class', df.isnull().sum())
+print('show null count from class')
+data_instace.show_nan_count(.01)
+df = data_instace.remove_col_by_percent_missing(.01)
+print('after remove')
+data_instace.show_nan_count(dataframe_new=df)
+df = data_instace.drop_nan_values()
+#print(df.isnull().sum())
+print('after dropping all nan')
+data_instace.show_nan_count(dataframe_new=df)
+data_instace.show_all_dtypes(dataframe_new=df)
+"""
 
 """
 # drop rows missing values or are nan
