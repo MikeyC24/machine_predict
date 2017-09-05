@@ -147,8 +147,46 @@ print(data_instace.dataframe.shape)
 data_instace.show_unique_count_each_col()
 # show number of nan columns based on perecent, 0 is all
 print('showing nan counts')
-data_instace.show_nan_count(.01)
+data_instace.show_nan_count()
+data_instace.remove_col_by_percent_missing(.01)
 print(data_instace.dataframe.shape)
+print(data_instace.dataframe.columns.values)
+# remove more columns
+cols_removed = ['last_credit_pull_d', 'addr_state', 'title', 'earliest_cr_line']
+data_instace.drop_columns_array(cols_removed)
+data_instace.show_all_dtypes('object')
+# set columns that are an object that should be a number to numerical
+percent_num_convert = ['int_rate', 'revol_util']
+data_instace.convert_to_numerical(percent_num_convert, 'percent')
+pre_map = data_instace.dataframe.columns.values
+# mapp out columns to numbers
+mapping_dict =  {
+    "emp_length": {
+        "10+ years": 10,
+        "9 years": 9,
+        "8 years": 8,
+        "7 years": 7,
+        "6 years": 6,
+        "5 years": 5,
+        "4 years": 4,
+        "3 years": 3,
+        "2 years": 2,
+        "1 year": 1,
+        "< 1 year": 0,
+        "n/a": 0
+    }
+}
+data_instace.use_dict_map_for_new_cols(mapping_dict)
+# convert columns to cateforical
+cols_to_make_dummies = ['home_ownership', 'verification_status', 'purpose', 'term']
+data_instace.convert_cols_to_dummies(cols_to_make_dummies)
+# show there are no more object columns left
+data_instace.show_all_dtypes('object')
+# print dataframe to be worked on 
+print(data_instace.dataframe.head(2))
+print(data_instace.dataframe.columns.values)
+print(pre_map)
+
 
 """
 

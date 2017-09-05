@@ -119,26 +119,47 @@ class ArrangeDataInOrder:
 	# drop column by percent missing 
 	# cat = remove
 	def remove_col_by_percent_missing(self, percent):
-		df = self.dataframe
-		len_col = df.shape[0]
+		len_col = self.dataframe.shape[0]
 		one_percent_missing = []
-		for x in list(df):
-			missing_col_values = df[x].isnull().sum()
+		for x in list(self.dataframe):
+			missing_col_values = self.dataframe[x].isnull().sum()
 			if missing_col_values > (len_col * percent):
 				one_percent_missing.append(x)
-		df = df.drop(one_percent_missing, axis = 1)
-		return df
+		self.dataframe.drop(one_percent_missing, axis = 1,inplace=True)
+		return self
 
 	# show the dtype of each column
 	# cat = show
-	def show_all_dtypes(self, dataframe_new = None):
-		df = self.dataframe
-		if dataframe_new is not None:
-			df = dataframe_new
-		for x in list(df):
-			print(x, df[x].dtype)
+	def show_all_dtypes(self, type='all'):
+		if type == 'all':
+			for x in list(self.dataframe):
+				print(x, self.dataframe[x].dtype)
+		else:
+			object_columns_df = self.dataframe.select_dtypes(include=[type])
+			print(object_columns_df)
 
+	def convert_to_numerical(self, cols_array, type='default'):
+		if type == 'default':
+			for col in cols_array:
+				self.dataframe[col] = self.dataframe[col].astype('float')
+		elif type == 'percent':
+			for col in cols_array:
+				self.dataframe[col] = self.dataframe[col].str.rstrip('%').astype('float')
+		else:
+			print('that type is not recongized')
+		return self
 
+	def use_dict_map_for_new_cols(self, dict_map):
+		self.dataframe = self.dataframe.replace(dict_map)
+		return self
+
+	def convert_cols_to_dummies(self, col_array):
+		for col in col_array:
+			self.dataframe[col] = self.dataframe[col].astype('category')
+		dummy_df = pd.get_dummies(self.dataframe[col_array])
+		self.dataframe = pd.concat([self.dataframe, dummy_df], axis=1)
+		self.dataframe = self.dataframe.drop(col_array, axis=1)
+		return self
 
 
 
