@@ -82,9 +82,8 @@ class ArrangeDataInOrder:
 	# drop all missing data leaving a dataframe with no missing data
 	# CAT = REMOVE
 	def drop_nan_values(self):
-		df = self.dataframe
-		df.dropna(inplace=True)
-		return df
+		self.dataframe.dropna(inplace=True)
+		return self
 
 	# drops all columns with only one unique value
 	# CAT = remove

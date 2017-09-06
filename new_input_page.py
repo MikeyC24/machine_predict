@@ -128,6 +128,7 @@ cols_to_drop = ['id', 'member_id', 'funded_amnt', 'funded_amnt_inv', 'grade', 's
 'zip_code', 'out_prncp', 'out_prncp_inv', 'total_pymnt', 'total_pymnt_inv', 'total_rec_prncp',
 'total_rec_int', 'total_rec_late_fee', 'recoveries', 'last_pymnt_d', 'last_pymnt_amnt', 'collection_recovery_fee']
 data_instace.drop_columns_array(cols_to_drop)
+#print(data_instace.dataframe['loan_status'].unique())
 # pick target and see all values
 target = 'loan_status'
 print(df[target].value_counts())
@@ -183,10 +184,12 @@ data_instace.convert_cols_to_dummies(cols_to_make_dummies)
 # show there are no more object columns left
 data_instace.show_all_dtypes('object')
 # print dataframe to be worked on 
+# checking is there are nan left
+data_instace.show_nan_count()
+# dropping remaining nan values
+data_instace.drop_nan_values()
+data_instace.show_nan_count()
 print(data_instace.dataframe.head(2))
-print(data_instace.dataframe.columns.values)
-print(pre_map)
-
 
 """
 
