@@ -79,6 +79,10 @@ class ArrangeDataInOrder:
 		self.dataframe = self.dataframe.replace(dict_map)
 		return self
 
+	def show_data_frame(self, number):
+		print('data', self.dataframe.head(number))
+		print('dimensions', self.dataframe.shape)
+
 	# drop all missing data leaving a dataframe with no missing data
 	# CAT = REMOVE
 	def drop_nan_values(self):
