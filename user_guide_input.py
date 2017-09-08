@@ -121,11 +121,12 @@ the models. (you can save data before model""")
 						print(x, 'the method is ' + k[0], 'description: ' + k[1] )
 					user_interface_input_add = int(input('please enter method choide here: '))
 					if user_interface_input_add == 1:
-						method_var = list(input('please enter method vars here: ').split(','))
-						print(method_var)
-						print(data_instace.dataframe.head(5))
-						print(type(method_var[0]), method_var[1], method_var[2])
-						data_instace.map_target_for_binary(method_var[0],method_var[1],method_var[2])
+						v1, v2, v3  = input('please enter method vars here(no spaces): ').split(',')
+						print(v1, v2, v3)					
+						try:
+							data_instace.map_target_for_binary(str(v1), str(v2), str(v3))
+						except Exception as e:
+							print('could not run method due to error of : ')
 						print(data_instace.dataframe['loan_status'].unique())
 					else:
 						print("""That method is not recongnized. Please select a different \
